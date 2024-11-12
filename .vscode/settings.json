@@ -37,5 +37,15 @@
     "postcss"
   ],
 
-  "css.lint.unknownAtRules": "error"
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "tailwindCSS.validate": true,
+  "stylelint.enable": true,
+  "stylelint.validate": [
+    "css",
+    "sass",
+    "scss",
+    "postcss",
+    "vue"
+  ]
 }
