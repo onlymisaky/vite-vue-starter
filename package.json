@@ -1,8 +1,8 @@
 {
   "name": "vite-vue-starter",
-  "private": true,
-  "version": "0.0.0",
   "type": "module",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
@@ -11,7 +11,9 @@
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
     "stylelint": "stylelint \"**/*.{css,scss,sass,vue,html}\"",
-    "stylelint:fix": "stylelint \"**/*.{css,scss,sass,vue,html}\" --fix"
+    "stylelint:fix": "stylelint \"**/*.{css,scss,sass,vue,html}\" --fix",
+    "lint": "npm run eslint && npm run stylelint",
+    "lint:fix": "npm run eslint:fix && npm run stylelint:fix"
   },
   "dependencies": {
     "vue": "^3.5.12"
@@ -24,6 +26,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9.14.0",
     "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "postcss": "^8.4.49",
     "postcss-html": "^1.7.0",
     "postcss-nested": "^7.0.2",
