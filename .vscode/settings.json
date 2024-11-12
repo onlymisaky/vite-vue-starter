@@ -35,5 +35,7 @@
     "scss",
     "pcss",
     "postcss"
-  ]
+  ],
+
+  "css.lint.unknownAtRules": "error"
 }

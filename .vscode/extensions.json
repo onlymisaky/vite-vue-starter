@@ -2,7 +2,8 @@
   "recommendations": [
     "Vue.volar",
     "redjue.git-commit-plugin",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss"
   ],
   "unwantedRecommendations": [
     "esbenp.prettier-vscode"
