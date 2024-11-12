@@ -1,6 +1,10 @@
 {
   "recommendations": [
     "Vue.volar",
-    "redjue.git-commit-plugin"
+    "redjue.git-commit-plugin",
+    "dbaeumer.vscode-eslint"
+  ],
+  "unwantedRecommendations": [
+    "esbenp.prettier-vscode"
   ]
 }

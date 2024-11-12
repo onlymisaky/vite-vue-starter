@@ -7,15 +7,19 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix ."
   },
   "dependencies": {
     "vue": "^3.5.12"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^3.8.0",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-angular": "^19.5.0",
     "@vitejs/plugin-vue": "^5.1.4",
+    "eslint": "^9.14.0",
     "husky": "^9.1.6",
     "typescript": "~5.6.2",
     "vite": "^5.4.10",
