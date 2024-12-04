@@ -47,5 +47,8 @@
     "scss",
     "postcss",
     "vue"
-  ]
+  ],
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  }
 }

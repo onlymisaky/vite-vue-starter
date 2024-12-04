@@ -1,0 +1,38 @@
+<script setup lang="ts">
+import type { SwitchInstance } from 'element-plus';
+import { isDark, toggleDark } from '@/hooks/useDark';
+import { themeAnimation } from '@/utils/theme-animation';
+import { nextTick, ref, watch } from 'vue';
+import Dark from './Icons/Dark.vue';
+import Light from './Icons/Light.vue';
+
+const darkMode = ref(isDark.value);
+const switchRef = ref<SwitchInstance>();
+
+watch(
+  () => darkMode.value,
+  () => {
+    toggleDark();
+  },
+);
+
+async function beforeChange() {
+  const switchElement = switchRef.value?.$el;
+  const rect = switchElement.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  await themeAnimation({ x, y }, isDark.value, { duration: 400 });
+  await nextTick();
+  return true;
+}
+</script>
+
+<template>
+  <ElSwitch
+    ref="switchRef"
+    v-model="darkMode"
+    :before-change="beforeChange"
+    :active-action-icon="Dark"
+    :inactive-action-icon="Light"
+  />
+</template>

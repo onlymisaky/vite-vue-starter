@@ -6,5 +6,5 @@
 export default {
   '**/*.{js,jsx,ts,tsx,json}': ['npm run eslint'],
   '**/*.{css,scss,sass,postcss}': ['npm run stylelint'],
-  '**/*.{vue}': ['npm run eslint && npm run stylelint'],
+  '**/*.{vue}': ['npm run eslint', ' npm run stylelint'],
 };
