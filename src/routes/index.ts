@@ -1,22 +1,27 @@
 import type { App } from 'vue';
-import Layout from '@/layout/Layout.vue';
+import { h } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import { routes } from './route-config';
+import { routerGuards } from './router-guards';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      component: Layout,
-    },
+    ...routes,
     {
       path: '/:pathMatch(.*)*',
-      component: Layout,
+      name: 'AllNotFound',
+      component: {
+        render() {
+          return h('div', '404 Page');
+        },
+      },
     },
   ],
 });
 
 export function setupRouter(app: App) {
+  routerGuards(router);
   app.use(router);
 }
 

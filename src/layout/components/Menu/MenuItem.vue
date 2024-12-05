@@ -24,8 +24,8 @@ const isSubMenu = computed(() => {
     :index="menu.index"
   >
     <template #title>
-      <ElIcon size="18">
-        <IEpMenu />
+      <ElIcon :size="18">
+        <component :is="menu.icon || 'Menu'" />
       </ElIcon>
       <span class="block overflow-hidden">{{ menu.title }}</span>
     </template>
@@ -43,8 +43,8 @@ const isSubMenu = computed(() => {
       :disabled="menu.disabled"
       :index="menu.index"
     >
-      <ElIcon size="18">
-        <IEpMenu />
+      <ElIcon :size="18">
+        <component :is="menu.icon || 'Menu'" />
       </ElIcon>
       <template #title>
         <span class="block overflow-hidden">{{ menu.title }}</span>

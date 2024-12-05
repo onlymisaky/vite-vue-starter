@@ -1,8 +1,6 @@
 import path from 'node:path';
 import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
-import IconsResolver from 'unplugin-icons/resolver';
-import Icons from 'unplugin-icons/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
@@ -19,7 +17,6 @@ export default defineConfig({
       resolvers: [
         // 可以直接使用诸如 ElMessage.success
         ElementPlusResolver(),
-        IconsResolver(),
       ],
       dts: path.resolve(process.cwd(), './src/types/auto-imports.d.ts'),
     }),
@@ -30,25 +27,13 @@ export default defineConfig({
     Components({
       // globs: [],
       resolvers: [
-        // 自动注册图标，图标来源: https://icon-sets.iconify.design/ https://icones.js.org/
-        IconsResolver({
-          alias: {
-            // ep(ElementPlus): https://icon-sets.iconify.design/ep/
-            'ep': 'ep',
-          },
-          enabledCollections: ['ep'],
-        }),
         // 自动注册 ElementPlus 组件
         ElementPlusResolver(),
       ],
       // dts: path.resolve(process.cwd(), './src/types/components.d.ts'),
       dts: false,
     }),
-    Icons({
-      // 自动安装图标依赖
-      autoInstall: true,
-      compiler: 'vue3',
-    }),
+
   ],
   css: {
     preprocessorOptions: {
