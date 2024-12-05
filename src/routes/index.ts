@@ -1,4 +1,5 @@
 import type { App } from 'vue';
+import Layout from '@/layout/Layout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -6,13 +7,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/Home.vue'),
+      component: Layout,
     },
     {
-      path: '/about',
-      name: 'about',
-      component: () => import('@/views/About.vue'),
+      path: '/:pathMatch(.*)*',
+      component: Layout,
     },
   ],
 });

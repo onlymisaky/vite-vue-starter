@@ -9,6 +9,8 @@ export default antfu({
     'style/semi': ['error', 'always'],
     'style/quote-props': 'off',
     'node/prefer-global/process': 'off',
+    'vue/component-definition-name-casing': ['error', 'PascalCase'],
+    'vue/component-name-in-template-casing': ['error', 'PascalCase'],
   },
   ignores: [
     '**/tsconfig.*.json',

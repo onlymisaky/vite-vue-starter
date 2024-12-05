@@ -16,5 +16,18 @@ export default {
     'order/properties-order': [],
     'color-function-notation': null,
     'alpha-value-notation': null,
+    'selector-class-pattern': null,
+    'selector-pseudo-class-no-unknown': [true, {
+      ignorePseudoClasses: ['deep'],
+    }],
+    'function-no-unknown': [true, {
+      ignoreFunctions: ['v-bind'],
+    }],
+    'scss/function-no-unknown': [true, {
+      ignoreFunctions: ['v-bind'],
+    }],
+    // 'selector-pseudo-element-no-unknown': [true, {
+    //   ignorePseudoElements: ['v-deep', ':deep'],
+    // }],
   },
 };

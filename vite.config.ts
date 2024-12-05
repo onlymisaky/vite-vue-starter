@@ -21,14 +21,14 @@ export default defineConfig({
         ElementPlusResolver(),
         IconsResolver(),
       ],
-      dts: path.resolve(process.cwd(), './types/auto-imports.d.ts'),
+      dts: path.resolve(process.cwd(), './src/types/auto-imports.d.ts'),
     }),
     /**
      * @link https://github.com/unplugin/unplugin-vue-components#readme
      * @description 按需自动导入并注册组件，强烈建议只用配置 **最底层且广泛使用且必须* 的组件库
      */
     Components({
-      globs: [],
+      // globs: [],
       resolvers: [
         // 自动注册图标，图标来源: https://icon-sets.iconify.design/ https://icones.js.org/
         IconsResolver({
@@ -41,7 +41,8 @@ export default defineConfig({
         // 自动注册 ElementPlus 组件
         ElementPlusResolver(),
       ],
-      dts: path.resolve(process.cwd(), './types/components.d.ts'),
+      // dts: path.resolve(process.cwd(), './src/types/components.d.ts'),
+      dts: false,
     }),
     Icons({
       // 自动安装图标依赖
