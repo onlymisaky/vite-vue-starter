@@ -29,10 +29,9 @@ function handleCommand(command: 'personal' | 'logout') {
           <User />
         </ElIcon>
       </ElAvatar>
-      <span
-        class="ml-2"
-        style="color: var(--el-text-color-primary)"
-      >{{ userStore.info.username }}</span>
+      <span class="ml-2">
+        {{ userStore.info.username }}
+      </span>
     </div>
     <template #dropdown>
       <ElDropdownMenu>

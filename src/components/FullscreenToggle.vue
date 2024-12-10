@@ -2,18 +2,18 @@
 import { useFullscreen } from '@vueuse/core';
 
 import ExitFullscreen from './Icons/ExitFullscreen.vue';
-// import Fullscreen from './Icons/Fullscreen.vue';
+import IconWithBg from './IconWithBg.vue';
 
 const { isFullscreen, isSupported, toggle } = useFullscreen();
 </script>
 
 <template>
-  <ElIcon
+  <IconWithBg
     v-if="isSupported"
     :size="24"
     @click="toggle"
   >
-    <FullScreen v-if="!isFullscreen" />
-    <ExitFullscreen v-else />
-  </ElIcon>
+    <ExitFullscreen v-if="isFullscreen" />
+    <FullScreen v-else />
+  </IconWithBg>
 </template>

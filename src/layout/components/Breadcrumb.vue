@@ -15,16 +15,24 @@ const route = useRoute();
           v-if="item.meta.icon"
           size="18"
           class="mr-[4px]"
-          :style="{ color: index === route.matched.length - 1 ? 'var(--el-text-color-primary)' : 'var(--el-text-color-placeholder)' }"
+          :class="index === route.matched.length - 1 ? 'text-primary' : 'text-placeholder'"
         >
           <component :is="item.meta.icon" />
         </ElIcon>
-        <span
-          :style="{ color: index === route.matched.length - 1 ? 'var(--el-text-color-primary)' : 'var(--el-text-color-placeholder)' }"
-        >
-          {{
-            item.meta.title }}</span>
+        <span :class="index === route.matched.length - 1 ? 'text-primary' : 'text-placeholder'">
+          {{ item.meta.title }}
+        </span>
       </div>
     </ElBreadcrumbItem>
   </ElBreadcrumb>
 </template>
+
+<style scoped>
+.text-primary {
+  color: var(--el-text-color-primary);
+}
+
+.text-placeholder {
+  color: var(--el-text-color-placeholder);
+}
+</style>

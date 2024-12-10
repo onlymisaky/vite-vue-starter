@@ -29,7 +29,7 @@ defineProps({
   </ElLink>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 :deep(.el-link__inner) {
   display: block;
 }

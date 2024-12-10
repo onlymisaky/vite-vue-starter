@@ -6,7 +6,7 @@ const menuStore = useMenuStore();
 </script>
 
 <template>
-  <ElScrollbar style="background-color: var(--el-menu-bg-color);">
+  <ElScrollbar class="menu">
     <ElMenu
       :collapse="menuStore.isCollapse"
       :default-active="menuStore.activeMenu"
@@ -22,3 +22,9 @@ const menuStore = useMenuStore();
     </ElMenu>
   </ElScrollbar>
 </template>
+
+<style scoped>
+.menu {
+  background-color: var(--el-menu-bg-color);
+}
+</style>

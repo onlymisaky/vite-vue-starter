@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FullscreenToggle from '@/components/FullscreenToggle.vue';
+import IconWithBg from '@/components/IconWithBg.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import useMenuStore from '@/store/modules/menu';
 import { computed } from 'vue';
@@ -16,12 +17,11 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 <template>
   <ElContainer class="h-screen w-screen">
     <ElAside
-      class="h-screen flex flex-col aside-transition"
+      class="h-screen flex flex-col aside"
       :class="{
         'w-[220px]': !menuStore.isCollapse,
         'w-[60px]': menuStore.isCollapse,
       }"
-      style="border-right: 1px solid var(--el-border-color);"
     >
       <Logo />
       <Menus class="flex-1" />
@@ -29,13 +29,12 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 
     <ElContainer>
       <ElHeader class="flex items-center">
-        <ElIcon
+        <IconWithBg
           :size="24"
-          class="cursor-pointer"
           @click="menuStore.toggleCollapse"
         >
           <component :is="menuStore.isCollapse ? 'Expand' : 'Fold'" />
-        </ElIcon>
+        </IconWithBg>
 
         <Breadcrumb class="ml-[10px]" />
 
@@ -46,7 +45,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
         </div>
       </ElHeader>
 
-      <ElMain style="background-color: var(--el-bg-color-page);">
+      <ElMain class="main">
         <RouterView v-slot="{ Component }">
           <Transition
             appear
@@ -61,9 +60,14 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
   </ElContainer>
 </template>
 
-<style lang="scss" scoped>
-.aside-transition {
+<style scoped>
+.aside {
+  border-right: 1px solid var(--el-border-color);
   transition-property: width;
   transition-duration: v-bind('animationDuration');
+}
+
+.main {
+  background-color: var(--el-bg-color-page);
 }
 </style>
