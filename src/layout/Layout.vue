@@ -38,6 +38,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
         </ElIcon>
 
         <Breadcrumb class="ml-[10px]" />
+
         <div class="ml-auto flex items-center">
           <ThemeToggle />
           <FullscreenToggle class="ml-[10px]" />
@@ -47,7 +48,13 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 
       <ElMain style="background-color: var(--el-bg-color-page);">
         <RouterView v-slot="{ Component }">
-          <component :is="Component" />
+          <Transition
+            appear
+            name="fade-slide"
+            mode="out-in"
+          >
+            <component :is="Component" />
+          </Transition>
         </RouterView>
       </ElMain>
     </ElContainer>

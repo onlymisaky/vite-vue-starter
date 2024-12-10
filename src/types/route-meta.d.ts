@@ -23,6 +23,10 @@ declare global {
      */
     hideProgress?: boolean
     /**
+     * 路由切换动画
+     */
+    transition?: 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'fade-transition' | 'fade' | 'fade-slide' | 'fade-down' | 'fade-scale' | 'fade-up' | 'collapse-transition'
+    /**
      * 菜单排序
      */
     order?: number
