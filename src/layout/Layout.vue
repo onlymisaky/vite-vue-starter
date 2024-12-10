@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import FullscreenToggle from '@/components/FullscreenToggle.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import useMenuStore from '@/store/modules/menu';
 import { computed } from 'vue';
@@ -39,6 +40,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
         <Breadcrumb class="ml-[10px]" />
         <div class="ml-auto flex items-center">
           <ThemeToggle />
+          <FullscreenToggle class="ml-[10px]" />
           <UserAvatar class="ml-[10px]" />
         </div>
       </ElHeader>
