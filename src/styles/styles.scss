@@ -61,3 +61,10 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: #fff6
 }
+
+// 移除图标点击时的边框
+.el-icon {
+  svg:focus {
+    outline: none !important;
+  }
+}
