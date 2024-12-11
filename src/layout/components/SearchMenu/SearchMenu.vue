@@ -55,7 +55,7 @@ watch(() => keywords.value, (val) => {
     <SearchMenuList
       v-if="result.length"
       :list="result"
-      @select="emits('select', ...arguments)"
+      @select="(...args) => emits('select', ...args)"
     />
 
     <template v-else>
