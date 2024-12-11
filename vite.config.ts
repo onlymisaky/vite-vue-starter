@@ -21,6 +21,7 @@ const manualChunks: Record<string, string> = {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.BASE_URL || '/',
   plugins: [
     vue(),
     legacy({
