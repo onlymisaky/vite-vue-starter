@@ -2,8 +2,9 @@
 import FullscreenToggle from '@/components/FullscreenToggle.vue';
 import IconWithBg from '@/components/IconWithBg.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
+import useLayoutStore from '@/store/modules/layout';
 import useMenuStore from '@/store/modules/menu';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import Breadcrumb from './components/Breadcrumb.vue';
 import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';
@@ -11,18 +12,16 @@ import SearchMenuIcon from './components/SearchMenu/SearchMenuIcon.vue';
 import UserAvatar from './components/UserAvatar.vue';
 
 const menuStore = useMenuStore();
+const layoutStore = useLayoutStore();
 
 const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`);
-
-const showAside = ref(true);
 </script>
 
 <template>
   <ElContainer class="h-screen w-screen">
     <ElAside
       class="h-screen flex flex-col aside"
-      :class="{
-        'w-0': !showAside,
+      :class="layoutStore.showAside ? 'w-0' : {
         'w-[220px]': !menuStore.isCollapse,
         'w-[65px]': menuStore.isCollapse,
       }"
@@ -35,10 +34,10 @@ const showAside = ref(true);
       <ElHeader class="flex items-center">
         <IconWithBg
           :size="24"
-          :tip="!showAside ? '显示侧边栏' : '收起侧边栏'"
-          @click="showAside = !showAside"
+          :tip="!layoutStore.showAside ? '显示侧边栏' : '收起侧边栏'"
+          @click="layoutStore.toggleShowAside()"
         >
-          <component :is="!showAside ? 'Expand' : 'Fold'" />
+          <component :is="!layoutStore.showAside ? 'Expand' : 'Fold'" />
         </IconWithBg>
 
         <Breadcrumb class="ml-[10px]" />
