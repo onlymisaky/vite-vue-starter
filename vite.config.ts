@@ -21,7 +21,6 @@ const manualChunks: Record<string, string> = {
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: 'vite-vue-starter/',
   plugins: [
     vue(),
     legacy({
