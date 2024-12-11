@@ -2,12 +2,12 @@
 import type { SwitchInstance } from 'element-plus';
 import { isDark, toggleDark } from '@/hooks/useDark';
 import { themeAnimation } from '@/utils/theme-animation';
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
 import Dark from './Icons/Dark.vue';
 import Light from './Icons/Light.vue';
 
 const darkMode = ref(isDark.value);
-const switchRef = ref<SwitchInstance>();
+const switchRef = useTemplateRef<SwitchInstance>('switchRef');
 
 watch(
   () => darkMode.value,

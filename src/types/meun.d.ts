@@ -9,5 +9,6 @@ declare global {
     icon?: string
     disabled?: boolean
     items?: IMenuItem[]
+    parents?: IMenuItem[]
   }
 }

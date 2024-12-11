@@ -11,6 +11,11 @@ export default antfu({
     'node/prefer-global/process': 'off',
     'vue/component-definition-name-casing': ['error', 'PascalCase'],
     'vue/component-name-in-template-casing': ['error', 'PascalCase'],
+    'vue/attribute-hyphenation': ['error', 'always'],
+    'vue/v-on-event-hyphenation': ['error', 'always', {
+      autofix: true,
+      ignore: [],
+    }],
   },
   ignores: [
     '**/tsconfig.*.json',

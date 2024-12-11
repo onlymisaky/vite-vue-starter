@@ -13,6 +13,7 @@ const menuStore = useMenuStore();
       class="border-none"
       :show-timeout="menuStore.animationDuration"
       :hide-timeout="menuStore.animationDuration"
+      :router="false"
     >
       <MenuItem
         v-for="menu in menuStore.menus"

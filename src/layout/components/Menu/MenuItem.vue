@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import AppLink from '@/components/AppLink.vue';
 import { computed, type PropType } from 'vue';
-import MenuItemWrapper from './MenuItemWrapper.vue';
 
 defineOptions({
   name: 'MenuItem',
@@ -35,9 +35,12 @@ const isSubMenu = computed(() => {
       :menu="item"
     />
   </ElSubMenu>
-  <MenuItemWrapper
+  <AppLink
     v-else
-    :menu="menu"
+    :disabled="menu.disabled"
+    :route="menu.route"
+    :link="menu.externalLink"
+    :show-disabled-style="false"
   >
     <ElMenuItem
       :disabled="menu.disabled"
@@ -50,5 +53,5 @@ const isSubMenu = computed(() => {
         <span class="block overflow-hidden">{{ menu.title }}</span>
       </template>
     </ElMenuItem>
-  </MenuItemWrapper>
+  </AppLink>
 </template>

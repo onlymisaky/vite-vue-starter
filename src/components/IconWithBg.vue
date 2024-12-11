@@ -6,6 +6,10 @@ const props = defineProps({
     type: Number,
     default: 8,
   },
+  tip: {
+    type: String,
+    default: '',
+  },
 });
 
 const padding = computed(() => `-${props.bgPadding}px`);
@@ -16,7 +20,21 @@ const padding = computed(() => `-${props.bgPadding}px`);
     v-bind="$attrs"
     class="icon-wrapper"
   >
-    <slot />
+    <ElTooltip
+      v-if="tip"
+      placement="bottom"
+      :show-after="200"
+      :hide-after="0"
+    >
+      <template
+        v-if="tip"
+        #content
+      >
+        {{ tip }}
+      </template>
+      <slot />
+    </ElTooltip>
+    <slot v-else />
   </ElIcon>
 </template>
 

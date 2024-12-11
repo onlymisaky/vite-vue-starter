@@ -1,7 +1,8 @@
+@use './transition';
+
 // 如果出现组件库样式有问题的情况
 // 注释掉 @tailwind base;  
 // https://blog.csdn.net/JackZhouMine/article/details/140441659
-@import './transition';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

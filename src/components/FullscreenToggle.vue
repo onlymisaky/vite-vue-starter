@@ -11,6 +11,7 @@ const { isFullscreen, isSupported, toggle } = useFullscreen();
   <IconWithBg
     v-if="isSupported"
     :size="24"
+    :tip="isFullscreen ? '退出全屏' : '全屏'"
     @click="toggle"
   >
     <ExitFullscreen v-if="isFullscreen" />

@@ -7,6 +7,7 @@ import { computed } from 'vue';
 import Breadcrumb from './components/Breadcrumb.vue';
 import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';
+import SearchMenuIcon from './components/SearchMenu/SearchMenuIcon.vue';
 import UserAvatar from './components/UserAvatar.vue';
 
 const menuStore = useMenuStore();
@@ -31,6 +32,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
       <ElHeader class="flex items-center">
         <IconWithBg
           :size="24"
+          :tip="menuStore.isCollapse ? '展开' : '收起'"
           @click="menuStore.toggleCollapse"
         >
           <component :is="menuStore.isCollapse ? 'Expand' : 'Fold'" />
@@ -39,7 +41,8 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
         <Breadcrumb class="ml-[10px]" />
 
         <div class="ml-auto flex items-center">
-          <ThemeToggle />
+          <SearchMenuIcon />
+          <ThemeToggle class="ml-[10px]" />
           <FullscreenToggle class="ml-[10px]" />
           <UserAvatar class="ml-[10px]" />
         </div>

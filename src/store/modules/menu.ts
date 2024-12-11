@@ -5,7 +5,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import useUserStore from './user';
 
-function generateMenus(routes: RouteRecordRaw[], userPermission: string[]): IMenuItem[] {
+function generateMenus(routes: RouteRecordRaw[], userPermission: string[], parents: IMenuItem[] = []): IMenuItem[] {
   return routes.reduce((menus, route) => {
     const meta = route.meta;
     if (!meta) {
@@ -27,11 +27,12 @@ function generateMenus(routes: RouteRecordRaw[], userPermission: string[]): IMen
       route: {
         name: route.name,
       },
+      parents,
     };
     if (route.children) {
       menu.items = [];
       if (route.children.length > 0) {
-        menu.items = generateMenus(route.children, userPermission);
+        menu.items = generateMenus(route.children, userPermission, [...parents, menu]);
       }
     }
     menus.push(menu);
@@ -50,6 +51,16 @@ function filterEmptyMenus(menus: IMenuItem[]): IMenuItem[] {
     }
     return true;
   });
+}
+
+function flatMenu(menus: IMenuItem[]) {
+  return menus.reduce((acc, menu) => {
+    acc.push(menu);
+    if (menu.items && menu.items.length > 0) {
+      acc.push(...flatMenu(menu.items));
+    }
+    return acc;
+  }, [] as IMenuItem[]);
 }
 
 export default defineStore('menu', () => {
@@ -75,7 +86,11 @@ export default defineStore('menu', () => {
 
   const animationDuration = ref(200);
 
-  return { isCollapse, toggleCollapse, menus, activeMenu, animationDuration, setActiveMenu };
+  const flatMenus = computed(() => {
+    return flatMenu(menus.value);
+  });
+
+  return { isCollapse, toggleCollapse, menus, activeMenu, animationDuration, setActiveMenu, flatMenus };
 }, {
   persist: {
     pick: ['isCollapse'],
