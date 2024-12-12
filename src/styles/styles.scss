@@ -68,3 +68,9 @@
     outline: none !important;
   }
 }
+
+.el-tooltip__trigger {
+  &:focus {
+    outline: none !important;
+  }
+}

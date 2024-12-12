@@ -38,7 +38,7 @@ const padding = computed(() => `-${props.bgPadding}px`);
   </ElIcon>
 </template>
 
-<style lang="scss" scoped>
+<style scoped>
 .icon-wrapper {
   cursor: pointer;
   transition: all 0.3s ease;

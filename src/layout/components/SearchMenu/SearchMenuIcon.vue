@@ -44,7 +44,7 @@ const searchDialogVisible = ref(false);
   </ElDialog>
 </template>
 
-<style lang="css" scoped>
+<style scoped>
 .keyboard {
   @apply mr-[5px] p-[5px] rounded-[4px] bg-[#e5e7eb] dark:bg-[#4c4c4c];
 }
