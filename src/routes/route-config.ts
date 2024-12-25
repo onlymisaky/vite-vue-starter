@@ -2,7 +2,7 @@ import type { RouteRecordRaw } from 'vue-router';
 import Layout from '@/layout/Layout.vue';
 
 import { h } from 'vue';
-import { LOGIN_ROUTE_NAME, NOT_FOUND_ROUTE_NAME } from './constant';
+import { FORBIDDEN_ROUTE_NAME, LOGIN_ROUTE_NAME, NOT_FOUND_ROUTE_NAME } from './constant';
 import { contentRoute } from './modules/content';
 import { dataRoute } from './modules/data';
 import { messageRoute } from './modules/message';
@@ -27,7 +27,7 @@ export const layoutRoute: RouteRecordRaw = {
     workflowRoute,
     {
       path: '/403',
-      name: 'Forbidden',
+      name: FORBIDDEN_ROUTE_NAME,
       component: {
         render() {
           return h('div', 'Forbidden Page');
