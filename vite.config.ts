@@ -5,6 +5,9 @@ import AutoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig } from 'vite';
+// eslint-disable-next-line ts/ban-ts-comment
+// @ts-expect-error
+import vueClickToComponent from 'vue-click-to-component/vite-plugin';
 
 const manualChunks: Record<string, string> = {
   // [path.join(__dirname, 'src', 'layout/')]: 'src-layout',
@@ -24,6 +27,7 @@ export default defineConfig({
   base: process.env.BASE_URL || '/',
   plugins: [
     vue(),
+    vueClickToComponent(),
     legacy({
       targets: ['defaults', 'not IE 11'],
     }),
