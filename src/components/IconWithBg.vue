@@ -1,36 +1,78 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import type { ElTooltipProps, IconProps } from 'element-plus';
+import { computed, useAttrs } from 'vue';
 
-const props = defineProps({
-  bgPadding: {
-    type: Number,
-    default: 8,
-  },
-  tip: {
-    type: String,
-    default: '',
-  },
+interface Props extends /* @vue-ignore */ IconProps {
+  bgPadding?: number
+  tip?: string | Partial<ElTooltipProps>
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  bgPadding: 8,
 });
+
+const slots = defineSlots();
+const attrs = useAttrs();
+
+/**
+ * 不确定上面这声明 props 的方式，是否会把 bgPadding、tip、size 等等属性挂在 $porps 上
+ * 还是放在 $attrs 上，所以这里为了避免bug，直接合并到一个对象上
+ */
+const propsAndAttrs = computed(() => {
+  return { ...attrs, ...props };
+});
+
+// 将剩余属性全部绑定到 icon 上，例如事件、样式等
+const iconProps = computed(() => {
+  const { tip, bgPadding, ...rest } = propsAndAttrs.value;
+  return rest;
+});
+
+const tipProps = computed<ElTooltipProps>(() => {
+  const { tip } = propsAndAttrs.value;
+  const defaultProps = { showAfter: 200, hideAfter: 0 } as ElTooltipProps;
+  if (!tip || typeof tip === 'string') {
+    return defaultProps;
+  }
+  if (typeof tip === 'object') {
+    return { ...defaultProps, ...tip };
+  }
+  return defaultProps;
+});
+
+const tipStr = computed(() => {
+  const { tip } = propsAndAttrs.value;
+  if (tip) {
+    if (typeof tip === 'string') {
+      return tip;
+    }
+    return tip.content;
+  }
+  return null;
+});
+
+const hasTip = computed(() => tipStr.value || slots.tip);
 
 const padding = computed(() => `-${props.bgPadding}px`);
 </script>
 
 <template>
   <ElIcon
-    v-bind="$attrs"
+    v-bind="iconProps"
     class="icon-wrapper"
   >
     <ElTooltip
-      v-if="tip"
-      placement="bottom"
-      :show-after="200"
-      :hide-after="0"
+      v-if="hasTip"
+      v-bind="tipProps"
     >
-      <template
-        v-if="tip"
-        #content
-      >
-        {{ tip }}
+      <template v-if="tipStr || $slots.tip" #content>
+        <slot
+          v-if="$slots.tip"
+          name="tip"
+        />
+        <template v-else>
+          {{ tipStr }}
+        </template>
       </template>
       <slot />
     </ElTooltip>
