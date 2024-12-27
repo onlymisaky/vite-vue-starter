@@ -1,18 +1,9 @@
 <script setup lang="ts">
-import type { Column } from 'element-plus';
-import type { PropType } from 'vue';
 import type { TableConfig } from './types';
 import { useResetableRef } from '@/hooks/useResetableState';
 import Add from './toolbar/Add.vue';
 import Refresh from './toolbar/Refresh.vue';
 import Settings from './toolbar/Settings.vue';
-
-defineProps({
-  columns: {
-    type: Array as PropType<Column[]>,
-    default: () => [],
-  },
-});
 
 defineEmits(['refresh', 'add']);
 
