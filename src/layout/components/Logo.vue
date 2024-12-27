@@ -1,9 +1,11 @@
 <script lang="ts" setup>
 import AppLink from '@/components/AppLink.vue';
 import IconVite from '@/components/Icons/Vite.vue';
+import { useAppStore } from '@/store/modules/app';
 import useMenuStore from '@/store/modules/menu';
 
 const menuStore = useMenuStore();
+const appStore = useAppStore();
 </script>
 
 <template>
@@ -13,12 +15,17 @@ const menuStore = useMenuStore();
       route="/"
     >
       <IconVite />
-      <h1
-        v-show="!menuStore.isCollapse"
-        class="flex-1 text-center block overflow-hidden"
+      <Transition
+        appear
+        name="el-zoom-in-center"
       >
-        Vite-Vue-Starter
-      </h1>
+        <h1
+          v-show="!menuStore.isCollapse"
+          class="flex-1 text-center block overflow-hidden text-nowrap"
+        >
+          {{ appStore.appName }}
+        </h1>
+      </Transition>
     </AppLink>
   </div>
 </template>
