@@ -50,7 +50,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
         </div>
       </ElHeader>
 
-      <ElMain class="main">
+      <ElMain class="main h-full">
         <RouterView v-slot="{ Component }">
           <Transition
             appear
