@@ -141,5 +141,5 @@ export function useModal<
       headerRef,
       footerRef,
     },
-  ];
+  ] as const;
 }
