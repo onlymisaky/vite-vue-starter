@@ -1,5 +1,6 @@
 import type { DialogInstance } from 'element-plus';
-import type { ComInstance, Comp, ContentSlotType, DialogSlots, InnerArgs, ModalConfig } from './utils';
+import type { ComInstance, Comp, ContentSlotType, DialogSlots, InnerArgs, ModalConfig, OpenArgs } from './utils';
+import { useResetableRef } from '@/hooks/useResetableState';
 import { computed, h, ref } from 'vue';
 import Dialog from './Dialog.vue';
 import { createSlot, defaultConfig } from './utils';
@@ -29,7 +30,31 @@ export function useModal<
   const visible = ref(false);
   const hasOpen = ref(false);
 
-  function open() {
+  const [openArgs, resetOpenArgs] = useResetableRef<OpenArgs<
+    ContentInstance,
+    FooterInstance,
+    HeaderInstance
+  >>({
+    dialog: {},
+    header: {},
+    content: {},
+    footer: {},
+  });
+
+  function open(arg?: Partial<OpenArgs<
+    ContentInstance,
+    FooterInstance,
+    HeaderInstance
+  >>) {
+    resetOpenArgs();
+    if (arg && typeof arg === 'object') {
+      openArgs.value = {
+        dialog: { ...arg.dialog },
+        header: arg.header || {},
+        content: arg.content || {},
+        footer: arg.footer || {},
+      };
+    }
     hasOpen.value = true;
     visible.value = true;
   }
@@ -60,14 +85,32 @@ export function useModal<
     };
 
     // 规避 ts 报错
-    slots.default = (...args) => createSlot(content, contentRef, innerArgs, ...args);
+    slots.default = (...args) => createSlot(
+      content,
+      contentRef,
+      openArgs.value?.content || {},
+      innerArgs,
+      ...args,
+    );
 
     if (config.header) {
-      slots.header = (...args) => createSlot(config.header, headerRef, innerArgs, ...args);
+      slots.header = (...args) => createSlot(
+        config.header,
+        headerRef,
+        openArgs.value?.header || {},
+        innerArgs,
+        ...args,
+      );
     }
 
     if (config.footer) {
-      slots.footer = (...args) => createSlot(config.footer, footerRef, innerArgs, ...args);
+      slots.footer = (...args) => createSlot(
+        config.footer,
+        footerRef,
+        openArgs.value?.footer || {},
+        innerArgs,
+        ...args,
+      );
     }
 
     return slots;
@@ -77,6 +120,7 @@ export function useModal<
     return {
       ...defaultConfig,
       ...config,
+      ...openArgs.value.dialog,
       ref: modalRef,
       modelValue: visible.value,
       'onUpdate:modelValue': (value: boolean) => {
@@ -87,13 +131,15 @@ export function useModal<
 
   const Modal = () => (hasOpen.value ? h(Dialog, props.value, slots.value) : null);
 
-  return {
+  return [
     open,
     close,
     Modal,
-    modalRef,
-    contentRef,
-    headerRef,
-    footerRef,
-  };
+    {
+      modalRef,
+      contentRef,
+      headerRef,
+      footerRef,
+    },
+  ];
 }

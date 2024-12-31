@@ -1,11 +1,12 @@
+import type { ComponentPublicInstanceConstructor } from '@/types/vue.d';
 import type { DialogInstance, DialogProps } from 'element-plus';
-import type { ComponentPublicInstance, DefineComponent, Ref, VNode } from 'vue';
+import type { ComponentPublicInstance, Ref, VNode } from 'vue';
 import { h, isVNode, resolveComponent } from 'vue';
 
 export type DialogSlots = DialogInstance['$slots'];
 type RequiredDialogSlots = Required<DialogSlots>;
 
-export type Comp = DefineComponent<any, any, any>;
+export type Comp = ComponentPublicInstanceConstructor;
 type ComponentPublicKeys = keyof ComponentPublicInstance;
 export type ComInstance<T extends Comp = Comp> = Omit<InstanceType<T>, ComponentPublicKeys>;
 
@@ -63,6 +64,17 @@ export interface InnerArgs<
   footerRef: Ref<ComInstance<FooterInstance> | undefined>
 }
 
+export interface OpenArgs<
+  ContentInstance extends Comp = Comp,
+  FooterInstance extends Comp = Comp,
+  HeaderInstance extends Comp = Comp,
+> {
+  dialog: Partial<DialogProps>
+  header: Partial<InstanceType<HeaderInstance>['$props']>
+  content: Partial<InstanceType<ContentInstance>['$props']>
+  footer: Partial<InstanceType<FooterInstance>['$props']>
+}
+
 export function createSlot<
   ContentInstance extends Comp = Comp,
   FooterInstance extends Comp = Comp,
@@ -70,21 +82,18 @@ export function createSlot<
 >(
   component: ModalSlotType<ContentInstance, FooterInstance, HeaderInstance>,
   ref: Ref,
+  props: OpenArgs<ContentInstance, FooterInstance, HeaderInstance>['content' | 'header' | 'footer'],
   innerArgs: InnerArgs<ContentInstance, FooterInstance, HeaderInstance>,
   ...args: Parameters<RequiredDialogSlots['default' | 'footer' | 'header']>
 ) {
-  if (['undefined', 'null'].includes(component as any)) {
-    return null;
-  }
-
   if (isVNode(component)) {
-    return h(component, { ref });
+    return h(component, { ...props, ref });
   }
 
   // TODO 判断是否是 component
   if (typeof component === 'object') {
     try {
-      return h(component, { ref });
+      return h(component, { ...props, ref });
     }
     catch (e) {
       console.error(e);
@@ -97,19 +106,20 @@ export function createSlot<
 
   if (typeof component === 'function') {
     const com = component(innerArgs, ...args);
-    return createSlot(com, ref, innerArgs, ...args);
+    return createSlot(com, ref, { ...props }, innerArgs, ...args);
   }
 
   if (typeof component === 'string') {
     const com = resolveComponent(component);
     if (typeof com !== 'string') {
-      return h(com, { ref });
+      return h(com, { ...props, ref });
     }
   }
 
   return h('div', {
     ref,
     innerHTML: `${component}`,
+    ...props,
   });
 }
 
