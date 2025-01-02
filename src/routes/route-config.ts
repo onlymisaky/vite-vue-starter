@@ -1,7 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
 import Layout from '@/layout/Layout.vue';
-
-import { h } from 'vue';
 import { FORBIDDEN_ROUTE_NAME, LOGIN_ROUTE_NAME, NOT_FOUND_ROUTE_NAME } from './constant';
 import { contentRoute } from './modules/content';
 import { dataRoute } from './modules/data';
@@ -28,11 +26,7 @@ export const layoutRoute: RouteRecordRaw = {
     {
       path: '/403',
       name: FORBIDDEN_ROUTE_NAME,
-      component: {
-        render() {
-          return h('div', 'Forbidden Page');
-        },
-      },
+      component: () => import('@/views/Error/Forbidden.vue'),
       meta: {
         title: '403',
         hideInMenu: true,
@@ -46,35 +40,16 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: LOGIN_ROUTE_NAME,
-    component: {
-      render() {
-        return h('div', 'Login Page');
-      },
-    },
+    component: () => import('@/views/Login/Login.vue'),
     meta: {
       title: '登录',
-    },
-  },
-  {
-    path: '/404',
-    name: NOT_FOUND_ROUTE_NAME,
-    component: {
-      render() {
-        return h('div', 'NotFound Page');
-      },
-    },
-    meta: {
-      title: '404',
+      hidden: true,
     },
   },
   {
     path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: {
-      render() {
-        return h('div', 'NotFound Page');
-      },
-    },
+    name: NOT_FOUND_ROUTE_NAME,
+    component: () => import('@/views/Error/NotFound.vue'),
     meta: {
       title: '404',
     },
