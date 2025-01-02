@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useMenuStore from '@/store/modules/menu';
+import { useMenuStore } from '@/store/modules/menu';
 import Fuse from 'fuse.js';
 import { ref, watch } from 'vue';
 import SearchMenuList from './SearchMenuList.vue';

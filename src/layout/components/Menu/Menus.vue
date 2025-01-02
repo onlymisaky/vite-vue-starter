@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import IconWithBg from '@/components/IconWithBg.vue';
-import useMenuStore from '@/store/modules/menu';
+import { useMenuStore } from '@/store/modules/menu';
 import MenuItem from './MenuItem.vue';
 
 const menuStore = useMenuStore();

@@ -1,5 +1,6 @@
 import type { RouteLocationNormalizedGeneric, RouteRecordRaw } from 'vue-router';
 import { layoutRoute } from '@/routes/route-config';
+import store from '@/store';
 import { hasPermission } from '@/utils/permission';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
@@ -16,7 +17,9 @@ function generateMenus(routes: RouteRecordRaw[], userPermission: string[], paren
       return menus;
     }
 
-    if (!hasPermission(routePermission, userPermission)) {
+    const noPermission = !hasPermission(routePermission, userPermission);
+
+    if (noPermission && meta.noPermissionMenuStatus !== 'disabled') {
       return menus;
     }
 
@@ -24,10 +27,9 @@ function generateMenus(routes: RouteRecordRaw[], userPermission: string[], paren
       index: route.name as string,
       title: meta.title,
       icon: meta.icon,
-      route: {
-        name: route.name,
-      },
+      route,
       parents,
+      disabled: noPermission,
     };
     if (route.children) {
       menu.items = [];
@@ -63,7 +65,7 @@ function flatMenu(menus: IMenuItem[]) {
   }, [] as IMenuItem[]);
 }
 
-export default defineStore('menu', () => {
+export const useMenuStore = defineStore('menu', () => {
   const isCollapse = ref(false);
 
   function toggleCollapse() {
@@ -96,3 +98,7 @@ export default defineStore('menu', () => {
     pick: ['isCollapse'],
   },
 });
+
+export function useMenuStoreWithOut() {
+  return useMenuStore(store);
+}

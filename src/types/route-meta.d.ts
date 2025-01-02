@@ -19,6 +19,11 @@ declare global {
      */
     hideInMenu?: boolean
     /**
+     * 没有权限时菜单状态，默认隐藏
+     * 为了防止乱配置，当 noPermissionMenuStatus !== 'disabled' 时，一律当做隐藏处理
+     */
+    noPermissionMenuStatus?: 'disabled' | 'hide'
+    /**
      * 是否在进度条中隐藏
      */
     hideProgress?: boolean
@@ -26,9 +31,5 @@ declare global {
      * 路由切换动画
      */
     transition?: 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'fade-transition' | 'fade' | 'fade-slide' | 'fade-down' | 'fade-scale' | 'fade-up' | 'collapse-transition'
-    /**
-     * 菜单排序
-     */
-    order?: number
   }
 }

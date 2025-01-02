@@ -2,7 +2,7 @@
 import AppLink from '@/components/AppLink.vue';
 import IconVite from '@/components/Icons/Vite.vue';
 import { useAppStore } from '@/store/modules/app';
-import useMenuStore from '@/store/modules/menu';
+import { useMenuStore } from '@/store/modules/menu';
 
 const menuStore = useMenuStore();
 const appStore = useAppStore();

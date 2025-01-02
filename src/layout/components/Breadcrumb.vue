@@ -1,27 +1,47 @@
 <script setup lang="ts">
+import { useMenuStore } from '@/store/modules/menu';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+const menuStore = useMenuStore();
+function getMenuPath(): IMenuItem[] {
+  const menus: IMenuItem[] = [];
+  const currentMenu = menuStore.flatMenus.find(menu => menu.index === route.name);
+  if (currentMenu) {
+    menus.push(currentMenu);
+    if (currentMenu.parents) {
+      currentMenu.parents.forEach(menu => {
+        menus.unshift(menu);
+      });
+    }
+  }
+  return menus;
+}
+// route.matched
+const menuPath = computed(() => {
+  return getMenuPath();
+});
 </script>
 
 <template>
-  <ElBreadcrumb>
+  <ElBreadcrumb class="flex items-center">
     <ElBreadcrumbItem
-      v-for="(item, index) in route.matched"
-      :key="item.path"
+      v-for="(item, index) in menuPath"
+      :key="item.index"
     >
-      <div class="flex items-center">
+      <div
+        class="flex items-center"
+        :class="index === menuPath.length - 1 ? 'text-primary' : 'text-placeholder cursor-pointer'"
+      >
         <ElIcon
-          v-if="item.meta.icon"
+          v-if="item.icon"
           size="18"
           class="mr-[4px]"
-          :class="index === route.matched.length - 1 ? 'text-primary' : 'text-placeholder'"
         >
-          <component :is="item.meta.icon" />
+          <component :is="item.icon" />
         </ElIcon>
-        <span :class="index === route.matched.length - 1 ? 'text-primary' : 'text-placeholder'">
-          {{ item.meta.title }}
-        </span>
+        <span>{{ item.title }}</span>
       </div>
     </ElBreadcrumbItem>
   </ElBreadcrumb>

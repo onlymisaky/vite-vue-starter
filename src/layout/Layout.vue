@@ -3,7 +3,7 @@ import FullscreenToggle from '@/components/FullscreenToggle.vue';
 import IconWithBg from '@/components/IconWithBg.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import useLayoutStore from '@/store/modules/layout';
-import useMenuStore from '@/store/modules/menu';
+import { useMenuStore } from '@/store/modules/menu';
 import { computed } from 'vue';
 import Breadcrumb from './components/Breadcrumb.vue';
 import Logo from './components/Logo.vue';

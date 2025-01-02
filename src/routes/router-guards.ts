@@ -1,4 +1,4 @@
-import useMenuStore from '@/store/modules/menu';
+import { useMenuStoreWithOut } from '@/store/modules/menu';
 import useUserStore from '@/store/modules/user';
 import { hasPermission } from '@/utils/permission';
 import NProgress from 'nprogress';
@@ -10,6 +10,7 @@ NProgress.configure({ showSpinner: false });
 export function routerGuards(router: Router) {
   router.beforeEach((to, _from, next) => {
     const meta = to.meta;
+    // 没有meta，也就意味着该路由没有配置权限信息，直接跳转
     if (!meta) {
       next();
       return;
@@ -20,6 +21,7 @@ export function routerGuards(router: Router) {
       NProgress.start();
     }
 
+    // 无需鉴权的路由，直接跳转
     if (!permission || (Array.isArray(permission) && permission.length === 0)) {
       next();
       return;
@@ -27,15 +29,19 @@ export function routerGuards(router: Router) {
 
     const userStore = useUserStore();
 
+    // 用户未登录，跳转到登录页
     if (!userStore.logged) {
       next({ name: LOGIN_ROUTE_NAME });
       return;
     }
 
+    // 验证权限
     if (hasPermission(permission, userStore.permissions)) {
       next();
+      return;
     }
 
+    // 没有权限，跳转到403页面
     next({ name: FORBIDDEN_ROUTE_NAME });
   });
 
@@ -45,8 +51,7 @@ export function routerGuards(router: Router) {
       return;
     }
 
-    NProgress.done();
-    const menuStore = useMenuStore();
+    const menuStore = useMenuStoreWithOut();
 
     menuStore.setActiveMenu(to);
 
