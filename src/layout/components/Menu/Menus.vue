@@ -7,7 +7,7 @@ const menuStore = useMenuStore();
 </script>
 
 <template>
-  <div class="menu flex flex-col overflow-hidden">
+  <div class="bg-[var(--el-menu-bg-color)] flex flex-col overflow-hidden">
     <ElScrollbar>
       <ElMenu
         :collapse="menuStore.isCollapse"
@@ -37,9 +37,3 @@ const menuStore = useMenuStore();
     </div>
   </div>
 </template>
-
-<style scoped>
-.menu {
-  background-color: var(--el-menu-bg-color);
-}
-</style>

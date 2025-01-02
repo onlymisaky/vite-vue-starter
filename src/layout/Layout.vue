@@ -50,7 +50,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
         </div>
       </ElHeader>
 
-      <ElMain class="main h-full">
+      <ElMain class="bg-[var(--el-bg-color-page)] h-full">
         <RouterView v-slot="{ Component }">
           <Transition
             appear
@@ -70,9 +70,5 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
   border-right: 1px solid var(--el-border-color);
   transition-property: width;
   transition-duration: v-bind('animationDuration');
-}
-
-.main {
-  background-color: var(--el-bg-color-page);
 }
 </style>
