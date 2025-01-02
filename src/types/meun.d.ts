@@ -1,4 +1,4 @@
-import type { RouteLocationRaw } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 
 export { };
 
@@ -9,7 +9,7 @@ declare global {
     // 菜单标题
     title: string
     // 对应路由
-    route?: RouteLocationRaw
+    route: RouteRecordRaw
     // 外部链接
     externalLink?: string
     // 图标

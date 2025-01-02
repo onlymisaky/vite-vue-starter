@@ -53,6 +53,19 @@ export function routerGuards(router: Router) {
 
     const menuStore = useMenuStoreWithOut();
 
+    const menu = menuStore.flatMenus.find(menu => menu.index === to.name);
+    if (menu) {
+      const route = menu.route;
+      if (route && !route.component && Array.isArray(route.children) && route.children.length > 0) {
+        const items = menu.items || [];
+        const child = items.find(item => !item.disabled);
+        if (child) {
+          router.push({ name: child.index });
+          return;
+        }
+      }
+    }
+
     menuStore.setActiveMenu(to);
 
     document.title = to.meta.title as string || document.title;

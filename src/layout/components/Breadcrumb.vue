@@ -32,7 +32,9 @@ const menuPath = computed(() => {
     >
       <div
         class="flex items-center"
-        :class="index === menuPath.length - 1 ? 'text-primary' : 'text-placeholder cursor-pointer'"
+        :class="index === menuPath.length - 1
+          ? 'text-[color:var(--el-text-color-primary)]'
+          : 'text-[color:var(--el-text-color-placeholder)] cursor-pointer hover:text-[color:var(--el-color-primary)]'"
       >
         <ElIcon
           v-if="item.icon"
@@ -41,18 +43,19 @@ const menuPath = computed(() => {
         >
           <component :is="item.icon" />
         </ElIcon>
-        <span>{{ item.title }}</span>
+        <RouterLink
+          v-slot="{ navigate }"
+          :to="item.route"
+          custom
+        >
+          <span
+            role="link"
+            @click="navigate"
+          >
+            {{ item.title }}
+          </span>
+        </RouterLink>
       </div>
     </ElBreadcrumbItem>
   </ElBreadcrumb>
 </template>
-
-<style scoped>
-.text-primary {
-  color: var(--el-text-color-primary);
-}
-
-.text-placeholder {
-  color: var(--el-text-color-placeholder);
-}
-</style>
