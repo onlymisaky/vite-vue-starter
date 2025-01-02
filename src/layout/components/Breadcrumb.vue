@@ -11,9 +11,9 @@ function getMenuPath(): IMenuItem[] {
   if (currentMenu) {
     menus.push(currentMenu);
     if (currentMenu.parents) {
-      currentMenu.parents.forEach(menu => {
-        menus.unshift(menu);
-      });
+      for (let i = currentMenu.parents.length - 1; i >= 0; i--) {
+        menus.unshift(currentMenu.parents[i]);
+      }
     }
   }
   return menus;
