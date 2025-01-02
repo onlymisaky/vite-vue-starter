@@ -11,7 +11,9 @@ import { createSlot, defaultConfig } from './utils';
  * (其实也是支持直接传 Component | () => Component 的，但是这种场景可以用 MesssageBox 代替)
  * @param config 弹窗配置，继承自 ElementPlus 的 DialogProps ，但多了 header 和 footer 的配置，类型和 content 一致
  * @param _slotComponent 仅仅是为了给 js 用户提供 ref 类型推导
- * @returns
+ * @param _slotComponent.content 弹窗内容使用的组件
+ * @param _slotComponent.header 弹窗头部使用的组件
+ * @param _slotComponent.footer 弹窗底部使用的组件
  */
 export function useModal<
   ContentInstance extends Comp = Comp,
