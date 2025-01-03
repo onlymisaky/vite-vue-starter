@@ -1,5 +1,5 @@
 import type { ComponentPublicInstanceConstructor } from '@/types/vue.d';
-import type { DialogInstance, DialogProps } from 'element-plus';
+import type { DialogInstance, DialogProps, ElDialog } from 'element-plus';
 import type { ComponentPublicInstance, Ref, VNode } from 'vue';
 import { h, isVNode, resolveComponent } from 'vue';
 
