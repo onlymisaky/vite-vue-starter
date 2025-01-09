@@ -96,7 +96,7 @@ export default defineConfig((config) => {
     server: {
       proxy: {
         [env.VITE_API_PREFIX]: {
-          target: env.API_BASE_URL,
+          target: env.VITE_API_BASE_URL,
           changeOrigin: true,
           rewrite: (path) => path.replace(new RegExp(`^${env.VITE_API_PREFIX}`), ''),
         },
