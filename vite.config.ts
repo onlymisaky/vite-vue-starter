@@ -1,4 +1,3 @@
-import type { Env } from './src/vite-env.d';
 import * as path from 'node:path';
 import legacy from '@vitejs/plugin-legacy';
 import vue from '@vitejs/plugin-vue';
@@ -26,7 +25,7 @@ const manualChunks: Record<string, string> = {
 // https://vite.dev/config/
 export default defineConfig((config) => {
   const envDir = path.resolve(process.cwd(), './environments');
-  const env = loadEnv(config.mode, envDir) as unknown as Env;
+  const env = loadEnv(config.mode, envDir) as unknown as ViteEnv;
   return {
     base: process.env.BASE_URL || '/',
     envDir,
