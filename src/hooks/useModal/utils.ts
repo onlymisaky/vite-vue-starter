@@ -130,3 +130,26 @@ export const defaultConfig: ModalConfig = {
   center: true,
   destroyOnClose: true,
 };
+
+export function isObject(obj: any) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
+}
+
+export function omit<T extends Record<string, any>, K extends keyof T>(obj: T, keys: K | readonly K[]): Omit<T, K> {
+  if (!isObject(obj)) {
+    return obj;
+  }
+
+  if (typeof keys !== 'string' && typeof keys !== 'number' && !Array.isArray(keys)) {
+    return obj;
+  }
+
+  const keysArray = Array.isArray(keys) ? keys : [keys];
+
+  return Object.keys(obj).reduce((result, key) => {
+    if (!keysArray.includes(key as K)) {
+      result[key] = obj[key];
+    }
+    return result;
+  }, {} as Record<string, any>) as Omit<T, K>;
+}

@@ -1,9 +1,9 @@
-import type { DialogInstance } from 'element-plus';
+import type { DialogInstance, DialogProps } from 'element-plus';
 import type { ComInstance, Comp, ContentSlotType, DialogSlots, InnerArgs, ModalConfig, OpenArgs } from './utils';
 import { useResetableRef } from '@/hooks/useResetableState';
 import { computed, h, ref } from 'vue';
 import Dialog from './Dialog.vue';
-import { createSlot, defaultConfig } from './utils';
+import { createSlot, defaultConfig, isObject, omit } from './utils';
 
 /**
  * @description 使用 Modal 组件
@@ -131,7 +131,24 @@ export function useModal<
     };
   });
 
-  const Modal = () => (hasOpen.value ? h(Dialog, props.value, slots.value) : null);
+  function Modal(attrs: Partial<Omit<DialogProps, 'modelValue'>>) {
+    if (!hasOpen.value) {
+      return null;
+    }
+    let _attrs = omit(attrs as DialogProps & { modelValue?: boolean }, ['modelValue']);
+    if (!isObject(_attrs)) {
+      _attrs = {} as DialogProps;
+    }
+    return h(Dialog, {
+      ..._attrs,
+      ...props.value,
+      ref: modalRef,
+      modelValue: visible.value,
+      'onUpdate:modelValue': (value: boolean) => {
+        visible.value = value;
+      },
+    }, slots.value);
+  }
 
   return [
     open,

@@ -99,7 +99,7 @@ function withAbort(axiosInstance: AxiosInstance): AbortableAxiosInstance {
       }
       return value;
     },
-  }) as unknown as AbortableAxiosInstance;
+  }) as AbortableAxiosInstance;
 }
 
 const requestWithAbort = withAbort(axiosInstance);
