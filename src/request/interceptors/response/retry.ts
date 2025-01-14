@@ -3,63 +3,60 @@ import axios from 'axios';
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
-    retry?: RetryConfigInner | boolean
+    retryConfig?: RetryConfig | boolean | number
   }
 }
 
+// 暴露给外部使用的配置
 export interface RetryConfig {
-  // 最大重试次数
+  // 最大重试次数，默认 3 次
   count?: number
-  // 重试间隔时间
+  // 重试间隔时间，默认 500ms
   interval?: number
-  // 是否使用指数退避算法
+  // 是否使用指数退避算法，默认 true
   useExponentialBackoff?: boolean
-  // 是否应该重试
+  // 是否应该重试，默认 true
   shouldRetry?: ((error: any) => boolean)
 }
 
-export interface RetryConfigInner extends RetryConfig {
+// 内部使用的配置
+// 设置 currentCount ，并在每次重试时递增
+export interface RetryConfigInternal extends Required<RetryConfig> {
   currentCount: number
 }
 
-export const defaultRetryConfig: RetryConfigInner = {
-  currentCount: 0,
-  count: 9,
+export const defaultRetryConfig: Required<RetryConfig> = {
+  count: 3,
   interval: 500,
   useExponentialBackoff: true,
   shouldRetry: (_error) => true,
-  // shouldRetry: (error) => {
-  //   return axios.isAxiosError(error) && (
-  //     !error.response // 网络错误
-  //     || error.code === 'ECONNABORTED' // 超时
-  //     || (error.response?.status >= 500 && error.response?.status <= 599) // 服务器错误
-  //   );
-  // },
 };
 
-function normalizeRetryConfig(retry: RetryConfigInner | boolean | undefined): RetryConfigInner | false {
+function normalizeRetryConfig(retryConfig: RetryConfig | boolean | number | undefined): Required<RetryConfig> | false {
   // 默认配置
-  if (retry === undefined) {
+  if (retryConfig === undefined || retryConfig === true) {
+    return defaultRetryConfig;
+  }
+  if (!retryConfig) {
+    return false;
+  }
+  if (typeof retryConfig === 'number' || (typeof retryConfig === 'string' && !Number.isNaN(Number(retryConfig)))) {
+    if (Number(retryConfig) < 0) {
+      return false;
+    }
     return {
       ...defaultRetryConfig,
-      currentCount: 0,
+      count: Number(retryConfig),
     };
   }
-  if (!retry) {
+  if (typeof retryConfig !== 'boolean' && typeof retryConfig !== 'object') {
     return false;
-  }
-  if (typeof retry !== 'boolean' && typeof retry !== 'object') {
-    return false;
-  }
-  if (typeof retry === 'boolean') {
-    return { ...defaultRetryConfig, currentCount: 0 };
   }
   return {
     ...defaultRetryConfig,
-    ...retry,
-    currentCount: retry.currentCount || 0,
-    shouldRetry: typeof retry.shouldRetry === 'function'
-      ? (error: any) => !!(retry.shouldRetry!(error))
+    ...retryConfig,
+    shouldRetry: typeof retryConfig.shouldRetry === 'function'
+      ? (error: any) => !!(retryConfig.shouldRetry!(error))
       : (_error: any) => true,
   };
 }
@@ -101,21 +98,32 @@ export function createRetryInterceptor(axiosInstance: AxiosInstance) {
       return Promise.reject(error);
     }
 
-    config.retry = normalizeRetryConfig(config.retry);
+    // 获取当前重试次数
+    let currentCount = Number((config?.retryConfig as RetryConfigInternal)?.currentCount);
+    if (Number.isNaN(currentCount)) {
+      currentCount = 0;
+    }
+    if (currentCount < 0) {
+      currentCount = 0;
+    }
 
-    if (!config.retry) {
+    config.retryConfig = normalizeRetryConfig(config.retryConfig);
+
+    if (!config.retryConfig) {
       return Promise.reject(error);
     }
 
-    const retryConfig = config.retry as Required<RetryConfigInner>;
+    const retryConfig = config.retryConfig as RetryConfigInternal;
+
+    retryConfig.currentCount = currentCount;
+
+    // 检查是否达到最大重试次数
+    if (retryConfig.currentCount >= retryConfig.count) {
+      return Promise.reject(error);
+    }
 
     // 检查是否应该重试
     if (!retryConfig.shouldRetry(error)) {
-      return Promise.reject(error);
-    }
-
-    // 检查是否达到最大重试次数
-    if (retryConfig.currentCount > retryConfig.count) {
       return Promise.reject(error);
     }
 
