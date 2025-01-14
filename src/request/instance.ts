@@ -5,6 +5,7 @@ import {
   axiosErrorInterceptor,
   businessInterceptor,
 } from './interceptors';
+import { createRetryInterceptor } from './interceptors/response/retry';
 
 /**
  * 1. 先贴合业务做最简单的封装
@@ -20,7 +21,14 @@ const axiosInstance = axios.create({
   validateStatus: (status) => status >= 200 && status < 300,
 });
 
+const retryInterceptor = createRetryInterceptor(axiosInstance);
+
+// 添加响应拦截器，顺序很重要：
+// 1. 先处理业务逻辑
 axiosInstance.interceptors.response.use(businessInterceptor);
+// 2. 处理 HTTP 错误，并在需要时进行重试
+axiosInstance.interceptors.response.use((res) => res, retryInterceptor);
+// 3. 最后处理剩余的错误
 axiosInstance.interceptors.response.use((res) => res, axiosErrorInterceptor);
 
 const methods: Methods[] = [
