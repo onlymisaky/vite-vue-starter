@@ -1,5 +1,11 @@
-import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosError, AxiosInstance } from 'axios';
 import axios from 'axios';
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    retry?: RetryConfigInner | boolean
+  }
+}
 
 export interface RetryConfig {
   // 最大重试次数
@@ -88,7 +94,7 @@ export function createRetryInterceptor(axiosInstance: AxiosInstance) {
       return error;
     }
 
-    const config = error.config as InternalAxiosRequestConfig<any> & { retry?: RetryConfigInner | boolean };
+    const config = error.config;
 
     // 如果请求已经被取消，不进行重试
     if (config.signal?.aborted) {
