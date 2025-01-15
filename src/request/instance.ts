@@ -4,6 +4,8 @@ import axios from 'axios';
 import {
   axiosErrorInterceptor,
   businessInterceptor,
+  cacheRequestInterceptor,
+  cacheResponseInterceptor,
   retryInterceptor,
 } from './interceptors';
 
@@ -22,8 +24,12 @@ const axiosInstance = axios.create({
 });
 
 // 注意拦截器顺序
+// 判断是否缓存
+axiosInstance.interceptors.request.use(cacheRequestInterceptor);
 // 错误重试
 axiosInstance.interceptors.response.use((res) => res, retryInterceptor);
+// 缓存响应
+axiosInstance.interceptors.response.use(cacheResponseInterceptor);
 // 业务逻辑判断
 axiosInstance.interceptors.response.use(businessInterceptor);
 // 最终错误处理
