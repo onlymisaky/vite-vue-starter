@@ -61,11 +61,17 @@ function normalizeRetryConfig(retryConfig: RetryConfig | boolean | number | unde
   };
 }
 
-function wait(delay: number, signal?: AbortSignal) {
+function wait(delay: number, error: AxiosError) {
   return new Promise((resolve, reject) => {
     // 如果在开始等待前已经被取消，直接reject
-    if (signal?.aborted) {
-      reject(new Error('Request aborted'));
+    if (error.config?.signal?.aborted) {
+      reject(new axios.AxiosError(
+        'Request aborted',
+        axios.AxiosError.ERR_CANCELED,
+        error.config,
+        error.request,
+        error.response,
+      ));
       return;
     }
 
@@ -73,20 +79,32 @@ function wait(delay: number, signal?: AbortSignal) {
 
     // 重试间隔期间，也可以取消请求
     // 监听取消信号
-    signal?.addEventListener('abort', () => {
+    error.config?.signal?.addEventListener?.('abort', () => {
       clearTimeout(timer);
-      reject(new Error('Request aborted'));
+      reject(new axios.AxiosError(
+        'Request aborted',
+        axios.AxiosError.ERR_CANCELED,
+        error.config,
+        error.request,
+        error.response,
+      ));
     }, { once: true });
   });
 }
 
-function retryRequest(config: InternalAxiosRequestConfig): Promise<AxiosResponse<any>> {
+async function retryRequest(error: AxiosError): Promise<AxiosResponse<any>> {
+  const config = error.config as InternalAxiosRequestConfig;
   const retryConfig = config.retryConfig as RetryConfigInternal;
   if (retryConfig.currentCount >= retryConfig.count) {
-    return Promise.reject(config);
+    return Promise.reject(error);
   }
+  // 计算延迟时间
+  const delay = retryConfig.useExponentialBackoff
+    ? retryConfig.interval * 2 ** (retryConfig.currentCount - 1)
+    : retryConfig.interval;
+  await wait(delay, error);
   (config.retryConfig as RetryConfigInternal).currentCount += 1;
-  return axios(config).catch((_error) => retryRequest(config));
+  return axios(config).catch((_error) => retryRequest(error));
 }
 
 export async function retryInterceptor(error: AxiosError) {
@@ -134,26 +152,17 @@ export async function retryInterceptor(error: AxiosError) {
     return Promise.reject(error);
   }
 
-  // 计算延迟时间
-  const delay = retryConfig.useExponentialBackoff
-    ? retryConfig.interval * 2 ** (retryConfig.currentCount - 1)
-    : retryConfig.interval;
-
-  return wait(delay, config.signal as AbortSignal).then(() => {
-    /**
-     * 重试请求
-     * ! 之前通过闭包的形式，将 axiosInstance 注入到 retryInterceptor 中，使用 axiosInstance 进行请求重试
-     * ! 但是这样会有一个致命的错误: 在重试期间发生的错误，会被其它的错误拦截器拦截，从而导致重复的错误处理
-     * ! 解决的的办法也有:
-     * !  1. 在这里临时移除其它的拦截，很明显做不到
-     * !  2. 在这里添加一个标记，告诉其它拦截器，我正在进行重试，重试期间发生的错误不要处理，这种做法入侵性太强
-     * !  3. 修改 adapter ，那不如采用现有的做法，创建一个专门用于重试请求的方法
-     * !  4. 拿到当前的 promise ，想办法做一些处理，让 catch 和 then 不要往下传递，但是实在想不出方法
-     * ! 所以最终采用下面拿的方案，创建一个专门用于重试请求的方法，省事又省心，
-     * ! 唯一需要考虑的是，如果在其他地方手动修改改了 adapter ，会不会又什么意料之外的问题，但是不想考虑了
-     */
-    return retryRequest(config);
-  }).catch(() => {
-    return Promise.reject(error);
-  });
+  /**
+   * 重试请求
+   * ! 之前通过闭包的形式，将 axiosInstance 注入到 retryInterceptor 中，使用 axiosInstance 进行请求重试
+   * ! 但是这样会有一个致命的错误: 在重试期间发生的错误，会被其它的错误拦截器拦截，从而导致重复的错误处理
+   * ! 解决的的办法也有:
+   * !  1. 在这里临时移除其它的拦截，很明显做不到
+   * !  2. 在这里添加一个标记，告诉其它拦截器，我正在进行重试，重试期间发生的错误不要处理，这种做法入侵性太强
+   * !  3. 修改 adapter ，那不如采用现有的做法，创建一个专门用于重试请求的方法
+   * !  4. 拿到当前的 promise ，想办法做一些处理，让 catch 和 then 不要往下传递，但是实在想不出方法
+   * ! 所以最终采用下面拿的方案，创建一个专门用于重试请求的方法，省事又省心，
+   * ! 唯一需要考虑的是，如果在其他地方手动修改改了 adapter ，会不会又什么意料之外的问题，但是不想考虑了
+   */
+  return retryRequest(error);
 }
