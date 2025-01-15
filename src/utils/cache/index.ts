@@ -21,7 +21,11 @@ function mergeOptions(options: CreateCacheStoreOptions): CreateCacheStoreOptions
   };
 }
 
-export function createCacheStore(options: CreateCacheStoreOptions = { type: 'memory' }) {
+interface CacheTypeMap {
+  memory: MemoryStore
+}
+
+export function createCacheStore(options: CreateCacheStoreOptions = { type: 'memory' }): CacheTypeMap[keyof CacheTypeMap] {
   const mergedOptions = mergeOptions(options);
 
   if (mergedOptions.type === 'memory') {

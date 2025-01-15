@@ -19,7 +19,7 @@ export class MemoryStore implements CacheStore {
     return Date.now() > expires;
   }
 
-  private removeExpired(): void {
+  removeExpired(): void {
     for (const [key, item] of this.cache.entries()) {
       if (this.isExpired(item.expires)) {
         this.cache.delete(key);
@@ -42,7 +42,7 @@ export class MemoryStore implements CacheStore {
 
   async set<T = any>(key: string, value: T, expires?: number): Promise<boolean> {
     try {
-      const expiresTime = expires ?? (Date.now() + this.expires);
+      const expiresTime = Date.now() + (expires ?? this.expires);
       this.cache.set(key, {
         data: value,
         expires: expiresTime,
