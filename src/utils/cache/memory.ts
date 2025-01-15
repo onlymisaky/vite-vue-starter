@@ -75,7 +75,13 @@ export class MemoryStore implements CacheStore {
   }
 
   async has(key: string): Promise<boolean> {
+    if (!this.cache.has(key)) {
+      return false;
+    }
     const item = await this.get(key);
-    return !!item;
+    if (item === undefined) {
+      return false;
+    }
+    return true;
   }
 }
