@@ -1,6 +1,6 @@
 import type { CacheStore } from '@/utils/cache/types';
 import type { AxiosResponse } from 'axios';
-import type { CacheConfigInternal } from './type';
+import type { CacheConfigInternal } from './types';
 
 export function createCacheResponseInterceptor(cacheStore: CacheStore) {
   return async function cacheResponseInterceptor(response: AxiosResponse) {

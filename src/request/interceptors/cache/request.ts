@@ -1,6 +1,6 @@
 import type { CacheStore } from '@/utils/cache/types';
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import type { CacheConfig, CacheConfigInternal } from './type';
+import type { CacheConfig, CacheConfigInternal } from './types';
 import { createAdapter } from './adapter';
 
 export const defaultCacheConfig: Required<CacheConfig> = {
@@ -46,29 +46,38 @@ function normalizeGenerateKey(fn: CacheConfig['generateKey']): Required<CacheCon
   };
 }
 
-function normalizeCacheConfig(cacheConfig: CacheConfig | boolean | undefined): Required<CacheConfig> | false {
-  if (cacheConfig === undefined || cacheConfig === true) {
+function normalizeCacheConfig(cacheConfig: CacheConfig | boolean | unknown): Required<CacheConfig> | false {
+  // 所有不规范的配置，都不进行缓存
+  if (!cacheConfig || (typeof cacheConfig !== 'boolean' && typeof cacheConfig !== 'object')) {
+    return false;
+  }
+
+  if (typeof cacheConfig === 'boolean') {
     return defaultCacheConfig;
   }
-  if (!cacheConfig) {
-    return false;
-  }
 
-  if (typeof cacheConfig !== 'boolean' && typeof cacheConfig !== 'object') {
-    return false;
-  }
+  const config = cacheConfig as CacheConfig;
+
+  let ttl = Number(config.ttl);
+  ttl = Number.isNaN(ttl) ? defaultCacheConfig.ttl : Math.min(Math.max(ttl, 300), 5000);
 
   return {
-    ...defaultCacheConfig,
-    ...cacheConfig,
-    shouldCache: normalizeShouldCache(cacheConfig.shouldCache),
-    generateKey: normalizeGenerateKey(cacheConfig.generateKey),
+    ttl,
+    forceRefresh: !!config.forceRefresh,
+    shouldCache: normalizeShouldCache(config.shouldCache),
+    generateKey: normalizeGenerateKey(config.generateKey),
   };
 }
 
 export function createCacheRequestInterceptor(cacheStore: CacheStore) {
   return async function cacheRequestInterceptor(config: InternalAxiosRequestConfig) {
+    // 如果配置中没有 cacheConfig，则不进行缓存
+    if (!Reflect.has(config, 'cacheConfig')) {
+      return config;
+    }
+
     const cacheConfig = normalizeCacheConfig(config.cacheConfig) as Required<CacheConfigInternal>;
+
     if (!cacheConfig) {
       return config;
     }
