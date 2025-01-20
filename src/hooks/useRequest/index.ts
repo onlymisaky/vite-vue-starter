@@ -1,41 +1,45 @@
 import type { UseRequestOptions } from './types';
 import { ref } from 'vue';
-import { normalizeApi, normalizeRequestOptions } from './normalize';
+import { normalizeRequestOptions, normalizeService } from './normalize';
 
 export function useRequest<
-  Api extends (...args: any) => Promise<any> = (...args: any) => Promise<any>,
+  Service extends (...args: any) => Promise<any>,
 >(
-  api: string | Api,
-  options: UseRequestOptions<Api>,
+  service: Service,
+  options: UseRequestOptions<Service>,
 ) {
   const data = ref<any>(null);
   const loading = ref<boolean>(false);
   const error = ref<any>(null);
 
   const normalizedOptions = normalizeRequestOptions(options);
-  const fetcher = normalizeApi(api, normalizedOptions.method);
+  const fetcher = normalizeService(service);
 
   data.value = normalizedOptions.initData;
 
-  async function request(...args: Parameters<Api>) {
+  let ps: Promise<ReturnType<Service>> & { cancel?: () => void };
+
+  async function request(...args: Parameters<Service>) {
     loading.value = true;
-    let res: any;
-    let err: any;
-    try {
-      normalizedOptions.onBefore(args);
-      res = await fetcher(...args);
+    normalizedOptions.onBefore(args);
+    ps = fetcher(...args);
+    ps.then((res) => {
       data.value = res;
       normalizedOptions.onSuccess(res, args);
-    }
-    catch (e) {
-      err = e;
-      error.value = e;
-      normalizedOptions.onError(e, args);
-    }
-    finally {
+      return res;
+    }).catch((err) => {
+      error.value = err;
+      normalizedOptions.onError(err, args);
+      return Promise.reject(err);
+    }).finally(() => {
       loading.value = false;
-      normalizedOptions.onFinally(args, res, err);
-    }
+      normalizedOptions.onFinally(args, data.value, error.value);
+    });
+    return ps;
+  }
+
+  function cancel() {
+    ps?.cancel?.();
   }
 
   if (normalizedOptions.immediate) {
@@ -47,5 +51,6 @@ export function useRequest<
     loading,
     error,
     request,
+    cancel,
   };
 }

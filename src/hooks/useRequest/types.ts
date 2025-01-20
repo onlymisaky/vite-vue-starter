@@ -1,38 +1,51 @@
 export interface UseRequestCacheOptions {
-
+  // enable?: boolean
+  // ttl?: number
+  // generateKey?: (config: AxiosRequestConfig) => string
+  // shouldCache?: (config: AxiosRequestConfig) => boolean
+  // forceRefresh?: boolean
 }
 export interface UseRequestRetryOptions {
-
+  count?: number
+  // interval?: number
+  // useExponentialBackoff?: boolean
+  // shouldRetry?: (error: any) => boolean
 }
 export interface UseRequestThrottleOptions {
-
+  wait?: number
+  // leading?: boolean
+  // trailing?: boolean
+  // maxWait?: number
 }
 export interface UseRequestDebounceOptions {
-
+  wait?: number
+  // leading?: boolean
+  // trailing?: boolean
+  // maxWait?: number
 }
 
-export interface UseRequestOptions<Api extends (...args: any) => Promise<any> = (...args: any) => Promise<any>> {
+export interface UseRequestOptions<Service extends (...args: any) => Promise<any> = (...args: any) => Promise<any>> {
   immediate: boolean
   method?: string
-  initData?: ReturnType<Api>
-  initParams?: Parameters<Api>
+  initData?: ReturnType<Service>
+  initParams?: Parameters<Service>
   cache?: boolean | UseRequestCacheOptions
-  retry?: boolean | number | UseRequestRetryOptions
-  throttle?: boolean | number | UseRequestThrottleOptions
-  debounce?: boolean | number | UseRequestDebounceOptions
-  onBefore?: (params: Parameters<Api>) => void
-  onProgress?: (progress: number, params: Parameters<Api>) => void
-  onSuccess?: (data: ReturnType<Api>, params: Parameters<Api>) => void
-  onError?: (error: any, params: Parameters<Api>) => void
-  onFinally?: (params: Parameters<Api>, data: ReturnType<Api>, error: any) => void
+  retry?: number | UseRequestRetryOptions
+  throttle?: number | UseRequestThrottleOptions
+  debounce?: number | UseRequestDebounceOptions
+  onBefore?: (params: Parameters<Service>) => void
+  onProgress?: (progress: number, params: Parameters<Service>) => void
+  onSuccess?: (data: ReturnType<Service>, params: Parameters<Service>) => void
+  onError?: (error: any, params: Parameters<Service>) => void
+  onFinally?: (params: Parameters<Service>, data: ReturnType<Service>, error: any) => void
 }
 
-export interface NormalizeUseRequestOptions<Api extends (...args: any) => Promise<any> = (...args: any) => Promise<any>>
-  extends Required<UseRequestOptions<Api>> {
+export interface NormalizeUseRequestOptions<Service extends (...args: any) => Promise<any> = (...args: any) => Promise<any>>
+  extends Required<UseRequestOptions<Service>> {
   cache: UseRequestCacheOptions | boolean
-  retry: UseRequestRetryOptions | boolean
-  throttle: UseRequestThrottleOptions | boolean
-  debounce: UseRequestDebounceOptions | boolean
+  retry: UseRequestRetryOptions
+  throttle: UseRequestThrottleOptions
+  debounce: UseRequestDebounceOptions
 }
 
 export type LifecycleName = 'before' | 'progress' | 'success' | 'error' | 'finally';

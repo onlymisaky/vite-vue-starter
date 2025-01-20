@@ -7,20 +7,20 @@ import type {
   UseRequestThrottleOptions,
 } from './types';
 
-export const defaultCacheOptions: UseRequestCacheOptions = {
+export const defaultCacheOptions: Required<UseRequestCacheOptions> = {
 
 };
 
-export const defaultRetryOptions: UseRequestRetryOptions = {
-
+export const defaultRetryOptions: Required<UseRequestRetryOptions> = {
+  count: 3,
 };
 
-export const defaultThrottleOptions: UseRequestThrottleOptions = {
-
+export const defaultThrottleOptions: Required<UseRequestThrottleOptions> = {
+  wait: 2000,
 };
 
-export const defaultDebounceOptions: UseRequestDebounceOptions = {
-
+export const defaultDebounceOptions: Required<UseRequestDebounceOptions> = {
+  wait: 800,
 };
 
 export const defaultLifecycleOptions: Pick<NormalizeUseRequestOptions, LifecycleCbName> = {
