@@ -1,4 +1,3 @@
-import type { IRes } from '@/types/res.d';
 import axios, { type AxiosResponse } from 'axios';
 
 export const ERR_BUSINESS = 'ERR_BUSINESS';
@@ -8,7 +7,7 @@ export const ERR_BUSINESS = 'ERR_BUSINESS';
  * 本项目中，所有请求都会返回 200，通过 success 字段判断业务是否成功
  */
 export function businessInterceptor(response: AxiosResponse) {
-  const axiosResponse = response as AxiosResponse<IRes<any>>;
+  const axiosResponse = response as AxiosResponse<ApiResponse<any>>;
   const res = axiosResponse.data;
 
   if (res.success) {

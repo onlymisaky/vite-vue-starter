@@ -1,5 +1,6 @@
 import type { AxiosInstance } from 'axios';
 import type { AbortableAxiosInstance, Methods } from './types';
+import { isPromise } from '@/utils/promise';
 import axios from 'axios';
 import {
   axiosErrorInterceptor,
@@ -103,8 +104,8 @@ function withAbort(axiosInstance: AxiosInstance): AbortableAxiosInstance {
           }
 
           const res = value.apply(receiver, newArgs);
-          if (res && typeof res.then === 'function' && typeof res.catch === 'function') {
-            res.abort = controller.abort.bind(controller);
+          if (isPromise(res)) {
+            (res as AbortablePromise<any>).abort = controller.abort.bind(controller);
           }
           return res;
         };

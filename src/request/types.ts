@@ -1,15 +1,5 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// 为 Promise 添加 abort 方法
-export interface AbortablePromise<T> extends Promise<T> {
-  abort: () => void
-}
-
-// 工具类型：转换方法的返回类型为可中断的 Promise
-export type ConvertToAbortable<T> = T extends (...args: any[]) => Promise<infer R>
-  ? (...args: Parameters<T>) => AbortablePromise<R>
-  : T;
-
 export type Methods = 'request' | 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch' | 'postForm' | 'putForm' | 'patchForm';
 
 // 增强 AxiosInstance 的类型

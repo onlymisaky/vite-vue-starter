@@ -1,4 +1,3 @@
-import type { IRes } from '@/types/res';
 import type { AxiosResponse } from 'axios';
 
 /**
@@ -10,7 +9,7 @@ import type { AxiosResponse } from 'axios';
  * @returns [error, data] 元组，error 为 null 时表示请求成功
  */
 export function handleAxiosResult<T = any, D = any>(
-  axiosPromise: Promise<AxiosResponse<IRes<T>, D>>,
+  axiosPromise: Promise<AxiosResponse<ApiResponse<T>, D>>,
 ): Promise<[Error, null] | [null, T]> {
   return axiosPromise
     .then((response) => {
