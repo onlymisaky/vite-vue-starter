@@ -6,10 +6,6 @@ declare global {
     abort: (reason?: any) => void
   }
 
-  interface CancelablePromise<T> extends Promise<T> {
-    cancel: (reason?: any) => void
-  }
-
   export type ConvertToAbortable<T> = T extends (...args: any[]) => Promise<infer R>
     ? (...args: Parameters<T>) => AbortablePromise<R>
     : T;

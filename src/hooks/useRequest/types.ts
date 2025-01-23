@@ -24,10 +24,13 @@ export interface UseRequestDebounceOptions {
   // maxWait?: number
 }
 
-export interface UseRequestOptions<Service extends (...args: any) => Promise<any> = (...args: any) => Promise<any>> {
+export interface UseRequestOptions<
+  Service extends (...args: any) => Promise<any> = (...args: any) => Promise<any>,
+  Data = UnwrapPromise<ReturnType<Service>>,
+> {
   immediate: boolean
   method?: string
-  initData?: ReturnType<Service>
+  initData?: Data
   initParams?: Parameters<Service>
   cache?: boolean | UseRequestCacheOptions
   retry?: number | UseRequestRetryOptions
@@ -35,9 +38,9 @@ export interface UseRequestOptions<Service extends (...args: any) => Promise<any
   debounce?: number | UseRequestDebounceOptions
   onBefore?: (params: Parameters<Service>) => void
   onProgress?: (progress: number, params: Parameters<Service>) => void
-  onSuccess?: (data: ReturnType<Service>, params: Parameters<Service>) => void
+  onSuccess?: (data: Data, params: Parameters<Service>) => void
   onError?: (error: any, params: Parameters<Service>) => void
-  onFinally?: (params: Parameters<Service>, data: ReturnType<Service>, error: any) => void
+  onFinally?: (params: Parameters<Service>, data: Data, error: any) => void
 }
 
 export interface NormalizeUseRequestOptions<Service extends (...args: any) => Promise<any> = (...args: any) => Promise<any>>

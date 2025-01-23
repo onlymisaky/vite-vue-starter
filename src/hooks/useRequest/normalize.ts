@@ -1,5 +1,3 @@
-/* eslint-disable ts/ban-ts-comment */
-/* eslint-disable prefer-spread */
 import type {
   LifecycleCbName,
   NormalizeUseRequestOptions,
@@ -17,58 +15,6 @@ import {
   defaultThrottleOptions,
   defaultUseRequestOptions,
 } from './default-options';
-
-export function normalizeService<Service extends (...args: any) => Promise<any>>(service: Service) {
-  if (typeof service !== 'function') {
-    throw new TypeError('service must be a function');
-  }
-
-  let promise: Promise<ReturnType<Service>> & { cancel?: (...args: any[]) => void };
-  let resolve: (value: ReturnType<Service>) => void;
-  let reject: (reason?: any) => void;
-
-  function cancelRequest(cancelMsg?: string) {
-    reject(new Error(cancelMsg || 'request is canceled'));
-  }
-
-  return function normalizedService(...args: any) {
-    promise = new Promise<ReturnType<Service>>((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
-
-    promise.cancel = cancelRequest;
-
-    try {
-      const ps = service(...args) as Promise<ReturnType<Service>> & { cancel?: (...args: any[]) => void };
-
-      if ('cancel' in ps && typeof ps.cancel === 'function') {
-        promise.cancel = function cancel(...cancelArgs: any[]) {
-          const cancelResult = ps.cancel?.apply(ps, cancelArgs);
-          cancelRequest(cancelResult as unknown as string);
-          return cancelResult;
-        };
-      }
-      else if ('abort' in ps && typeof ps.abort === 'function') {
-        promise.cancel = function cancel(...cancelArgs: any[]) {
-          // @ts-expect-error
-          const cancelResult = ps.abort?.apply(ps, cancelArgs);
-          cancelRequest(cancelResult as unknown as string);
-          return cancelResult;
-        };
-      }
-
-      if (typeof ps.then === 'function' && typeof ps.catch === 'function') {
-        ps.then(resolve).catch(reject);
-      }
-    }
-    catch (err) {
-      reject(err);
-    }
-
-    return promise;
-  };
-}
 
 function normalizeCacheOptions(
   cache: undefined | boolean | UseRequestCacheOptions,
@@ -194,9 +140,9 @@ function normalizeFunction<T extends (...args: any) => any>(fn: T | undefined, d
   return defaultFn;
 }
 
-function normalizeLifecycle<Api extends (...args: any) => Promise<any>>(
-  options: Pick<UseRequestOptions<Api>, LifecycleCbName>,
-): Pick<NormalizeUseRequestOptions<Api>, LifecycleCbName> {
+function normalizeLifecycle<Service extends (...args: any) => Promise<any>>(
+  options: Pick<UseRequestOptions<Service>, LifecycleCbName>,
+): Pick<NormalizeUseRequestOptions<Service>, LifecycleCbName> {
   const { onBefore, onProgress, onSuccess, onError, onFinally } = options;
   return {
     onBefore: normalizeFunction(onBefore, defaultLifecycleOptions.onBefore),
@@ -207,21 +153,21 @@ function normalizeLifecycle<Api extends (...args: any) => Promise<any>>(
   };
 }
 
-export function normalizeRequestOptions<Api extends (...args: any) => Promise<any>>(
-  options: UseRequestOptions<Api>,
-): NormalizeUseRequestOptions<Api> {
+export function normalizeRequestOptions<Service extends (...args: any) => Promise<any>>(
+  options: Partial<UseRequestOptions<Service>>,
+): NormalizeUseRequestOptions<Service> {
   const cache = normalizeCacheOptions(options.cache);
   const retry = normalizeRetryOptions(options.retry);
   const throttle = normalizeThrottleOptions(options.throttle);
   const debounce = normalizeDebounceOptions(options.debounce);
   const lifecycle = normalizeLifecycle(options);
 
-  const normalizedUseRequestOptions: NormalizeUseRequestOptions<Api> = {
+  const normalizedUseRequestOptions: NormalizeUseRequestOptions<Service> = {
     ...defaultUseRequestOptions,
     ...options,
     ...lifecycle,
     method: typeof options.method === 'string' ? options.method : 'GET',
-    initParams: (Array.isArray(options.initParams) ? options.initParams : []) as Parameters<Api>,
+    initParams: (Array.isArray(options.initParams) ? options.initParams : []) as Parameters<Service>,
     cache,
     retry,
     throttle,
