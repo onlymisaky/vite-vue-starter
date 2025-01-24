@@ -44,7 +44,7 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
         <div class="flex ml-auto items-center gap-[10px]">
           <Refresh @click="$emit('refresh')" />
           <Settings
-            :table-config="tableConfig"
+            v-model:table-config="tableConfig"
             @reset="resetTableConfig"
           />
         </div>
