@@ -14,12 +14,17 @@ const manualChunks: Record<string, string> = {
   // [path.join(__dirname, 'src', 'components/')]: 'src-components',
   // [path.join(__dirname, 'src', 'utils/')]: 'src-utils',
   // [path.join(__dirname, 'src', 'hooks/')]: 'src-hooks',
-  // [path.join(__dirname, 'node_modules', 'vue/')]: 'vendor-vue',
-  // [path.join(__dirname, 'node_modules', 'vue-router/')]: 'vendor-vue-router',
-  // [path.join(__dirname, 'node_modules', 'pinia/')]: 'vendor-pinia',
-  // [path.join(__dirname, 'node_modules', '@vueuse/core')]: 'vendor-vueuse',
+  [path.join(__dirname, 'node_modules', 'vue/')]: 'vendor-vue',
+  [path.join(__dirname, 'node_modules', '@vue/')]: 'vendor-vue',
+  [path.join(__dirname, 'node_modules', 'vue-router/')]: 'vendor-vue-router',
+  [path.join(__dirname, 'node_modules', 'pinia/')]: 'vendor-pinia',
+  [path.join(__dirname, 'node_modules', 'pinia-plugin-persistedstate/')]: 'vendor-pinia-plugin-persistedstate',
+  [path.join(__dirname, 'node_modules', '@vueuse/')]: 'vendor-vue-use',
   [path.join(__dirname, 'node_modules', 'element-plus/')]: 'vendor-element-plus',
   [path.join(__dirname, 'node_modules', '@element-plus/icons-vue/')]: 'vendor-element-plus-icons',
+  [path.join(__dirname, 'node_modules', 'axios/')]: 'vendor-axios',
+  [path.join(__dirname, 'node_modules', 'nprogress/')]: 'vendor-nprogress',
+  [path.join(__dirname, 'node_modules', 'fuse.js/')]: 'vendor-fuse.js',
 };
 
 // https://vite.dev/config/
@@ -85,7 +90,7 @@ export default defineConfig((config) => {
                 return manualChunks[key];
               }
             }
-            if (id.includes('node_modules')) {
+            if (id.includes('/node_modules/')) {
               return 'vendor';
             }
           },
