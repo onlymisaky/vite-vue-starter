@@ -2,6 +2,7 @@
 import type { PropType } from 'vue';
 import type { TableConfig } from '../types';
 import IconWithBg from '@/components/IconWithBg.vue';
+import { Refresh } from '@element-plus/icons-vue';
 
 interface Config<T> {
   label: string
@@ -203,16 +204,13 @@ const tableLayouts: Config<TableConfig['tableLayout']>[] = [
           <ElButton
             type="primary"
             size="small"
+            :icon="Refresh"
             @click="$emit('reset')"
           >
             重置
-
-            <ElIcon size="12">
-              <Refresh />
-            </ElIcon>
           </ElButton>
         </div>
-      </elformitem>
+      </ElFormItem>
     </ElForm>
   </ElPopover>
 </template>
