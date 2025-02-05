@@ -8,6 +8,7 @@ import { computed } from 'vue';
 import Breadcrumb from './components/Breadcrumb.vue';
 import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';
+import RouterViewWrapper from './components/RouterViewWrapper';
 import SearchMenuIcon from './components/SearchMenu/SearchMenuIcon.vue';
 import UserAvatar from './components/UserAvatar.vue';
 
@@ -57,7 +58,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
             name="fade-slide"
             mode="out-in"
           >
-            <component :is="Component" />
+            <component :is="RouterViewWrapper(Component)" />
           </Transition>
         </RouterView>
       </ElMain>
