@@ -1,8 +1,9 @@
+import type { Router } from 'vue-router';
 import { useMenuStoreWithOut } from '@/store/modules/menu';
 import useUserStore from '@/store/modules/user';
 import { hasPermission } from '@/utils/permission';
 import NProgress from 'nprogress';
-import { isNavigationFailure, type Router } from 'vue-router';
+import { isNavigationFailure } from 'vue-router';
 import { FORBIDDEN_ROUTE_NAME, LOGIN_ROUTE_NAME } from './constant';
 
 NProgress.configure({ showSpinner: false });

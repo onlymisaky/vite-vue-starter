@@ -1,4 +1,5 @@
-import axios, { type AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 export const ERR_BUSINESS = 'ERR_BUSINESS';
 

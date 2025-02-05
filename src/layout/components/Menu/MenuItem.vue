@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { PropType } from 'vue';
 import AppLink from '@/components/AppLink.vue';
-import { computed, type PropType } from 'vue';
+import { computed } from 'vue';
 
 defineOptions({
   name: 'MenuItem',

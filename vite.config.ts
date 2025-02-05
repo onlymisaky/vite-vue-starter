@@ -23,7 +23,7 @@ const manualChunks: Record<string, string> = {
   [path.join(__dirname, 'node_modules', 'element-plus/')]: 'vendor-element-plus',
   [path.join(__dirname, 'node_modules', '@element-plus/icons-vue/')]: 'vendor-element-plus-icons',
   [path.join(__dirname, 'node_modules', 'axios/')]: 'vendor-axios',
-  [path.join(__dirname, 'node_modules', 'nprogress/')]: 'vendor-nprogress',
+  // [path.join(__dirname, 'node_modules', 'nprogress/')]: 'vendor-nprogress',
   [path.join(__dirname, 'node_modules', 'fuse.js/')]: 'vendor-fuse.js',
 };
 
