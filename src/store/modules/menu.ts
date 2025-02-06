@@ -4,7 +4,7 @@ import store from '@/store';
 import { hasPermission } from '@/utils/permission';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import useUserStore from './user';
+import { useUserStore } from './user';
 
 function generateMenus(routes: RouteRecordRaw[], userPermission: string[], parents: IMenuItem[] = []): IMenuItem[] {
   return routes.reduce((menus, route) => {

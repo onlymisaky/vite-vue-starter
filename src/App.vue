@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import useElConfig from '@/store/modules/el-config';
+import { useElConfigStore } from '@/store/modules/el-config';
 
-const { elConfig } = useElConfig();
+const { elConfig } = useElConfigStore();
 </script>
 
 <template>

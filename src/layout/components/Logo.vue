@@ -12,7 +12,7 @@ const appStore = useAppStore();
   <div class="h-[60px]">
     <AppLink
       class="flex items-center justify-around px-[10px]"
-      route="/"
+      :route="{ name: 'Layout' }"
     >
       <IconVite />
       <Transition

@@ -2,18 +2,19 @@
 import FullscreenToggle from '@/components/FullscreenToggle.vue';
 import IconWithBg from '@/components/IconWithBg.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
-import useLayoutStore from '@/store/modules/layout';
+import { useLayoutStore } from '@/store/modules/layout';
 import { useMenuStore } from '@/store/modules/menu';
+import { usePageCacheStore } from '@/store/modules/page-cache';
 import { computed } from 'vue';
 import Breadcrumb from './components/Breadcrumb.vue';
 import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';
-import RouterViewWrapper from './components/RouterViewWrapper';
 import SearchMenuIcon from './components/SearchMenu/SearchMenuIcon.vue';
 import UserAvatar from './components/UserAvatar.vue';
 
 const menuStore = useMenuStore();
 const layoutStore = useLayoutStore();
+const pageCacheStore = usePageCacheStore();
 
 const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`);
 </script>
@@ -58,7 +59,15 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
             name="fade-slide"
             mode="out-in"
           >
-            <component :is="RouterViewWrapper(Component)" />
+            <KeepAlive
+              :include="pageCacheStore.cachedPages"
+              :max="pageCacheStore.cachePageSize"
+            >
+              <component
+                :is="Component"
+                :key="$route.fullPath"
+              />
+            </KeepAlive>
           </Transition>
         </RouterView>
       </ElMain>

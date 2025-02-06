@@ -1,6 +1,7 @@
-import type { Router } from 'vue-router';
+import type { RouteComponent, Router } from 'vue-router';
 import { useMenuStoreWithOut } from '@/store/modules/menu';
-import useUserStore from '@/store/modules/user';
+import { usePageCacheStoreWithOut } from '@/store/modules/page-cache';
+import { useUserStoreWithOut } from '@/store/modules/user';
 import { hasPermission } from '@/utils/permission';
 import NProgress from 'nprogress';
 import { isNavigationFailure } from 'vue-router';
@@ -28,7 +29,7 @@ export function routerGuards(router: Router) {
       return;
     }
 
-    const userStore = useUserStore();
+    const userStore = useUserStoreWithOut();
 
     // 用户未登录，跳转到登录页
     if (!userStore.logged) {
@@ -63,6 +64,28 @@ export function routerGuards(router: Router) {
         if (child) {
           router.push({ name: child.index });
           return;
+        }
+      }
+
+      const pageCacheStore = usePageCacheStoreWithOut();
+
+      // 如果路由配置中设置了 cache，则添加到缓存列表
+      if (route?.meta?.cache) {
+        const component = route.component as RouteComponent | (() => Promise<RouteComponent>);
+        if (typeof component === 'function') {
+          (component as () => Promise<RouteComponent>)().then((mod: any) => {
+            const comp = mod.default || mod;
+            const componentName = comp.name || comp.__name;
+            if (componentName) {
+              pageCacheStore.addCachedPage(componentName);
+            }
+          });
+        }
+        else if (component) {
+          const componentName = component.name || component.__name;
+          if (componentName) {
+            pageCacheStore.addCachedPage(componentName);
+          }
         }
       }
     }

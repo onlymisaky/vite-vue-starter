@@ -1,7 +1,8 @@
+import store from '@/store';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-export default defineStore('user', () => {
+export const useUserStore = defineStore('user', () => {
   const info = ref<Partial<IUser>>({
     id: '123456789',
     username: 'admin',
@@ -41,3 +42,7 @@ export default defineStore('user', () => {
 
   return { info, token, logged, permissions, logout };
 });
+
+export function useUserStoreWithOut() {
+  return useUserStore(store);
+}

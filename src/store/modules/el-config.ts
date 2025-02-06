@@ -1,4 +1,5 @@
 import type { ConfigProviderProps } from 'element-plus';
+import store from '@/store';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
@@ -12,7 +13,7 @@ function createDefaultConfig() {
   return { ...defaultConfig };
 }
 
-export default defineStore('elConfig', () => {
+export const useElConfigStore = defineStore('elConfig', () => {
   const elConfig = ref<Partial<ConfigProviderProps>>(createDefaultConfig());
 
   function setElConfig(config: Partial<ConfigProviderProps>) {
@@ -31,3 +32,7 @@ export default defineStore('elConfig', () => {
 }, {
   persist: true,
 });
+
+export function useElConfigStoreWithOut() {
+  return useElConfigStore(store);
+}

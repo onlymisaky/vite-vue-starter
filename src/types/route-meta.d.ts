@@ -7,6 +7,10 @@ declare global {
      */
     title: string
     /**
+     * 是否缓存
+     */
+    cache?: boolean
+    /**
      * 菜单图标
      */
     icon?: string
@@ -28,7 +32,7 @@ declare global {
      */
     hideProgress?: boolean
     /**
-     * 路由切换动画
+     * TODO: 路由切换动画
      */
     transition?: 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'fade-transition' | 'fade' | 'fade-slide' | 'fade-down' | 'fade-scale' | 'fade-up' | 'collapse-transition'
   }

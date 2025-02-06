@@ -24,6 +24,7 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
     role="list-page"
     class="w-full h-full flex flex-col overflow-hidden"
   >
+    <slot name="others" :table-config="tableConfig" />
     <div
       v-if="$slots.filter"
       role="list-page-filter-container"

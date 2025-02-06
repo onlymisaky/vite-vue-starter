@@ -1,7 +1,8 @@
+import store from '@/store';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
-export default defineStore('layout', () => {
+export const useLayoutStore = defineStore('layout', () => {
   const showAside = ref(false);
 
   function toggleShowAside() {
@@ -14,3 +15,7 @@ export default defineStore('layout', () => {
     pick: ['showAside'],
   },
 });
+
+export function useLayoutStoreWithOut() {
+  return useLayoutStore(store);
+}

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { LOGIN_ROUTE_NAME } from '@/routes/constant';
-import useUserStore from '@/store/modules/user';
+import { useUserStore } from '@/store/modules/user';
 import { useRouter } from 'vue-router';
 
 const userStore = useUserStore();
