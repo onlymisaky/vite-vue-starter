@@ -4,7 +4,10 @@
  * @type {import('lint-staged').Config}
  */
 export default {
-  '**/*.{js,jsx,ts,tsx,json}': ['npm run eslint'],
-  '**/*.{css,scss,sass,postcss}': ['npm run stylelint'],
-  '**/*.{vue}': ['npm run eslint', ' npm run stylelint'],
+  // '**/*.{js,jsx,ts,tsx,json}': ['npm run eslint'],
+  // '**/*.{css,scss,sass,postcss}': ['npm run stylelint'],
+  // '**/*.{vue}': ['npm run eslint', ' npm run stylelint'],
+  '*.{js,jsx,ts,tsx,json}': 'eslint',
+  '*.{css,scss,sass,postcss}': 'stylelint',
+  '*.{vue}': 'eslint && stylelint',
 };
