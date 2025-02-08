@@ -1,5 +1,5 @@
 /**
- * @link https://tailwindcss.com/docs/guides/vite#vue
+ * @link https://v3.tailwindcss.com/docs/guides/vite#vue
  * @type {import('tailwindcss').Config}
  */
 export default {
