@@ -6,6 +6,7 @@ import AutoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 import { defineConfig, loadEnv } from 'vite';
+import vueDevTools from 'vite-plugin-vue-devtools';
 
 const manualChunks: Record<string, string> = {
   // [path.join(__dirname, 'src', 'layout/')]: 'src-layout',
@@ -34,6 +35,7 @@ export default defineConfig((config) => {
     envDir,
     plugins: [
       vue(),
+      vueDevTools(),
       codeInspectorPlugin({ bundler: 'vite' }),
       legacy({
         targets: ['defaults', 'not IE 11'],
