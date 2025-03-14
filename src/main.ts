@@ -7,6 +7,7 @@ import { setupStore } from './store';
 import 'element-plus/theme-chalk/dark/css-vars.css';
 import 'nprogress/nprogress.css';
 import './styles/styles.scss';
+import '@/utils/check-updates/index';
 
 function setup(app: App) {
   setupRouter(app);
