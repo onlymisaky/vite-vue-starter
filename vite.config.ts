@@ -29,9 +29,9 @@ const manualChunks: Record<string, string> = {
 // https://vite.dev/config/
 export default defineConfig((config) => {
   const envDir = path.resolve(process.cwd(), './environments');
-  const env = loadEnv(config.mode, envDir) as unknown as ViteEnv;
+  const env = loadEnv(config.mode, envDir, '') as unknown as ViteEnv;
   return {
-    base: process.env.BASE_URL || '/',
+    base: env.BASE_URL,
     envDir,
     plugins: [
       vue(),

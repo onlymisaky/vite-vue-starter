@@ -1,11 +1,21 @@
 import type { App } from 'vue';
 import { h } from 'vue';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import { routes } from './route-config';
 import { routerGuards } from './router-guards';
 
+function createHistory(...args: Parameters<typeof createWebHistory>) {
+  if (import.meta.env.VITE_ROUTER_TYPE === 'hash') {
+    return createWebHashHistory(...args);
+  }
+  if (import.meta.env.VITE_ROUTER_TYPE === 'history') {
+    return createWebHistory(...args);
+  }
+  return createWebHistory(...args);
+}
+
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createHistory(import.meta.env.BASE_URL),
   routes: [
     ...routes,
     {
