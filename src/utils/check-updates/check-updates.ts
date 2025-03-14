@@ -11,8 +11,22 @@ interface CheckUpdatesOptions {
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+function getTime(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = `0${date.getMonth() + 1}`.slice(-2);
+  const day = `0${date.getDate()}`.slice(-2);
+  const hour = `0${date.getHours()}`.slice(-2);
+  const minute = `0${date.getMinutes()}`.slice(-2);
+  const second = `0${date.getSeconds()}`.slice(-2);
+  return `${year}-${month}-${day}~${hour}:${minute}:${second}`;
+}
+
 function fetchRootHtml(url: string) {
-  const input = url.includes('?') ? `${url}&timestamp=${Date.now()}` : `${url}?timestamp=${Date.now()}`;
+  const time = getTime();
+  const query = `time=${time}`;
+  const input = url.includes('?') ? `${url}&${query}` : `${url}?${query}`;
+  console.warn(time, '发起更新检测');
   return fetch(input, { headers: { 'cache-control': 'no-cache' } })
     .then(res => res.text());
 }
