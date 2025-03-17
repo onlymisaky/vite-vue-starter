@@ -11,6 +11,7 @@ import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';
 import SearchMenuIcon from './components/SearchMenu/SearchMenuIcon.vue';
 import UserAvatar from './components/UserAvatar.vue';
+import ViewTab from './components/ViewTab/ViewTab.vue';
 
 const menuStore = useMenuStore();
 const layoutStore = useLayoutStore();
@@ -51,6 +52,8 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
           <UserAvatar class="ml-[10px]" />
         </div>
       </ElHeader>
+
+      <ViewTab />
 
       <ElMain class="bg-[var(--el-bg-color-page)] h-full">
         <RouterView v-slot="{ Component }">

@@ -7,6 +7,10 @@ declare global {
      */
     title: string
     /**
+     * 是否在标签页中隐藏
+     */
+    hideInTab?: boolean
+    /**
      * 是否缓存
      */
     cache?: boolean

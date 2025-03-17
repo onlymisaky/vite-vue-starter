@@ -1,5 +1,4 @@
 import type { App } from 'vue';
-import { h } from 'vue';
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import { routes } from './route-config';
 import { routerGuards } from './router-guards';
@@ -16,18 +15,7 @@ function createHistory(...args: Parameters<typeof createWebHistory>) {
 
 const router = createRouter({
   history: createHistory(import.meta.env.BASE_URL),
-  routes: [
-    ...routes,
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'AllNotFound',
-      component: {
-        render() {
-          return h('div', '404 Page');
-        },
-      },
-    },
-  ],
+  routes,
 });
 
 export function setupRouter(app: App) {

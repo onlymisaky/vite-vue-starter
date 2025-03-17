@@ -30,6 +30,7 @@ export const layoutRoute: RouteRecordRaw = {
       meta: {
         title: '403',
         hideInMenu: true,
+        hideInTab: true,
       },
     },
   ],
@@ -43,7 +44,8 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Login/Login.vue'),
     meta: {
       title: '登录',
-      hidden: true,
+      hideInTab: true,
+      hideInMenu: true,
     },
   },
   {
@@ -52,6 +54,8 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/views/Error/NotFound.vue'),
     meta: {
       title: '404',
+      hideInTab: true,
+      hideInMenu: true,
     },
   },
 ];

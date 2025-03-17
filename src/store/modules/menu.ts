@@ -1,4 +1,4 @@
-import type { RouteLocationNormalizedGeneric, RouteRecordRaw } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
 import { layoutRoute } from '@/routes/route-config';
 import store from '@/store';
 import { hasPermission } from '@/utils/permission';
@@ -81,9 +81,8 @@ export const useMenuStore = defineStore('menu', () => {
 
   const activeMenu = ref('');
 
-  function setActiveMenu(to: RouteLocationNormalizedGeneric) {
-    const index = to.name as string;
-    activeMenu.value = index;
+  function setActiveMenu(menu: IMenuItem) {
+    activeMenu.value = menu.index;
   }
 
   const animationDuration = ref(200);

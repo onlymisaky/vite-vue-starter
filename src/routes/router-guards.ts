@@ -2,6 +2,7 @@ import type { RouteComponent, Router } from 'vue-router';
 import { useMenuStoreWithOut } from '@/store/modules/menu';
 import { usePageCacheStoreWithOut } from '@/store/modules/page-cache';
 import { useUserStoreWithOut } from '@/store/modules/user';
+import { useViewTabStoreWithOut } from '@/store/modules/view-tab';
 import { hasPermission } from '@/utils/permission';
 import NProgress from 'nprogress';
 import { isNavigationFailure } from 'vue-router';
@@ -88,11 +89,24 @@ export function routerGuards(router: Router) {
           }
         }
       }
+
+      menuStore.setActiveMenu(menu);
+    }
+    else {
+      menuStore.activeMenu = '';
     }
 
-    menuStore.setActiveMenu(to);
-
     document.title = to.meta.title as string || document.title;
+
+    if (to.meta && !to.meta.hideInTab) {
+      const viewTab = useViewTabStoreWithOut();
+      viewTab.addTab({
+        name: to.name as string,
+        fullPath: to.fullPath,
+        title: to.meta.title as string,
+        icon: to.meta.icon,
+      });
+    }
   });
 
   router.onError((_error, _to) => {
