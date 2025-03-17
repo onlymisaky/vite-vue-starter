@@ -98,14 +98,17 @@ export function routerGuards(router: Router) {
 
     document.title = to.meta.title as string || document.title;
 
-    if (to.meta && !to.meta.hideInTab) {
-      const viewTab = useViewTabStoreWithOut();
+    const viewTab = useViewTabStoreWithOut();
+    if (Object.keys(to.meta).length > 0 && !to.meta.hideInTab) {
       viewTab.addTab({
         name: to.name as string,
         fullPath: to.fullPath,
         title: to.meta.title as string,
         icon: to.meta.icon,
       });
+    }
+    else {
+      viewTab.activeTab = undefined;
     }
   });
 

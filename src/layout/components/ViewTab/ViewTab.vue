@@ -11,7 +11,10 @@ function removeTab(tab: IViewTab, event: Event) {
 </script>
 
 <template>
-  <div class="views-tab-wrapper">
+  <div
+    v-if="viewTab.tabs.length > 0"
+    class="views-tab-wrapper"
+  >
     <ElScrollbar class="flex-1">
       <div class="views-tab">
         <div

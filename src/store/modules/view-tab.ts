@@ -46,9 +46,14 @@ export const useViewTabStore = defineStore('viewTab', () => {
     const index = tabs.value.findIndex(t => t.fullPath === fullPath);
     if (index > -1) {
       tabs.value.splice(index, 1);
-    }
-    if (activeTab.value?.fullPath === fullPath) {
-      setActive(tabs.value[tabs.value.length - 1]);
+      if (activeTab.value?.fullPath === fullPath) {
+        if (tabs.value.length > 0) {
+          setActive(tabs.value[tabs.value.length - 1]);
+        }
+        else {
+          router.push('/');
+        }
+      }
     }
   }
 
@@ -59,6 +64,8 @@ export const useViewTabStore = defineStore('viewTab', () => {
     removeTab,
     setActive,
   };
+}, {
+  persist: true,
 });
 
 export function useViewTabStoreWithOut() {
