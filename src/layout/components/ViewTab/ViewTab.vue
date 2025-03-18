@@ -132,7 +132,13 @@ html.dark {
 .drag-move,
 .drag-enter-active,
 .drag-leave-active {
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.drag-enter-from,
+.drag-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
 }
 
 :deep(.el-scrollbar__bar.is-vertical) {

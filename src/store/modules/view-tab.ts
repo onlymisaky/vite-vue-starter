@@ -47,8 +47,9 @@ export const useViewTabStore = defineStore('viewTab', () => {
     if (index > -1) {
       tabs.value.splice(index, 1);
       if (activeTab.value?.fullPath === fullPath) {
-        if (tabs.value.length > 0) {
-          setActive(tabs.value[tabs.value.length - 1]);
+        const len = tabs.value.length;
+        if (len > 0) {
+          setActive(tabs.value[Math.min(index, len - 1)]);
         }
         else {
           router.push('/');
