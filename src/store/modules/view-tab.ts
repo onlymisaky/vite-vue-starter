@@ -1,7 +1,7 @@
 import store from '@/store';
 import { useMenuStore } from '@/store/modules/menu';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 export interface IViewTab {
@@ -19,6 +19,10 @@ export const useViewTabStore = defineStore('viewTab', () => {
   const tabs = ref<IViewTab[]>([]);
 
   const activeTab = ref<IViewTab | undefined>();
+
+  const activeIndex = computed(() => {
+    return tabs.value.findIndex(t => t.fullPath === activeTab.value?.fullPath);
+  });
 
   function setActive(tab: IViewTab) {
     activeTab.value = tab;
@@ -61,6 +65,7 @@ export const useViewTabStore = defineStore('viewTab', () => {
   return {
     tabs,
     activeTab,
+    activeIndex,
     addTab,
     removeTab,
     setActive,

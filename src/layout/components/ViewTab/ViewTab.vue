@@ -1,9 +1,40 @@
 <script lang="ts" setup>
 import type { IViewTab } from '@/store/modules/view-tab';
 import { useViewTabStore } from '@/store/modules/view-tab';
-import { ref } from 'vue';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
+import Scroll from './Scroll.vue';
 
 const viewTab = useViewTabStore();
+
+const scrollRef = useTemplateRef<InstanceType<typeof Scroll>>('scrollRef');
+const tabsRef = useTemplateRef<HTMLDivElement[]>('tabs');
+
+function scrollToActiveTab() {
+  // 确保 active 在可视区域内
+  nextTick(() => {
+    if (scrollRef.value) {
+      const { canScroll } = scrollRef.value.checkCanScroll();
+      if (!canScroll) {
+        return;
+      }
+      if ([0, 1].includes(viewTab.activeIndex)) {
+        scrollRef.value.scrollTo(0);
+      }
+      else {
+        scrollRef.value.scrollTo(tabsRef.value![viewTab.activeIndex - 1].offsetLeft);
+      }
+    }
+  });
+}
+
+watch(() => viewTab.activeTab, (val) => {
+  console.warn(val);
+  if (!val) {
+    return;
+  }
+
+  scrollToActiveTab();
+}, { deep: true, immediate: true });
 
 function removeTab(tab: IViewTab, event: Event) {
   event.stopPropagation();
@@ -60,7 +91,11 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
     v-if="viewTab.tabs.length > 0"
     class="views-tab-wrapper"
   >
-    <ElScrollbar class="flex-1">
+    <Scroll
+      ref="scrollRef"
+      :resize-callback="scrollToActiveTab"
+      class="flex-1"
+    >
       <TransitionGroup
         name="drag"
         tag="div"
@@ -69,6 +104,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
         <div
           v-for="(tab, index) in viewTab.tabs"
           :key="tab.fullPath"
+          ref="tabs"
           :class="{ active: viewTab.activeTab?.fullPath === tab.fullPath }"
           class="views-tab-item group"
           draggable="true"
@@ -106,7 +142,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
           </ElIcon>
         </div>
       </TransitionGroup>
-    </ElScrollbar>
+    </Scroll>
   </div>
 </template>
 
@@ -141,23 +177,20 @@ html.dark {
   transform: translateY(-100%);
 }
 
-:deep(.el-scrollbar__bar.is-vertical) {
-  width: 0 !important;
-  height: 0 !important;
-}
-
 .views-tab-wrapper {
   display: flex;
   background-color: var(--chrome-tab-bg-color);
   border-bottom: 1px solid var(--chrome-tab-border-color);
 
   .views-tab {
-    flex: 1;
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
     height: 38px;
+    width: max-content;
     padding-top: 4px;
+    padding-left: 4px;
+    box-sizing: content-box;
 
     .views-tab-item {
       height: 100%;
@@ -168,8 +201,6 @@ html.dark {
       cursor: pointer;
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
-
-      /* transition: all 0.2s ease-in-out; */
 
       .divider {
         border-left: 1px solid var(--chrome-tab-border-color);
