@@ -59,9 +59,14 @@ function handleDragEnter(event: DragEvent, _tab: IViewTab, _index: number) {
   if (moving.value) {
     return;
   }
-  const temp = viewTab.tabs[_index];
-  viewTab.tabs[_index] = viewTab.tabs[dragIndex.value];
-  viewTab.tabs[dragIndex.value] = temp;
+
+  // const temp = viewTab.tabs[_index];
+  // viewTab.tabs[_index] = viewTab.tabs[dragIndex.value];
+  // viewTab.tabs[dragIndex.value] = temp;
+
+  const draggedTab = viewTab.tabs.splice(dragIndex.value, 1)[0];
+  viewTab.tabs.splice(_index, 0, draggedTab);
+
   dragIndex.value = _index;
 }
 
