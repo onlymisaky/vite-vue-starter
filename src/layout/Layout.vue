@@ -11,7 +11,7 @@ import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';
 import SearchMenuIcon from './components/SearchMenu/SearchMenuIcon.vue';
 import UserAvatar from './components/UserAvatar.vue';
-import ViewTab from './components/ViewTab/ViewTab.vue';
+import ViewTab from './components/ViewTab.vue';
 
 const menuStore = useMenuStore();
 const layoutStore = useLayoutStore();

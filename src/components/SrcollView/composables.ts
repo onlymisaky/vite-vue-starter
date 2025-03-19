@@ -21,7 +21,7 @@ export function useDragScrollBar(
   barRef: Ref<HTMLElement | null>,
   thumbRef: Ref<HTMLElement | null>,
   options: MaybeRef<{
-    size: number
+    thumbSize: number
     direction: 'vertical' | 'horizontal'
     onScroll?: (delta: number) => void
   }>,
@@ -51,7 +51,7 @@ export function useDragScrollBar(
       return;
     }
 
-    const { direction, size, onScroll } = unref(optionsComputedRef);
+    const { direction, thumbSize, onScroll } = unref(optionsComputedRef);
 
     let delta = 0;
 
@@ -60,10 +60,10 @@ export function useDragScrollBar(
       pos.value.y = event.clientY;
       const top = Number(getComputedStyle(thumbRef.value!).top.replace('px', ''));
       const barHeight = barRef.value!.offsetHeight;
-      if ((top <= 0 && deltaY < 0) || (top >= barHeight - size && deltaY > 0)) {
+      if ((top <= 0 && deltaY < 0) || (top >= barHeight - thumbSize && deltaY > 0)) {
         return;
       }
-      thumbRef.value!.style.top = `${Math.min(Math.max(top + deltaY, 0), barHeight - size)}px`;
+      thumbRef.value!.style.top = `${Math.min(Math.max(top + deltaY, 0), barHeight - thumbSize)}px`;
       delta = deltaY;
     }
 
@@ -72,10 +72,10 @@ export function useDragScrollBar(
       pos.value.x = event.clientX;
       const left = Number(getComputedStyle(thumbRef.value!).left.replace('px', ''));
       const barWidth = barRef.value!.offsetWidth;
-      if ((left <= 0 && deltaX < 0) || (left >= barWidth - size && deltaX > 0)) {
+      if ((left <= 0 && deltaX < 0) || (left >= barWidth - thumbSize && deltaX > 0)) {
         return;
       }
-      thumbRef.value!.style.left = `${Math.min(Math.max(left + deltaX, 0), barWidth - size)}px`;
+      thumbRef.value!.style.left = `${Math.min(Math.max(left + deltaX, 0), barWidth - thumbSize)}px`;
       delta = deltaX;
     }
 
@@ -101,12 +101,12 @@ export function useDragScrollBar(
     if (event.target === thumbRef.value) {
       return;
     }
-    const { direction, size } = unref(optionsComputedRef);
+    const { direction, thumbSize } = unref(optionsComputedRef);
     if (direction === 'vertical') {
-      thumbRef.value!.style.top = `${event.offsetY - size / 2}px`;
+      thumbRef.value!.style.top = `${event.offsetY - thumbSize / 2}px`;
     }
     if (direction === 'horizontal') {
-      thumbRef.value!.style.left = `${event.offsetX - size / 2}px`;
+      thumbRef.value!.style.left = `${event.offsetX - thumbSize / 2}px`;
     }
   }
 

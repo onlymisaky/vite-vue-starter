@@ -8,7 +8,7 @@ const props = defineProps({
     type: String as PropType<'horizontal' | 'vertical'>,
     default: 'vertical',
   },
-  size: {
+  thumbSize: {
     type: Number,
     default: 0,
   },
@@ -18,18 +18,18 @@ const emit = defineEmits(['scroll']);
 
 const barRef = useTemplateRef<HTMLDivElement>('barRef');
 const thumbRef = useTemplateRef<HTMLDivElement>('thumbRef');
-const barSize = computed(() => {
-  if (!props.size) {
+const thumbStyle = computed(() => {
+  if (!props.thumbSize) {
     return {};
   }
   if (props.direction === 'vertical') {
     return {
-      height: `${props.size}px`,
+      height: `${props.thumbSize}px`,
     };
   }
   if (props.direction === 'horizontal') {
     return {
-      width: `${props.size}px`,
+      width: `${props.thumbSize}px`,
     };
   }
   return {};
@@ -39,7 +39,7 @@ const { isDragging, locateToClickPosition, startDrag } = useDragScrollBar(
   barRef,
   thumbRef,
   computed(() => ({
-    size: props.size,
+    thumbSize: props.thumbSize,
     direction: props.direction,
     onScroll: (delta: number) => emit('scroll', delta),
   })),
@@ -48,8 +48,9 @@ const { isDragging, locateToClickPosition, startDrag } = useDragScrollBar(
 
 <template>
   <div
+    v-show="thumbSize > 0"
     ref="barRef"
-    class="absolute cursor-pointer ransition-opacity duration-200 ease-out"
+    class="absolute cursor-pointer transition-opacity duration-200 ease-out"
     :class="{
       'top-0 bottom-0 right-0 w-[6px]': direction === 'vertical',
       'left-0 right-0 bottom-0 h-[6px]': direction === 'horizontal',
@@ -68,7 +69,7 @@ const { isDragging, locateToClickPosition, startDrag } = useDragScrollBar(
         'top-0 bottom-0': direction === 'horizontal',
         '!cursor-grabbing !opacity-100': isDragging,
       }"
-      :style="barSize"
+      :style="thumbStyle"
       @mousedown="startDrag"
     />
   </div>

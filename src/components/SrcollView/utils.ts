@@ -1,62 +1,68 @@
-import type { Ref } from 'vue';
+export function calculateThumbSize(containerSize: number, viewSize: number) {
+  return Math.max((containerSize / viewSize) * containerSize, 20);
+}
 
 /**
- * 检查是否可以滚动
+ * 获取可滚动区域的信息
+ * @param direction 滚动方向 ('horizontal' 或 'vertical')
+ * @param containerEl 容器元素
+ * @param viewEl 视图元素
+ * @returns 包含容器大小、视图大小、可滚动大小和滚动滑块大小的对象
  */
-export function checkCanScroll(
+export function getScrollableAreaInfo(
   direction: 'horizontal' | 'vertical',
-  containerRef: Ref<HTMLElement | null>,
-  viewRef: Ref<HTMLElement | null>,
-  translate: Ref<number>,
+  containerEl: HTMLElement | null,
+  viewEl: HTMLElement | null,
 ) {
   let viewSize = 0;
   let containerSize = 0;
-  let canScrollSize = 0;
+  let scrollableSize = 0;
+  let thumbSize = 0;
 
   if (direction === 'horizontal') {
-    viewSize = viewRef.value?.offsetWidth || viewSize;
-    containerSize = containerRef.value?.offsetWidth || containerSize;
+    viewSize = viewEl?.offsetWidth || viewSize;
+    containerSize = containerEl?.offsetWidth || containerSize;
   }
-
   else if (direction === 'vertical') {
-    viewSize = viewRef.value?.offsetHeight || viewSize;
-    containerSize = containerRef.value?.offsetHeight || containerSize;
+    viewSize = viewEl?.offsetHeight || viewSize;
+    containerSize = containerEl?.offsetHeight || containerSize;
   }
 
-  canScrollSize = viewSize - containerSize;
+  scrollableSize = viewSize - containerSize;
+  thumbSize = calculateThumbSize(containerSize, viewSize);
 
-  let canScroll = true;
-  if (canScrollSize <= 0) {
-    canScroll = false;
-    translate.value = 0;
-    canScrollSize = 0;
+  if (scrollableSize <= 0) {
+    scrollableSize = 0;
+    thumbSize = 0;
   }
 
   return {
-    canScroll,
     viewSize,
     containerSize,
-    canScrollSize,
-    scrollSize: translate.value,
+    scrollableSize,
+    thumbSize,
   };
 }
 
 /**
  * 计算滚动大小
- * @param scrollSize 已滚动大小
- * @param canScrollSize 可滚动大小
- * @returns 滚动大小
+ * @param scrolledSize 已滚动大小
+ * @param scrollableSize 可滚动大小
+ * @param wantScrollSize 想要滚动的大小，负数表示往上/左滚动，正数表示往下/右滚动
+ * @returns 最终实际滚动大小
  */
-export function calculateScrollSize(scrollSize: number, canScrollSize: number) {
-  let size = scrollSize;
-  if (size > 0) {
-    size = 0;
+export function calculateScrollSize(
+  scrolledSize: number,
+  scrollableSize: number,
+  wantScrollSize: number,
+) {
+  if (scrollableSize <= 0) {
+    return 0;
   }
 
-  size = Math.abs(size);
-
-  size = Math.min(size, canScrollSize);
+  let size = scrolledSize + wantScrollSize;
   size = Math.max(size, 0);
+  size = Math.min(size, scrollableSize);
 
-  return -size;
+  return size;
 }

@@ -4,7 +4,7 @@ import { throttle } from 'lodash-es';
 import { computed, ref, useTemplateRef } from 'vue';
 import Bar from './Bar.vue';
 import { useResizeObserver } from './composables';
-import { calculateScrollSize, checkCanScroll } from './utils';
+import { calculateScrollSize, getScrollableAreaInfo } from './utils';
 
 const props = defineProps({
   direction: {
@@ -20,77 +20,85 @@ const props = defineProps({
 const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
 const viewRef = useTemplateRef<HTMLDivElement>('viewRef');
 
-const translate = ref(0);
-const transform = computed(() => {
+const thumbSize = ref(0);
+
+const scrolledSize = ref(0);
+const viewStyle = computed(() => {
   if (props.direction === 'horizontal') {
-    return `translateX(${translate.value}px)`;
+    return { transform: `translateX(${-scrolledSize.value}px)` };
   }
   if (props.direction === 'vertical') {
-    return `translateY(${translate.value}px)`;
+    return { transform: `translateY(${-scrolledSize.value}px)` };
   }
   return '';
 });
 
-function handleScroll(event: WheelEvent) {
-  event.stopPropagation();
-  event.preventDefault();
+function getScrollInfo() {
+  const scrollableIfno = getScrollableAreaInfo(
+    props.direction,
+    containerRef.value,
+    viewRef.value,
+  );
 
-  const { canScroll, canScrollSize } = checkCanScroll(props.direction, containerRef, viewRef, translate);
-  if (!canScroll) {
-    return;
+  thumbSize.value = scrollableIfno.thumbSize;
+
+  if (scrollableIfno.scrollableSize <= 0) {
+    scrolledSize.value = 0;
   }
 
-  const scrollSize = translate.value - event.deltaY / 2.5;
-
-  translate.value = calculateScrollSize(scrollSize, canScrollSize);
+  return scrollableIfno;
 }
 
-const showBar = ref(false);
-const scrollBarSize = ref(0);
-
 const resizeObserverCallback = throttle((_entries: ResizeObserverEntry[]) => {
-  const { canScroll, canScrollSize, containerSize, viewSize } = checkCanScroll(props.direction, containerRef, viewRef, translate);
-  if (!canScroll) {
-    showBar.value = false;
-    scrollBarSize.value = 0;
+  const { scrollableSize } = getScrollInfo();
+
+  if (typeof props.resizeCallback === 'function') {
+    props.resizeCallback();
+  }
+
+  if (scrollableSize <= 0) {
+    scrolledSize.value = 0;
     return;
   }
 
   // 已滚动的距离大于可滚动的距离
-  if (Math.abs(translate.value) > canScrollSize) {
-    translate.value = -canScrollSize;
-  }
-
-  showBar.value = true;
-
-  scrollBarSize.value = Math.max((containerSize / viewSize) * containerSize, 20);
-
-  if (typeof props.resizeCallback === 'function') {
-    props.resizeCallback();
+  if (Math.abs(scrolledSize.value) > scrollableSize) {
+    scrolledSize.value = -scrollableSize;
   }
 }, 80);
 
 useResizeObserver(containerRef, resizeObserverCallback);
 useResizeObserver(viewRef, resizeObserverCallback);
 
-function scrollTo(x: number) {
-  const { canScroll, canScrollSize } = checkCanScroll(props.direction, containerRef, viewRef, translate);
+function scroll(wantScrollSize: number) {
+  const { scrollableSize } = getScrollInfo();
 
-  if (!canScroll) {
+  if (scrollableSize <= 0) {
     return;
   }
 
-  translate.value = calculateScrollSize(-Math.abs(x), canScrollSize);
+  scrolledSize.value = calculateScrollSize(scrolledSize.value, scrollableSize, wantScrollSize);
 }
 
-function scroll(size: number) {
-  scrollTo(translate.value + size);
+function scrollTo(x: number) {
+  const wantScrollSize = x - scrolledSize.value;
+
+  scroll(wantScrollSize);
+}
+
+function handleScroll(event: WheelEvent) {
+  event.stopPropagation();
+  event.preventDefault();
+
+  const wantScrollSize = event.deltaY / 2.5;
+
+  scroll(wantScrollSize);
 }
 
 defineExpose({
   scrollTo,
   scroll,
-  checkCanScroll: () => checkCanScroll(props.direction, containerRef, viewRef, translate),
+  getScrollInfo: () => getScrollInfo(),
 });
 </script>
 
@@ -107,16 +115,14 @@ defineExpose({
         'h-[max-content]': direction === 'vertical',
       }"
       class="p-0 m-0 border-0 transition-transform duration-200 ease-out"
-      :style="{ transform }"
+      :style="viewStyle"
     >
       <slot />
     </div>
     <!-- TODO -->
     <Bar
-      v-if="false"
-      v-show="showBar"
       :direction="direction"
-      :size="scrollBarSize"
+      :thumb-size="thumbSize"
       class="hidden group-hover:block"
     />
   </div>
