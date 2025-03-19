@@ -35,7 +35,7 @@ function handleScroll(event: WheelEvent) {
   event.stopPropagation();
   event.preventDefault();
 
-  const { canScroll, canScrollSize } = checkCanScroll(props.direction, viewRef, containerRef, translate);
+  const { canScroll, canScrollSize } = checkCanScroll(props.direction, containerRef, viewRef, translate);
   if (!canScroll) {
     return;
   }
@@ -49,7 +49,7 @@ const showBar = ref(false);
 const scrollBarSize = ref(0);
 
 const resizeObserverCallback = throttle((_entries: ResizeObserverEntry[]) => {
-  const { canScroll, canScrollSize, containerSize, viewSize } = checkCanScroll(props.direction, viewRef, containerRef, translate);
+  const { canScroll, canScrollSize, containerSize, viewSize } = checkCanScroll(props.direction, containerRef, viewRef, translate);
   if (!canScroll) {
     showBar.value = false;
     scrollBarSize.value = 0;
@@ -74,7 +74,7 @@ useResizeObserver(containerRef, resizeObserverCallback);
 useResizeObserver(viewRef, resizeObserverCallback);
 
 function scrollTo(x: number) {
-  const { canScroll, canScrollSize } = checkCanScroll(props.direction, viewRef, containerRef, translate);
+  const { canScroll, canScrollSize } = checkCanScroll(props.direction, containerRef, viewRef, translate);
 
   if (!canScroll) {
     return;
@@ -90,7 +90,7 @@ function scroll(size: number) {
 defineExpose({
   scrollTo,
   scroll,
-  checkCanScroll: () => checkCanScroll(props.direction, viewRef, containerRef, translate),
+  checkCanScroll: () => checkCanScroll(props.direction, containerRef, viewRef, translate),
 });
 </script>
 
