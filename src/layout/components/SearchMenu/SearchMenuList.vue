@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { ElScrollbar } from 'element-plus';
 import type { PropType } from 'vue';
 import AppLink from '@/components/AppLink.vue';
+import SrcollView from '@/components/SrcollView/ScrollView.vue';
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const props = defineProps({
 const emits = defineEmits(['select']);
 
 const activeIndex = ref(-1);
-const scrollbarRef = useTemplateRef<InstanceType<typeof ElScrollbar>>('scrollbarRef');
+const scrollViewRef = useTemplateRef<InstanceType<typeof SrcollView>>('scrollViewRef');
 const appLinkRefs = useTemplateRef<HTMLLIElement[]>('appLinkRefs');
 
 function toggleResult(e: KeyboardEvent) {
@@ -27,7 +27,7 @@ function toggleResult(e: KeyboardEvent) {
   // 使用取模运算实现循环
   activeIndex.value = (activeIndex.value + (isUp ? -1 : 1) + total) % total;
 
-  scrollbarRef.value?.setScrollTop(activeIndex.value * 56);
+  scrollViewRef.value?.scrollTo(activeIndex.value * 56);
 }
 
 function isDisabled(item: IMenuItem) {
@@ -55,54 +55,54 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <ElScrollbar
-    ref="scrollbarRef"
-    height="400px"
-    class="flex flex-col"
-  >
-    <ul class="w-full">
-      <li
-        v-for="(menuItem, index) in list"
-        :key="menuItem.index"
-        ref="appLinkRefs"
-        class="item flex flex-1 h-[56px] rounded-[4px] mb-[8px] bg-[#e5e7eb] dark:bg-[#4c4c4c]"
-        :class="[
-          { active: activeIndex === index },
-          isDisabled(menuItem) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-        ]"
-        @mouseover="activeIndex = index"
-        @mouseleave="activeIndex = -1"
-      >
-        <AppLink
-          class="flex flex-1 items-center p-[20px]"
-          :route="menuItem.route"
-          :link="menuItem.externalLink"
-          :disabled="isDisabled(menuItem)"
-          @click="emits('select', $event, menuItem.index)"
+  <div class="h-[400px]">
+    <SrcollView
+      ref="scrollViewRef"
+    >
+      <ul class="w-full flex flex-col">
+        <li
+          v-for="(menuItem, index) in list"
+          :key="menuItem.index"
+          ref="appLinkRefs"
+          class="item flex flex-1 h-[56px] rounded-[4px] mb-[8px] bg-[#e5e7eb] dark:bg-[#4c4c4c]"
+          :class="[
+            { active: activeIndex === index },
+            isDisabled(menuItem) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+          ]"
+          @mouseover="activeIndex = index"
+          @mouseleave="activeIndex = -1"
         >
-          <ElIcon
-            :size="24"
-            class="mr-[10px]"
+          <AppLink
+            class="flex flex-1 items-center p-[20px]"
+            :route="menuItem.route"
+            :link="menuItem.externalLink"
+            :disabled="isDisabled(menuItem)"
+            @click="emits('select', $event, menuItem.index)"
           >
-            <component :is="menuItem.icon || 'Menu'" />
-          </ElIcon>
-          <template v-if="menuItem.parents && menuItem.parents.length">
-            <span
-              v-for="parent in menuItem.parents"
-              :key="parent.index"
-              :class="{}"
-              class="text-placeholder"
+            <ElIcon
+              :size="24"
+              class="mr-[10px]"
             >
-              {{ parent.title }}&nbsp;&nbsp;>&nbsp;&nbsp;
+              <component :is="menuItem.icon || 'Menu'" />
+            </ElIcon>
+            <template v-if="menuItem.parents && menuItem.parents.length">
+              <span
+                v-for="parent in menuItem.parents"
+                :key="parent.index"
+                :class="{}"
+                class="text-placeholder"
+              >
+                {{ parent.title }}&nbsp;&nbsp;>&nbsp;&nbsp;
+              </span>
+            </template>
+            <span class="font-[500]">
+              {{ menuItem.title }}
             </span>
-          </template>
-          <span class="font-[500]">
-            {{ menuItem.title }}
-          </span>
-        </AppLink>
-      </li>
-    </ul>
-  </ElScrollbar>
+          </AppLink>
+        </li>
+      </ul>
+    </SrcollView>
+  </div>
 </template>
 
 <style scoped>

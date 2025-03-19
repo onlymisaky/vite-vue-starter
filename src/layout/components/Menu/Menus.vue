@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import IconWithBg from '@/components/IconWithBg.vue';
+import SrcollView from '@/components/SrcollView/ScrollView.vue';
 import { useMenuStore } from '@/store/modules/menu';
 import MenuItem from './MenuItem.vue';
 
@@ -8,7 +9,7 @@ const menuStore = useMenuStore();
 
 <template>
   <div class="bg-[var(--el-menu-bg-color)] flex flex-col overflow-hidden">
-    <ElScrollbar>
+    <SrcollView>
       <ElMenu
         :collapse="menuStore.isCollapse"
         :default-active="menuStore.activeMenu"
@@ -23,7 +24,7 @@ const menuStore = useMenuStore();
           :menu="menu"
         />
       </ElMenu>
-    </ElScrollbar>
+    </SrcollView>
     <div class="flex items-center p-[20px] h-[40px] overflow-hidden">
       <span class="flex items-center">
         <IconWithBg

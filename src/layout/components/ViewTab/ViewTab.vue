@@ -1,34 +1,33 @@
 <script lang="ts" setup>
 import type { IViewTab } from '@/store/modules/view-tab';
+import SrcollView from '@/components/SrcollView/ScrollView.vue';
 import { useViewTabStore } from '@/store/modules/view-tab';
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
-import Scroll from './Scroll.vue';
 
 const viewTab = useViewTabStore();
 
-const scrollRef = useTemplateRef<InstanceType<typeof Scroll>>('scrollRef');
+const scrollViewRef = useTemplateRef<InstanceType<typeof SrcollView>>('scrollViewRef');
 const tabsRef = useTemplateRef<HTMLDivElement[]>('tabs');
 
 function scrollToActiveTab() {
   // 确保 active 在可视区域内
   nextTick(() => {
-    if (scrollRef.value) {
-      const { canScroll } = scrollRef.value.checkCanScroll();
+    if (scrollViewRef.value) {
+      const { canScroll } = scrollViewRef.value.checkCanScroll();
       if (!canScroll) {
         return;
       }
       if ([0, 1].includes(viewTab.activeIndex)) {
-        scrollRef.value.scrollTo(0);
+        scrollViewRef.value.scrollTo(0);
       }
       else {
-        scrollRef.value.scrollTo(tabsRef.value![viewTab.activeIndex - 1].offsetLeft);
+        scrollViewRef.value.scrollTo(tabsRef.value![viewTab.activeIndex - 1].offsetLeft);
       }
     }
   });
 }
 
 watch(() => viewTab.activeTab, (val) => {
-  console.warn(val);
   if (!val) {
     return;
   }
@@ -52,6 +51,7 @@ const moving = ref(false);
 function handleDragStart(event: DragEvent, _tab: IViewTab, _index: number) {
   event.stopPropagation();
   dragIndex.value = _index;
+  (event.target as HTMLElement).classList.add('overflow-hidden');
 }
 
 function handleDragEnter(event: DragEvent, _tab: IViewTab, _index: number) {
@@ -72,6 +72,7 @@ function handleDragEnter(event: DragEvent, _tab: IViewTab, _index: number) {
 
 function handleDragOver(event: DragEvent, _tab: IViewTab, _index: number) {
   event.preventDefault();
+  (event.target as HTMLElement).classList.remove('overflow-hidden');
 }
 
 function handleDragEnd(event: DragEvent, _tab: IViewTab, _index: number) {
@@ -96,8 +97,9 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
     v-if="viewTab.tabs.length > 0"
     class="views-tab-wrapper"
   >
-    <Scroll
-      ref="scrollRef"
+    <SrcollView
+      ref="scrollViewRef"
+      direction="horizontal"
       :resize-callback="scrollToActiveTab"
       class="flex-1"
     >
@@ -147,7 +149,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
           </ElIcon>
         </div>
       </TransitionGroup>
-    </Scroll>
+    </SrcollView>
   </div>
 </template>
 
@@ -173,6 +175,7 @@ html.dark {
 .drag-move,
 .drag-enter-active,
 .drag-leave-active {
+  overflow: hidden;
   transition: all 0.3s ease;
 }
 

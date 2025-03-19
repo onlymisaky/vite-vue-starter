@@ -23,6 +23,7 @@
     "element-plus": "^2.9.6",
     "fuse.js": "^7.1.0",
     "jszip": "^3.10.1",
+    "lodash-es": "^4.17.21",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.1",
     "pinia-plugin-persistedstate": "^4.2.0",
@@ -57,6 +58,7 @@
     "unplugin-auto-import": "^19.1.1",
     "unplugin-vue-components": "^28.4.1",
     "vite": "^6.2.2",
+    "vite-plugin-inspect": "^11.0.0",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vue-click-to-component": "^0.3.7",
     "vue-tsc": "^2.2.8"
