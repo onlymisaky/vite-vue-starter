@@ -54,29 +54,39 @@ export function useDragScrollBar(
     const { direction, thumbSize, onScroll } = unref(optionsComputedRef);
 
     let delta = 0;
+    let position = 0;
+    let barSize = 0;
+    let newPosition = 0;
 
     if (direction === 'vertical') {
-      const deltaY = event.clientY - pos.value.y;
+      delta = event.clientY - pos.value.y;
       pos.value.y = event.clientY;
-      const top = Number(getComputedStyle(thumbRef.value!).top.replace('px', ''));
-      const barHeight = barRef.value!.offsetHeight;
-      if ((top <= 0 && deltaY < 0) || (top >= barHeight - thumbSize && deltaY > 0)) {
+      position = Number(getComputedStyle(thumbRef.value!).top.replace('px', ''));
+      barSize = barRef.value!.offsetHeight;
+      if ((position <= 0 && delta < 0) || (position >= barSize - thumbSize && delta > 0)) {
         return;
       }
-      thumbRef.value!.style.top = `${Math.min(Math.max(top + deltaY, 0), barHeight - thumbSize)}px`;
-      delta = deltaY;
     }
 
     if (direction === 'horizontal') {
-      const deltaX = event.clientX - pos.value.x;
+      delta = event.clientX - pos.value.x;
       pos.value.x = event.clientX;
-      const left = Number(getComputedStyle(thumbRef.value!).left.replace('px', ''));
-      const barWidth = barRef.value!.offsetWidth;
-      if ((left <= 0 && deltaX < 0) || (left >= barWidth - thumbSize && deltaX > 0)) {
-        return;
-      }
-      thumbRef.value!.style.left = `${Math.min(Math.max(left + deltaX, 0), barWidth - thumbSize)}px`;
-      delta = deltaX;
+      position = Number(getComputedStyle(thumbRef.value!).left.replace('px', ''));
+      barSize = barRef.value!.offsetWidth;
+    }
+
+    // 限制滑块移动范围
+    if ((position <= 0 && delta < 0) || (position >= barSize - thumbSize && delta > 0)) {
+      return;
+    }
+
+    newPosition = Math.min(Math.max(position + delta, 0), barSize - thumbSize);
+
+    if (direction === 'vertical') {
+      thumbRef.value!.style.top = `${newPosition}px`;
+    }
+    else if (direction === 'horizontal') {
+      thumbRef.value!.style.left = `${newPosition}px`;
     }
 
     if (typeof onScroll === 'function' && delta !== 0) {
@@ -120,18 +130,4 @@ export function useDragScrollBar(
     startDrag: handleMousedown,
     locateToClickPosition,
   };
-}
-
-/**
- * TODO: 鼠标滚动时，更新滚动条位置
- */
-export function updateScrollBarPosition() {
-
-}
-
-/**
- * TODO: 拖动滚动条时，更新滚动视图位置
- */
-export function updateScrollViewPosition() {
-
 }

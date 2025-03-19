@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import type { IViewTab } from '@/store/modules/view-tab';
-import SrcollView from '@/components/SrcollView/ScrollView.vue';
+import ScrollView from '@/components/ScrollView/ScrollView.vue';
 import { useViewTabStore } from '@/store/modules/view-tab';
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
 const viewTab = useViewTabStore();
 
-const scrollViewRef = useTemplateRef<InstanceType<typeof SrcollView>>('scrollViewRef');
+const scrollViewRef = useTemplateRef<InstanceType<typeof ScrollView>>('scrollViewRef');
 const tabsRef = useTemplateRef<HTMLDivElement[]>('tabs');
 
 function scrollToActiveTab() {
@@ -97,7 +97,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
     v-if="viewTab.tabs.length > 0"
     class="views-tab-wrapper"
   >
-    <SrcollView
+    <ScrollView
       ref="scrollViewRef"
       direction="horizontal"
       :resize-callback="scrollToActiveTab"
@@ -149,7 +149,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
           </ElIcon>
         </div>
       </TransitionGroup>
-    </SrcollView>
+    </ScrollView>
   </div>
 </template>
 

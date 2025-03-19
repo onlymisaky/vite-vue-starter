@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import AppLink from '@/components/AppLink.vue';
-import SrcollView from '@/components/SrcollView/ScrollView.vue';
+import ScrollView from '@/components/ScrollView/ScrollView.vue';
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
@@ -13,7 +13,7 @@ const props = defineProps({
 const emits = defineEmits(['select']);
 
 const activeIndex = ref(-1);
-const scrollViewRef = useTemplateRef<InstanceType<typeof SrcollView>>('scrollViewRef');
+const scrollViewRef = useTemplateRef<InstanceType<typeof ScrollView>>('scrollViewRef');
 const appLinkRefs = useTemplateRef<HTMLLIElement[]>('appLinkRefs');
 
 function toggleResult(e: KeyboardEvent) {
@@ -56,7 +56,7 @@ onUnmounted(() => {
 
 <template>
   <div class="h-[400px]">
-    <SrcollView
+    <ScrollView
       ref="scrollViewRef"
     >
       <ul class="w-full flex flex-col">
@@ -101,7 +101,7 @@ onUnmounted(() => {
           </AppLink>
         </li>
       </ul>
-    </SrcollView>
+    </ScrollView>
   </div>
 </template>
 

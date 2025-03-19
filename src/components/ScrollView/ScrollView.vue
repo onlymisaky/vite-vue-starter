@@ -21,6 +21,7 @@ const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
 const viewRef = useTemplateRef<HTMLDivElement>('viewRef');
 
 const thumbSize = ref(0);
+const thumbPos = ref(0);
 
 const scrolledSize = ref(0);
 const viewStyle = computed(() => {
@@ -41,6 +42,7 @@ function getScrollInfo() {
   );
 
   thumbSize.value = scrollableIfno.thumbSize;
+  thumbPos.value = scrollableIfno.thumbPosition;
 
   if (scrollableIfno.scrollableSize <= 0) {
     scrolledSize.value = 0;

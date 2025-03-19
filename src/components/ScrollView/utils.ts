@@ -2,12 +2,18 @@ export function calculateThumbSize(containerSize: number, viewSize: number) {
   return Math.max((containerSize / viewSize) * containerSize, 20);
 }
 
+// TODO
+export function calculateThumbPosition(_containerSize: number, _viewSize: number, _scrolledSize: number) {
+  return 0;
+  // return (scrolledSize / (viewSize - containerSize)) * containerSize;
+}
+
 /**
  * 获取可滚动区域的信息
  * @param direction 滚动方向 ('horizontal' 或 'vertical')
  * @param containerEl 容器元素
  * @param viewEl 视图元素
- * @returns 包含容器大小、视图大小、可滚动大小和滚动滑块大小的对象
+ * @returns 包含容器大小、视图大小、可滚动大小、滚动滑块大小和滚动滑块位置的对象
  */
 export function getScrollableAreaInfo(
   direction: 'horizontal' | 'vertical',
@@ -18,6 +24,7 @@ export function getScrollableAreaInfo(
   let containerSize = 0;
   let scrollableSize = 0;
   let thumbSize = 0;
+  let thumbPosition = 0;
 
   if (direction === 'horizontal') {
     viewSize = viewEl?.offsetWidth || viewSize;
@@ -30,6 +37,7 @@ export function getScrollableAreaInfo(
 
   scrollableSize = viewSize - containerSize;
   thumbSize = calculateThumbSize(containerSize, viewSize);
+  thumbPosition = calculateThumbPosition(containerSize, viewSize, scrollableSize);
 
   if (scrollableSize <= 0) {
     scrollableSize = 0;
@@ -41,6 +49,7 @@ export function getScrollableAreaInfo(
     containerSize,
     scrollableSize,
     thumbSize,
+    thumbPosition,
   };
 }
 

@@ -25,11 +25,13 @@ const thumbStyle = computed(() => {
   if (props.direction === 'vertical') {
     return {
       height: `${props.thumbSize}px`,
+      // top: `${thumbPosition.value}px`,
     };
   }
   if (props.direction === 'horizontal') {
     return {
       width: `${props.thumbSize}px`,
+      // left: `${thumbPosition.value}px`,
     };
   }
   return {};
