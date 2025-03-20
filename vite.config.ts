@@ -8,24 +8,23 @@ import Components from 'unplugin-vue-components/vite';
 import { defineConfig, loadEnv } from 'vite';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import vueInspector from 'vite-plugin-vue-inspector';
+import { dependencies } from './package.json';
 
-const manualChunks: Record<string, string> = {
-  // [path.join(__dirname, 'src', 'layout/')]: 'src-layout',
-  // [path.join(__dirname, 'src', 'components/')]: 'src-components',
-  // [path.join(__dirname, 'src', 'utils/')]: 'src-utils',
-  // [path.join(__dirname, 'src', 'hooks/')]: 'src-hooks',
-  [path.join(__dirname, 'node_modules', 'vue/')]: 'vendor-vue',
-  [path.join(__dirname, 'node_modules', '@vue/')]: 'vendor-vue',
-  [path.join(__dirname, 'node_modules', 'vue-router/')]: 'vendor-vue-router',
-  [path.join(__dirname, 'node_modules', 'pinia/')]: 'vendor-pinia',
-  [path.join(__dirname, 'node_modules', 'pinia-plugin-persistedstate/')]: 'vendor-pinia-plugin-persistedstate',
-  [path.join(__dirname, 'node_modules', '@vueuse/')]: 'vendor-vue-use',
-  [path.join(__dirname, 'node_modules', 'element-plus/')]: 'vendor-element-plus',
-  [path.join(__dirname, 'node_modules', '@element-plus/icons-vue/')]: 'vendor-element-plus-icons',
-  [path.join(__dirname, 'node_modules', 'axios/')]: 'vendor-axios',
-  // [path.join(__dirname, 'node_modules', 'nprogress/')]: 'vendor-nprogress',
-  [path.join(__dirname, 'node_modules', 'fuse.js/')]: 'vendor-fuse.js',
-};
+const skip = ['nprogress', 'vue'];
+const manualChunks = Object.keys(dependencies).reduce((acc, key) => {
+  if (skip.includes(key))
+    return acc;
+
+  return {
+    ...acc,
+    [path.join(__dirname, 'node_modules', `${key}/`)]: `vendor-${key.replace('@', '').replace('/', '-')}`,
+  };
+}, {} as Record<string, string>);
+
+manualChunks[path.join(__dirname, 'node_modules', 'vue/')] = 'vendor-vue';
+manualChunks[path.join(__dirname, 'node_modules', '@vue/')] = 'vendor-vue';
+
+const vendor = path.join(__dirname, 'node_modules');
 
 // https://vite.dev/config/
 export default defineConfig((config) => {
@@ -83,7 +82,7 @@ export default defineConfig((config) => {
       },
     },
     build: {
-      chunkSizeWarningLimit: 200,
+      chunkSizeWarningLimit: 240,
       rollupOptions: {
         output: {
           manualChunks: (id) => {
@@ -92,7 +91,7 @@ export default defineConfig((config) => {
                 return manualChunks[key];
               }
             }
-            if (id.includes('/node_modules/')) {
+            if (id.startsWith(vendor)) {
               return 'vendor';
             }
           },
