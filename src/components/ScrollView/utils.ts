@@ -1,77 +1,100 @@
-export function calculateThumbSize(containerSize: number, contentSize: number) {
-  return Math.max((containerSize / contentSize) * containerSize, 20);
+export function calculateThumbSize(visibleContainerSize: number, totalContentSize: number) {
+  return Math.max((visibleContainerSize / totalContentSize) * visibleContainerSize, 20);
 }
 
-// TODO
-export function calculateThumbPosition(_containerSize: number, _contentSize: number, _scrolledSize: number) {
-  return 0;
-  // return (scrolledSize / (contentSize - containerSize)) * containerSize;
+/**
+ * 根据已经滚动的距离和滑块大小，计算活块应该在的位置
+ * @param visibleContainerSize
+ * @param totalContentSize
+ * @param currentScrollDistance
+ * @param thumbSize
+ * @returns
+ */
+export function calculateThumbPositionByScrollDistance(
+  visibleContainerSize: number,
+  totalContentSize: number,
+  currentScrollDistance: number,
+  thumbSize: number,
+) {
+  const maxScrollableDistance = totalContentSize - visibleContainerSize;
+
+  if (maxScrollableDistance <= 0) {
+    return 0;
+  }
+
+  if (currentScrollDistance <= 0) {
+    return 0;
+  }
+
+  if (currentScrollDistance >= maxScrollableDistance) {
+    return visibleContainerSize - thumbSize;
+  }
+
+  const availableThumbSpace = visibleContainerSize - thumbSize;
+
+  // 根据滚动距离与最大可滚动距离的比例，计算滑块在可用空间中的位置
+  return (availableThumbSpace / maxScrollableDistance) * currentScrollDistance;
+
+  // return (currentScrollDistance / maxScrollableDistance) * availableThumbSpace;
 }
 
 /**
  * 获取可滚动区域的信息
  * @param direction 滚动方向 ('horizontal' 或 'vertical')
- * @param containerEl 容器元素
- * @param contentEl 内容元素
+ * @param visibleContainerEl 容器元素
+ * @param totalContentEl 内容元素
  * @returns 包含容器大小、视图大小、可滚动大小、滚动滑块大小和滚动滑块位置的对象
  */
 export function getScrollableAreaInfo(
   direction: 'horizontal' | 'vertical',
-  containerEl: HTMLElement | null,
-  contentEl: HTMLElement | null,
+  visibleContainerEl: HTMLElement | null,
+  totalContentEl: HTMLElement | null,
 ) {
-  let contentSize = 0;
-  let containerSize = 0;
-  let scrollableSize = 0;
-  let thumbSize = 0;
-  let thumbPosition = 0;
+  let totalContentSize = 0;
+  let visibleContainerSize = 0;
+  let maxScrollableDistance = 0;
 
   if (direction === 'horizontal') {
-    contentSize = contentEl?.offsetWidth || contentSize;
-    containerSize = containerEl?.offsetWidth || containerSize;
+    totalContentSize = totalContentEl?.offsetWidth || totalContentSize;
+    visibleContainerSize = visibleContainerEl?.offsetWidth || visibleContainerSize;
   }
   else if (direction === 'vertical') {
-    contentSize = contentEl?.offsetHeight || contentSize;
-    containerSize = containerEl?.offsetHeight || containerSize;
+    totalContentSize = totalContentEl?.offsetHeight || totalContentSize;
+    visibleContainerSize = visibleContainerEl?.offsetHeight || visibleContainerSize;
   }
 
-  scrollableSize = contentSize - containerSize;
-  thumbSize = calculateThumbSize(containerSize, contentSize);
-  thumbPosition = calculateThumbPosition(containerSize, contentSize, scrollableSize);
+  maxScrollableDistance = totalContentSize - visibleContainerSize;
 
-  if (scrollableSize <= 0) {
-    scrollableSize = 0;
-    thumbSize = 0;
+  if (maxScrollableDistance <= 0) {
+    maxScrollableDistance = 0;
   }
 
   return {
-    contentSize,
-    containerSize,
-    scrollableSize,
-    thumbSize,
-    thumbPosition,
+    totalContentSize,
+    visibleContainerSize,
+    maxScrollableDistance,
   };
 }
 
 /**
- * 计算滚动大小
- * @param scrolledSize 已滚动大小
- * @param scrollableSize 可滚动大小
- * @param wantScrollSize 想要滚动的大小，负数表示往上/左滚动，正数表示往下/右滚动
- * @returns 最终实际滚动大小
+ * 计算滚动距离
+ * @param currentScrollDistance 当前已滚动距离
+ * @param maxScrollableDistance 最大可滚动距离
+ * @param deltaScrollDistance 需要滚动的增量距离，负数表示往上/左滚动，正数表示往下/右滚动
+ * @returns 最终实际滚动距离
  */
-export function calculateScrollSize(
-  scrolledSize: number,
-  scrollableSize: number,
-  wantScrollSize: number,
+export function calculateNextScrollDistanceByDeltaScrollDistance(
+  currentScrollDistance: number,
+  maxScrollableDistance: number,
+  deltaScrollDistance: number,
 ) {
-  if (scrollableSize <= 0) {
+  if (maxScrollableDistance <= 0) {
     return 0;
   }
 
-  let size = scrolledSize + wantScrollSize;
-  size = Math.max(size, 0);
-  size = Math.min(size, scrollableSize);
+  let distance = currentScrollDistance + deltaScrollDistance;
+  distance = Math.max(distance, 0);
+  distance = Math.min(distance, maxScrollableDistance);
 
-  return size;
+  return distance;
 }

@@ -4,7 +4,7 @@ import { throttle } from 'lodash-es';
 import { computed, ref, useTemplateRef } from 'vue';
 import Bar from './Bar.vue';
 import { useResizeObserver } from './composables';
-import { calculateScrollSize, getScrollableAreaInfo } from './utils';
+import { calculateNextScrollDistanceByDeltaScrollDistance, getScrollableAreaInfo } from './utils';
 
 const props = defineProps({
   direction: {
@@ -17,84 +17,118 @@ const props = defineProps({
   },
 });
 
-const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
-const contentRef = useTemplateRef<HTMLDivElement>('contentRef');
-
-const thumbSize = ref(0);
-const thumbPos = ref(0);
-
-const scrolledSize = ref(0);
+const visibleContainerRef = useTemplateRef<HTMLDivElement>('visibleContainerRef');
+const totalContentRef = useTemplateRef<HTMLDivElement>('totalContentRef');
+const visibleContainerSize = ref(0);
+const totalContentSize = ref(0);
+const currentScrollDistance = ref(0);
+const maxScrollableDistance = computed(() => {
+  return Math.max(totalContentSize.value - visibleContainerSize.value, 0);
+});
 const contentStyle = computed(() => {
   if (props.direction === 'horizontal') {
-    return { transform: `translateX(${-scrolledSize.value}px)` };
+    return { transform: `translateX(${-currentScrollDistance.value}px)` };
   }
   if (props.direction === 'vertical') {
-    return { transform: `translateY(${-scrolledSize.value}px)` };
+    return { transform: `translateY(${-currentScrollDistance.value}px)` };
   }
   return '';
 });
 
 function getScrollInfo() {
-  const scrollableIfno = getScrollableAreaInfo(
+  const scrollableInfo = getScrollableAreaInfo(
     props.direction,
-    containerRef.value,
-    contentRef.value,
+    visibleContainerRef.value,
+    totalContentRef.value,
   );
 
-  thumbSize.value = scrollableIfno.thumbSize;
-  thumbPos.value = scrollableIfno.thumbPosition;
+  visibleContainerSize.value = scrollableInfo.visibleContainerSize;
+  totalContentSize.value = scrollableInfo.totalContentSize;
 
-  if (scrollableIfno.scrollableSize <= 0) {
-    scrolledSize.value = 0;
+  if (scrollableInfo.maxScrollableDistance <= 0) {
+    currentScrollDistance.value = 0;
   }
 
-  return scrollableIfno;
+  return scrollableInfo;
 }
 
 const resizeObserverCallback = throttle((_entries: ResizeObserverEntry[]) => {
-  const { scrollableSize } = getScrollInfo();
+  const { maxScrollableDistance } = getScrollInfo();
 
   if (typeof props.resizeCallback === 'function') {
     props.resizeCallback();
   }
 
-  if (scrollableSize <= 0) {
-    scrolledSize.value = 0;
+  if (maxScrollableDistance <= 0) {
+    currentScrollDistance.value = 0;
     return;
   }
 
   // 已滚动的距离大于可滚动的距离
-  if (Math.abs(scrolledSize.value) > scrollableSize) {
-    scrolledSize.value = -scrollableSize;
+  if (currentScrollDistance.value > maxScrollableDistance) {
+    currentScrollDistance.value = -maxScrollableDistance;
   }
 }, 80);
 
-useResizeObserver(containerRef, resizeObserverCallback);
-useResizeObserver(contentRef, resizeObserverCallback);
+useResizeObserver(visibleContainerRef, resizeObserverCallback);
+useResizeObserver(totalContentRef, resizeObserverCallback);
 
-function scroll(wantScrollSize: number) {
-  const { scrollableSize } = getScrollInfo();
+function scroll(deltaScrollDistance: number) {
+  const { maxScrollableDistance } = getScrollInfo();
 
-  if (scrollableSize <= 0) {
+  if (maxScrollableDistance <= 0) {
     return;
   }
 
-  scrolledSize.value = calculateScrollSize(scrolledSize.value, scrollableSize, wantScrollSize);
+  currentScrollDistance.value = calculateNextScrollDistanceByDeltaScrollDistance(
+    currentScrollDistance.value,
+    maxScrollableDistance,
+    deltaScrollDistance,
+  );
 }
 
 function scrollTo(x: number) {
-  const wantScrollSize = x - scrolledSize.value;
+  const deltaScrollDistance = x - currentScrollDistance.value;
 
-  scroll(wantScrollSize);
+  scroll(deltaScrollDistance);
 }
 
 function handleScroll(event: WheelEvent) {
   event.stopPropagation();
   event.preventDefault();
 
-  const wantScrollSize = event.deltaY / 2.5;
+  const deltaScrollDistance = event.deltaY / 2.5;
 
-  scroll(wantScrollSize);
+  scroll(deltaScrollDistance);
+}
+
+function handleBarMove(mouseMovementDistance: number, thumb: {
+  thumbSize: number
+  availableThumbSpace: number
+  thumbPosition: number
+}) {
+  // 计算滑块移动距离与内容滚动距离的比例
+  const scrollDistanceRatio = maxScrollableDistance.value / thumb.availableThumbSpace;
+
+  // 将滑块的移动距离转换为内容的滚动距离
+  const deltaScrollDistance = mouseMovementDistance * scrollDistanceRatio;
+
+  scroll(deltaScrollDistance);
+}
+
+function handleBarClick(_event: MouseEvent, { isThumb, position }: {
+  isThumb: boolean
+  position: number
+}) {
+  if (isThumb)
+    return;
+
+  // 计算点击位置对应的滚动位置
+  // 点击位置与可滚动内容位置的比例关系：position / visibleContainerSize = targetScrollDistance / maxScrollableDistance
+  const scrollPositionRatio = position / visibleContainerSize.value;
+  const targetScrollDistance = scrollPositionRatio * maxScrollableDistance.value;
+
+  scrollTo(targetScrollDistance);
 }
 
 defineExpose({
@@ -106,12 +140,12 @@ defineExpose({
 
 <template>
   <div
-    ref="containerRef"
+    ref="visibleContainerRef"
     class="w-full h-full overflow-hidden p-0 m-0 border-0 relative group"
     @wheel="handleScroll"
   >
     <div
-      ref="contentRef"
+      ref="totalContentRef"
       :class="{
         'w-[max-content]': direction === 'horizontal',
         'h-[max-content]': direction === 'vertical',
@@ -121,11 +155,15 @@ defineExpose({
     >
       <slot />
     </div>
-    <!-- TODO -->
     <Bar
+      :current-scroll-distance="currentScrollDistance"
       :direction="direction"
-      :thumb-size="thumbSize"
+      :visible-container-size="visibleContainerSize"
+      :total-content-size="totalContentSize"
+      :max-scrollable-distance="maxScrollableDistance"
       class="hidden group-hover:block"
+      @move="handleBarMove"
+      @bar-click="handleBarClick"
     />
   </div>
 </template>

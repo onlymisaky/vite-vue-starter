@@ -13,8 +13,8 @@ function scrollToActiveTab() {
   // 确保 active 在可视区域内
   nextTick(() => {
     if (scrollViewRef.value) {
-      const { scrollableSize } = scrollViewRef.value.getScrollInfo();
-      if (scrollableSize <= 0) {
+      const { maxScrollableDistance } = scrollViewRef.value.getScrollInfo();
+      if (maxScrollableDistance <= 0) {
         return;
       }
       if ([0, 1].includes(viewTab.activeIndex)) {
