@@ -18,13 +18,13 @@ const props = defineProps({
 });
 
 const containerRef = useTemplateRef<HTMLDivElement>('containerRef');
-const viewRef = useTemplateRef<HTMLDivElement>('viewRef');
+const contentRef = useTemplateRef<HTMLDivElement>('contentRef');
 
 const thumbSize = ref(0);
 const thumbPos = ref(0);
 
 const scrolledSize = ref(0);
-const viewStyle = computed(() => {
+const contentStyle = computed(() => {
   if (props.direction === 'horizontal') {
     return { transform: `translateX(${-scrolledSize.value}px)` };
   }
@@ -38,7 +38,7 @@ function getScrollInfo() {
   const scrollableIfno = getScrollableAreaInfo(
     props.direction,
     containerRef.value,
-    viewRef.value,
+    contentRef.value,
   );
 
   thumbSize.value = scrollableIfno.thumbSize;
@@ -70,7 +70,7 @@ const resizeObserverCallback = throttle((_entries: ResizeObserverEntry[]) => {
 }, 80);
 
 useResizeObserver(containerRef, resizeObserverCallback);
-useResizeObserver(viewRef, resizeObserverCallback);
+useResizeObserver(contentRef, resizeObserverCallback);
 
 function scroll(wantScrollSize: number) {
   const { scrollableSize } = getScrollInfo();
@@ -111,13 +111,13 @@ defineExpose({
     @wheel="handleScroll"
   >
     <div
-      ref="viewRef"
+      ref="contentRef"
       :class="{
         'w-[max-content]': direction === 'horizontal',
         'h-[max-content]': direction === 'vertical',
       }"
       class="p-0 m-0 border-0 transition-transform duration-200 ease-out"
-      :style="viewStyle"
+      :style="contentStyle"
     >
       <slot />
     </div>

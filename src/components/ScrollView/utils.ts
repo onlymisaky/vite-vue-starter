@@ -1,43 +1,43 @@
-export function calculateThumbSize(containerSize: number, viewSize: number) {
-  return Math.max((containerSize / viewSize) * containerSize, 20);
+export function calculateThumbSize(containerSize: number, contentSize: number) {
+  return Math.max((containerSize / contentSize) * containerSize, 20);
 }
 
 // TODO
-export function calculateThumbPosition(_containerSize: number, _viewSize: number, _scrolledSize: number) {
+export function calculateThumbPosition(_containerSize: number, _contentSize: number, _scrolledSize: number) {
   return 0;
-  // return (scrolledSize / (viewSize - containerSize)) * containerSize;
+  // return (scrolledSize / (contentSize - containerSize)) * containerSize;
 }
 
 /**
  * 获取可滚动区域的信息
  * @param direction 滚动方向 ('horizontal' 或 'vertical')
  * @param containerEl 容器元素
- * @param viewEl 视图元素
+ * @param contentEl 内容元素
  * @returns 包含容器大小、视图大小、可滚动大小、滚动滑块大小和滚动滑块位置的对象
  */
 export function getScrollableAreaInfo(
   direction: 'horizontal' | 'vertical',
   containerEl: HTMLElement | null,
-  viewEl: HTMLElement | null,
+  contentEl: HTMLElement | null,
 ) {
-  let viewSize = 0;
+  let contentSize = 0;
   let containerSize = 0;
   let scrollableSize = 0;
   let thumbSize = 0;
   let thumbPosition = 0;
 
   if (direction === 'horizontal') {
-    viewSize = viewEl?.offsetWidth || viewSize;
+    contentSize = contentEl?.offsetWidth || contentSize;
     containerSize = containerEl?.offsetWidth || containerSize;
   }
   else if (direction === 'vertical') {
-    viewSize = viewEl?.offsetHeight || viewSize;
+    contentSize = contentEl?.offsetHeight || contentSize;
     containerSize = containerEl?.offsetHeight || containerSize;
   }
 
-  scrollableSize = viewSize - containerSize;
-  thumbSize = calculateThumbSize(containerSize, viewSize);
-  thumbPosition = calculateThumbPosition(containerSize, viewSize, scrollableSize);
+  scrollableSize = contentSize - containerSize;
+  thumbSize = calculateThumbSize(containerSize, contentSize);
+  thumbPosition = calculateThumbPosition(containerSize, contentSize, scrollableSize);
 
   if (scrollableSize <= 0) {
     scrollableSize = 0;
@@ -45,7 +45,7 @@ export function getScrollableAreaInfo(
   }
 
   return {
-    viewSize,
+    contentSize,
     containerSize,
     scrollableSize,
     thumbSize,
