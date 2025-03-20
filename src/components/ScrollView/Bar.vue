@@ -131,7 +131,7 @@ function handleBarClick(event: MouseEvent) {
 
 <template>
   <div
-    v-show="thumbSize > 0"
+    v-show="maxScrollableDistance > 0"
     ref="barRef"
     class="absolute cursor-pointer transition-opacity duration-200 ease-out"
     :class="{
