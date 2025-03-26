@@ -60,6 +60,7 @@
     "vite": "^6.2.3",
     "vite-plugin-inspect": "^11.0.0",
     "vite-plugin-vue-devtools": "^7.7.2",
+    "vite-plugin-vue-inspector": "^5.3.1",
     "vue-click-to-component": "^0.3.7",
     "vue-tsc": "^2.2.8"
   }
