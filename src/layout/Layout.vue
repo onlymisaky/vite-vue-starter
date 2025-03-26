@@ -21,9 +21,9 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 </script>
 
 <template>
-  <ElContainer class="h-screen w-screen">
-    <ElAside
-      class="h-screen flex flex-col aside"
+  <section class="v-container h-screen w-screen">
+    <aside
+      class="aside h-screen flex flex-col aside-animation border-r border-solid border-[var(--el-border-color)]"
       :class="layoutStore.showAside ? 'w-0' : {
         'w-[220px]': !menuStore.isCollapse,
         'w-[65px]': menuStore.isCollapse,
@@ -31,10 +31,10 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
     >
       <Logo />
       <Menus class="flex-1" />
-    </ElAside>
+    </aside>
 
-    <ElContainer>
-      <ElHeader class="flex items-center">
+    <section class="v-container is-vertical">
+      <header class="header flex items-center">
         <IconWithBg
           :size="24"
           :tip="!layoutStore.showAside ? '显示侧边栏' : '收起侧边栏'"
@@ -51,11 +51,11 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
           <FullscreenToggle class="ml-[10px]" />
           <UserAvatar class="ml-[10px]" />
         </div>
-      </ElHeader>
+      </header>
 
       <ViewTab />
 
-      <ElMain class="bg-[var(--el-bg-color-page)] h-full">
+      <main class="main bg-[var(--el-bg-color-page)] h-full">
         <RouterView v-slot="{ Component }">
           <Transition
             appear
@@ -73,15 +73,54 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
             </KeepAlive>
           </Transition>
         </RouterView>
-      </ElMain>
-    </ElContainer>
-  </ElContainer>
+      </main>
+    </section>
+  </section>
 </template>
 
 <style scoped>
+.v-container {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-basis: auto;
+  flex-direction: row;
+  min-width: 0;
+
+  &.is-vertical {
+    flex-direction: column;
+  }
+}
+
 .aside {
-  border-right: 1px solid var(--el-border-color);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  overflow: auto;
+}
+
+.aside-animation {
   transition-property: width;
   transition-duration: v-bind('animationDuration');
+}
+
+.header {
+  --el-header-padding: 0 20px;
+  --el-header-height: 60px;
+
+  box-sizing: border-box;
+  flex-shrink: 0;
+  height: var(--el-header-height);
+  padding: var(--el-header-padding);
+}
+
+.main {
+  --el-main-padding: 20px;
+
+  box-sizing: border-box;
+  display: block;
+  flex: 1;
+  flex-basis: auto;
+  overflow: auto;
+  padding: var(--el-main-padding);
 }
 </style>
