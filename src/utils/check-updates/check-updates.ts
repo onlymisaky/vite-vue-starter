@@ -1,6 +1,6 @@
 import type { VNode } from 'vue';
 
-export type CheckUpdatesNotifyActionType = 'update' | 'remind-later' | 'skip-this-version' | 'never-notify' | string;
+export type CheckUpdatesNotifyActionType = 'update' | 'remind-later' | 'skip-this-version' | 'never-notify';
 
 interface CheckUpdatesOptions {
   url: string
@@ -68,7 +68,7 @@ export function checkUpdates(options: Partial<CheckUpdatesOptions>) {
   const defaultOptions: CheckUpdatesOptions = {
     url: '/',
     interval: 1000 * 60 * 5,
-    notifierWithAction: () => Promise.resolve(''),
+    notifierWithAction: () => wait(1000 * 30).then(() => 'remind-later'),
   };
   const { url, interval, notifierWithAction } = { ...defaultOptions, ...options };
   fetchRootHtml(url).then((html: string) => {
