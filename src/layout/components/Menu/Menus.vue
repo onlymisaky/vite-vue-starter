@@ -8,7 +8,7 @@ const menuStore = useMenuStore();
 </script>
 
 <template>
-  <div class="bg-[var(--el-menu-bg-color)] flex flex-col overflow-hidden">
+  <div class="bg-[var(--app-menu-bg-color)] flex flex-col overflow-hidden">
     <ScrollView>
       <ElMenu
         :collapse="menuStore.isCollapse"

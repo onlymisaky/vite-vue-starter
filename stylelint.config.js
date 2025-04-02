@@ -15,7 +15,7 @@ export default {
     'order/order': [],
     'order/properties-order': [],
     'at-rule-no-unknown': [true, {
-      ignoreAtRules: ['use', 'tailwind'],
+      ignoreAtRules: ['use', 'tailwind', 'mixin', 'include', 'each'],
     }],
     'color-function-notation': null,
     'alpha-value-notation': null,

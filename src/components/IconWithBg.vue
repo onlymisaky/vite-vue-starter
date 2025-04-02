@@ -84,7 +84,7 @@ const padding = computed(() => `-${props.bgPadding}px`);
 .icon-wrapper {
   cursor: pointer;
   transition: all 0.3s ease;
-  color: var(--el-text-color-primary);
+  color: var(--app-text-color-primary);
   border-radius: 50%;
   position: relative;
   z-index: 1;
@@ -94,7 +94,7 @@ const padding = computed(() => `-${props.bgPadding}px`);
     position: absolute;
     inset: 0;
     border-radius: 50%;
-    background-color: var(--el-bg-color-page);
+    background-color: var(--app-bg-color-page);
     z-index: -1;
     transform: scale(0);
     transition: all 0.1s ease;

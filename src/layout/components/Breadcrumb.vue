@@ -33,8 +33,8 @@ const menuPath = computed(() => {
       <div
         class="flex items-center"
         :class="index === menuPath.length - 1
-          ? 'text-[color:var(--el-text-color-primary)]'
-          : 'text-[color:var(--el-text-color-placeholder)] cursor-pointer hover:text-[color:var(--el-color-primary)]'"
+          ? 'text-[color:var(--app-text-color-primary)]'
+          : 'text-[color:var(--app-text-color-placeholder)] cursor-pointer hover:text-[color:var(--app-color-primary)]'"
       >
         <ElIcon
           v-if="item.icon"

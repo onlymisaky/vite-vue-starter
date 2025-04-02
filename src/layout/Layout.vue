@@ -23,7 +23,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 <template>
   <section class="v-container h-screen w-screen">
     <aside
-      class="aside h-screen flex flex-col aside-animation border-r border-solid border-[var(--el-border-color)]"
+      class="aside h-screen flex flex-col aside-animation border-r border-solid border-[var(--app-border-color)]"
       :class="layoutStore.showAside ? 'w-0' : {
         'w-[220px]': !menuStore.isCollapse,
         'w-[65px]': menuStore.isCollapse,
@@ -55,7 +55,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 
       <ViewTab />
 
-      <main class="main bg-[var(--el-bg-color-page)] h-full">
+      <main class="main bg-[var(--app-bg-color-page)] h-full">
         <RouterView v-slot="{ Component }">
           <Transition
             appear
@@ -104,23 +104,18 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
 }
 
 .header {
-  --el-header-padding: 0 20px;
-  --el-header-height: 60px;
-
   box-sizing: border-box;
   flex-shrink: 0;
-  height: var(--el-header-height);
-  padding: var(--el-header-padding);
+  height: var(--header-height);
+  padding: var(--header-padding);
 }
 
 .main {
-  --el-main-padding: 20px;
-
   box-sizing: border-box;
   display: block;
   flex: 1;
   flex-basis: auto;
   overflow: auto;
-  padding: var(--el-main-padding);
+  padding: var(--main-padding);
 }
 </style>

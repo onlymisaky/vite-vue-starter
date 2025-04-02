@@ -143,9 +143,9 @@ function handleBarClick(event: MouseEvent) {
   >
     <div
       ref="thumbRef"
-      class="rounded-[4px] opacity-30 bg-[var(--el-text-color-secondary)] cursor-pointer
+      class="rounded-[4px] bg-[var(--app-scrollbar-thumb-color)] cursor-pointer
       transition-[transform,opacity] duration-200 ease-out
-      hover:opacity-100
+      hover:bg-[var(--app-scrollbar-thumb-hover-color)]
       "
       :class="{
         'w-full': direction === 'vertical',

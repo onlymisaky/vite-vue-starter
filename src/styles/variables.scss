@@ -1,0 +1,47 @@
+@use "sass:map";
+
+$prefix: 'app';
+$theme: (
+  light: (color-primary: #409eff,
+    text-color-primary: #303133,
+    text-color-placeholder: #a8abb2,
+    bg-color-page: #f2f3f5,
+    menu-bg-color: #fff,
+    menu-active-color: #409eff,
+    border-color: #dcdfe6,
+    scrollbar-thumb-color: rgba(218, 219, 221),
+    scrollbar-thumb-hover-color: rgba(194, 196, 199),
+  ),
+  dark: (color-primary: #409eff,
+    text-color-primary: #E5EAF3,
+    text-color-placeholder: #8D9095,
+    bg-color-page: #0a0a0a,
+    menu-bg-color: #141414,
+    menu-active-color: #409eff,
+    border-color: #4c4d4f,
+    scrollbar-thumb-color: rgba(60, 61, 63),
+    scrollbar-thumb-hover-color: rgba(86, 88, 92),
+  )
+);
+
+@mixin generate-css-vars($theme-name, $theme-map) {
+  @each $name, $value in $theme-map {
+    --#{$prefix}-#{$name}: #{$value};
+    --el-#{$name}: #{$value};
+  }
+}
+
+:root {
+  @include generate-css-vars('light', map.get($theme, 'light'));
+}
+
+html.dark {
+  @include generate-css-vars('dark', map.get($theme, 'dark'));
+}
+
+:root,
+.dark {
+  --header-height: 60px;
+  --header-padding: 0 20px;
+  --main-padding: 20px;
+}

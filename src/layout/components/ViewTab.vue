@@ -221,7 +221,7 @@ html.dark {
         background-color: var(--chrome-tab-active-bg-color);
         box-shadow: 0 0 10px 0 var(--chrome-tab-active-shadow-color);
         position: relative;
-        color: var(--el-menu-active-color);
+        color: var(--app-menu-active-color);
 
         &::before,
         &::after {
