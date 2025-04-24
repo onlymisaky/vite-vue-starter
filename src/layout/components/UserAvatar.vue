@@ -26,7 +26,12 @@ function handleCommand(command: 'personal' | 'logout') {
         :size="30"
       >
         <ElIcon :size="30">
-          <User />
+          <!-- lorem picsum -->
+          <img
+            src="https://picsum.photos/200"
+            class="w-full h-full"
+          >
+          <!-- <User /> -->
         </ElIcon>
       </ElAvatar>
       <span class="ml-2">

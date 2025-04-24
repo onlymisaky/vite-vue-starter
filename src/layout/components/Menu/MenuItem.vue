@@ -56,3 +56,5 @@ const isSubMenu = computed(() => {
     </ElMenuItem>
   </AppLink>
 </template>
+
+<style src="./menu.css" scoped />

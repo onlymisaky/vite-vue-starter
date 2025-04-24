@@ -38,3 +38,5 @@ const menuStore = useMenuStore();
     </div>
   </div>
 </template>
+
+<style src="./menu.css" scoped />

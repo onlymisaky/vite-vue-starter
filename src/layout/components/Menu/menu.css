@@ -1,0 +1,14 @@
+:deep(.el-menu.el-menu--vertical) {
+  padding: 0 5px;
+}
+
+:deep(.el-menu-item.is-active) {
+  background-color: var(--el-menu-active-color);
+  color: #fff;
+}
+
+:deep(.el-sub-menu__title),
+:deep(.el-menu-item) {
+  border-radius: 8px;
+  height: 50px;
+}
