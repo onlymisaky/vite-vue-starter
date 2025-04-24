@@ -155,17 +155,17 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
 
 <style>
 :root {
-  --chrome-tab-bg-color: #f0f0f0;
-  --chrome-tab-border-color: #ccc;
-  --chrome-tab-active-bg-color: #fff;
+  /* --chrome-tab-bg-color: #f0f0f0; */
+  --chrome-tab-border-color:#e0e0e3; /* #ccc; */
+  --chrome-tab-active-bg-color: #e9f4ff; /* #fff; */
   --chrome-tab-active-shadow-color: rgba(0, 0, 0, 0.1);
-  --chrome-tab-hover-bg-color: #e0e0e3;
+  --chrome-tab-hover-bg-color: #f3f3f4; /* #e0e0e3; */
 }
 
 html.dark {
-  --chrome-tab-bg-color: #1a1a1a;
+  /* --chrome-tab-bg-color: #1a1a1a; */
   --chrome-tab-border-color: #555;
-  --chrome-tab-active-bg-color: #2d2d2d;
+  --chrome-tab-active-bg-color: #181f27; /* #2d2d2d; */
   --chrome-tab-active-shadow-color: rgba(0, 0, 0, 0.3);
   --chrome-tab-hover-bg-color: #3a3a3a;
 }
@@ -188,6 +188,7 @@ html.dark {
 .views-tab-wrapper {
   display: flex;
   background-color: var(--chrome-tab-bg-color);
+  border-top: 1px solid var(--chrome-tab-border-color);
   border-bottom: 1px solid var(--chrome-tab-border-color);
 
   .views-tab {
@@ -196,7 +197,8 @@ html.dark {
     align-items: center;
     height: 38px;
     width: max-content;
-    padding-top: 4px;
+
+    /* padding-top: 4px; */
     padding-left: 4px;
     box-sizing: content-box;
 
@@ -219,7 +221,8 @@ html.dark {
 
       &.active {
         background-color: var(--chrome-tab-active-bg-color);
-        box-shadow: 0 0 10px 0 var(--chrome-tab-active-shadow-color);
+
+        /* box-shadow: 0 0 10px 0 var(--chrome-tab-active-shadow-color); */
         position: relative;
         color: var(--app-menu-active-color);
 
