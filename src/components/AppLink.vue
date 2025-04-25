@@ -49,7 +49,7 @@ function onClick(e: MouseEvent) {
 <template>
   <div
     v-if="disabled"
-    role="app-link"
+    data-role="app-link"
     class="block w-full h-full cursor-not-allowed"
     :class="showDisabledStyle ? 'opacity-50 pointer-events-none' : ''"
   >
@@ -59,7 +59,7 @@ function onClick(e: MouseEvent) {
     <RouterLink
       v-if="route"
       v-slot="slotProps"
-      role="app-link"
+      data-role="app-link"
       class="block w-full h-full cursor-pointer"
       :to="route"
       :custom="custom"
@@ -70,7 +70,7 @@ function onClick(e: MouseEvent) {
     </RouterLink>
     <ElLink
       v-else-if="href"
-      role="app-link"
+      data-role="app-link"
       :href="href"
       :underline="underline"
       :target="target"

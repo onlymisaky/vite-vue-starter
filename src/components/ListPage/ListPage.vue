@@ -21,22 +21,22 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
 
 <template>
   <div
-    role="list-page"
+    data-role="list-page"
     class="w-full h-full flex flex-col overflow-hidden"
   >
     <slot name="others" :table-config="tableConfig" />
     <div
       v-if="$slots.filter"
-      role="list-page-filter-container"
+      data-role="list-page-filter-container"
     >
       <slot name="filter" />
     </div>
     <div
-      role="list-page-table"
+      data-role="list-page-table"
       class="flex-1 flex flex-col bg-white dark:bg-gray-800 rounded-lg p-[10px] shadow-md overflow-hidden"
     >
       <div
-        role="list-page-table-toolbar"
+        data-role="list-page-table-toolbar"
         class="flex mb-[10px]"
       >
         <div class="flex flex-1">
@@ -52,14 +52,14 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
       </div>
 
       <div
-        role="list-page-table-content"
+        data-role="list-page-table-content"
         class="flex flex-1 h-full overflow-hidden"
       >
         <slot :table-config="tableConfig" />
       </div>
       <div
         v-if="$slots.pagination"
-        role="list-page-pagination"
+        data-role="list-page-pagination"
         class="flex justify-center mt-[10px]"
       >
         <slot name="pagination" />

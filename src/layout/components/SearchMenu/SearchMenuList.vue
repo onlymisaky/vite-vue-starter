@@ -40,7 +40,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
   if (e.key === 'Enter' && props.list[activeIndex.value] && !isDisabled(props.list[activeIndex.value])) {
     if (appLinkRefs.value) {
-      appLinkRefs.value[activeIndex.value]?.querySelector('[role="app-link"]')?.click();
+      appLinkRefs.value[activeIndex.value]?.querySelector('[data-role="app-link"]')?.click();
     }
   }
 }

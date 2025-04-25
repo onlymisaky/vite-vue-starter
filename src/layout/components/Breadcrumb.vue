@@ -49,7 +49,7 @@ const menuPath = computed(() => {
           custom
         >
           <span
-            role="link"
+            data-role="link"
             @click="navigate"
           >
             {{ item.title }}
