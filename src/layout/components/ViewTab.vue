@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { IViewTab } from '@/store/modules/view-tab';
 import ScrollView from '@/components/ScrollView/ScrollView.vue';
+import { useDragSort } from '@/hooks/useDragSort';
 import { useViewTabStore } from '@/store/modules/view-tab';
 import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
@@ -40,46 +41,22 @@ function removeTab(tab: IViewTab, event: Event) {
   viewTab.removeTab(tab.fullPath);
 }
 
-function handleContextMenu(event: MouseEvent, _tab: IViewTab, _index: number) {
-  event.stopPropagation();
-  event.preventDefault();
-}
-
-const dragIndex = ref<number>(-1);
 const moving = ref(false);
 
-function handleDragStart(event: DragEvent, _tab: IViewTab, _index: number) {
-  event.stopPropagation();
-  dragIndex.value = _index;
-  (event.target as HTMLElement).classList.add('overflow-hidden');
-}
-
-function handleDragEnter(event: DragEvent, _tab: IViewTab, _index: number) {
-  event.stopPropagation();
-  if (moving.value) {
-    return;
-  }
-
-  // const temp = viewTab.tabs[_index];
-  // viewTab.tabs[_index] = viewTab.tabs[dragIndex.value];
-  // viewTab.tabs[dragIndex.value] = temp;
-
-  const draggedTab = viewTab.tabs.splice(dragIndex.value, 1)[0];
-  viewTab.tabs.splice(_index, 0, draggedTab);
-
-  dragIndex.value = _index;
-}
-
-function handleDragOver(event: DragEvent, _tab: IViewTab, _index: number) {
-  event.preventDefault();
-  (event.target as HTMLElement).classList.remove('overflow-hidden');
-}
-
-function handleDragEnd(event: DragEvent, _tab: IViewTab, _index: number) {
-  event.stopPropagation();
-  event.preventDefault();
-  moving.value = false;
-}
+const { handleDragStart, handleDragEnter, handleDragOver, handleDragEnd } = useDragSort(viewTab.tabs, {
+  afterDragStart: (event) => {
+    (event.target as HTMLElement).classList.add('overflow-hidden');
+  },
+  beforeDragEnter: () => {
+    return !moving.value;
+  },
+  afterDragOver: (event) => {
+    (event.target as HTMLElement).classList.remove('overflow-hidden');
+  },
+  afterDragEnd: () => {
+    moving.value = false;
+  },
+});
 
 function handleTransitionStart(event: TransitionEvent, _tab: IViewTab, _index: number) {
   event.stopPropagation();
@@ -116,11 +93,10 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
           class="views-tab-item group"
           draggable="true"
           @click="viewTab.setActive(tab)"
-          @contextmenu="handleContextMenu($event, tab, index)"
-          @dragstart="handleDragStart($event, tab, index)"
-          @dragenter="handleDragEnter($event, tab, index)"
-          @dragover="handleDragOver($event, tab, index)"
-          @dragend="handleDragEnd($event, tab, index)"
+          @dragstart="handleDragStart($event, index)"
+          @dragenter="handleDragEnter($event, index)"
+          @dragover="handleDragOver($event, index)"
+          @dragend="handleDragEnd($event, index)"
           @transitionstart="handleTransitionStart($event, tab, index)"
           @transitionend="handleTransitionEnd($event, tab, index)"
         >
@@ -155,17 +131,25 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
 
 <style>
 :root {
-  --chrome-tab-border-color:#e0e0e3; /* #ccc; */
-  --chrome-tab-active-bg-color: #e9f4ff; /* #fff; */
+  --chrome-tab-border-color: #e0e0e3;
+
+  /* #ccc; */
+  --chrome-tab-active-bg-color: #e9f4ff;
+
+  /* #fff; */
   --chrome-tab-active-shadow-color: rgba(0, 0, 0, 0.1);
-  --chrome-tab-hover-bg-color: #f3f3f4; /* #e0e0e3; */
+  --chrome-tab-hover-bg-color: #f3f3f4;
+
+  /* #e0e0e3; */
   --chrome-tab-drag-bg-color: #f0f0f0;
   --chrome-tab-drag-shadow-color: rgba(0, 0, 0, 0.1);
 }
 
 html.dark {
   --chrome-tab-border-color: #555;
-  --chrome-tab-active-bg-color: #1e2937; /* #2d2d2d; */
+  --chrome-tab-active-bg-color: #1e2937;
+
+  /* #2d2d2d; */
   --chrome-tab-active-shadow-color: rgba(0, 0, 0, 0.3);
   --chrome-tab-hover-bg-color: #3a3a3a;
   --chrome-tab-drag-bg-color: #2d2d2d;
