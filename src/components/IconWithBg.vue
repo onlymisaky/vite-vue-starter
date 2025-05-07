@@ -17,6 +17,10 @@ const attrs = useAttrs();
 /**
  * 不确定上面这声明 props 的方式，是否会把 bgPadding、tip、size 等等属性挂在 $porps 上
  * 还是放在 $attrs 上，所以这里为了避免bug，直接合并到一个对象上
+ * 后记：
+ *  在上面声明 props 的时候，如果使用 @vue-ignore 注释，
+ *  除了内部声明的 props 会挂在到 $props 上，(bgPadding、tip)
+ *  其他属性都会挂在到 $attrs 上
  */
 const propsAndAttrs = computed(() => {
   return { ...attrs, ...props };
