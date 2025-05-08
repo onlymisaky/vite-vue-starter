@@ -29,11 +29,11 @@ export function useDragSort<T>(items: MaybeRef<T[]>, options: {
   const isDragging = ref(false);
 
   function handleDragStart(event: DragEvent, index: number) {
+    event.stopPropagation();
     if (typeof beforeDragStart === 'function' && !beforeDragStart(event, index)) {
       return;
     }
 
-    event.stopPropagation();
     dragIndex.value = index;
     isDragging.value = true;
 
@@ -41,6 +41,9 @@ export function useDragSort<T>(items: MaybeRef<T[]>, options: {
   }
 
   function handleDragEnter(event: DragEvent, targetIndex: number) {
+    event.stopPropagation();
+    event.preventDefault();
+
     if (targetIndex === dragIndex.value) {
       return;
     }
@@ -53,7 +56,6 @@ export function useDragSort<T>(items: MaybeRef<T[]>, options: {
       return;
     }
 
-    event.stopPropagation();
     const itemsArray = unref(items);
     if (targetIndex < 0 || targetIndex >= itemsArray.length) {
       return;
@@ -65,15 +67,15 @@ export function useDragSort<T>(items: MaybeRef<T[]>, options: {
     // itemsArray[dragIndex.value] = temp;
 
     const draggedItem = itemsArray.splice(dragIndex.value, 1)[0];
-    // 如果目标索引大于拖拽索引，需要减1，因为数组长度已经减少
-    const insertIndex = targetIndex > dragIndex.value ? targetIndex - 1 : targetIndex;
-    itemsArray.splice(insertIndex, 0, draggedItem);
+    itemsArray.splice(targetIndex, 0, draggedItem);
     dragIndex.value = targetIndex;
 
     typeof afterDragEnter === 'function' && afterDragEnter(event, targetIndex);
   }
 
   function handleDragOver(event: DragEvent, targetIndex: number) {
+    event.stopPropagation();
+    event.preventDefault();
     if (targetIndex === dragIndex.value) {
       return;
     }
@@ -82,18 +84,17 @@ export function useDragSort<T>(items: MaybeRef<T[]>, options: {
       return;
     }
 
-    event.preventDefault();
-
     typeof afterDragOver === 'function' && afterDragOver(event, targetIndex);
   }
 
   function handleDragEnd(event: DragEvent, index: number) {
+    event.stopPropagation();
+    event.preventDefault();
+
     if (typeof beforeDragEnd === 'function' && !beforeDragEnd(event, index)) {
       return;
     }
 
-    event.stopPropagation();
-    event.preventDefault();
     isDragging.value = false;
 
     typeof afterDragEnd === 'function' && afterDragEnd(event, index);

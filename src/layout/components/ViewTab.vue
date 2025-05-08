@@ -90,7 +90,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
           :key="tab.fullPath"
           ref="tabs"
           :class="{ active: viewTab.activeTab?.fullPath === tab.fullPath }"
-          class="views-tab-item group"
+          class="views-tab-item"
           draggable="true"
           @click="viewTab.setActive(tab)"
           @dragstart="handleDragStart($event, index)"
@@ -101,7 +101,7 @@ function handleTransitionEnd(event: TransitionEvent, _tab: IViewTab, _index: num
           @transitionend="handleTransitionEnd($event, tab, index)"
         >
           <span
-            class="divider group-hover:invisible"
+            class="divider"
             :class="{ invisible: viewTab.activeTab?.fullPath === tab.fullPath || index === 0 }"
           />
           <ElIcon
