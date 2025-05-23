@@ -25,5 +25,5 @@ dist-ssr
 *.sw?
 
 package-lock.json
-src/types/auto-imports.d.ts
+# src/types/auto-imports.d.ts
 src/types/components.d.ts
