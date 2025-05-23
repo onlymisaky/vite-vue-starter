@@ -14,13 +14,13 @@ interface TranslatePair {
   [key: string]: string | string[] | TranslatePair
 }
 
+interface Language {
+  name: string
+  el: TranslatePair
+}
+
 type ConfigProviderProps = Omit<ConfigProviderProps2, 'locale'> & {
-  locale: {
-    name: string
-    el: {
-      [key: string]: TranslatePair
-    }
-  }
+  locale: Language
 };
 
 const defaultConfig: Partial<ConfigProviderProps> = {
