@@ -1,5 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router';
 import Layout from '@/layout/Layout.vue';
+import { domainRoute } from '@/views/Examples/domain.route';
 import { FORBIDDEN_ROUTE_NAME, LOGIN_ROUTE_NAME, NOT_FOUND_ROUTE_NAME } from './constant';
 import { contentRoute } from './modules/content';
 import { dataRoute } from './modules/data';
@@ -15,6 +16,7 @@ export const layoutRoute: RouteRecordRaw = {
   name: 'Layout',
   component: Layout,
   children: [
+    domainRoute,
     contentRoute,
     dataRoute,
     messageRoute,

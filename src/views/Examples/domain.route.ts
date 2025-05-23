@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from 'vue-router';
 
-const route: RouteRecordRaw = {
+export const domainRoute: RouteRecordRaw = {
   path: '/domain',
   name: 'domain',
   component: () => import('./DomainList.vue'),
@@ -9,5 +9,3 @@ const route: RouteRecordRaw = {
     cache: true,
   },
 };
-
-export default route;

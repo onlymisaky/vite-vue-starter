@@ -6,7 +6,7 @@ import { useResetableRef } from '@/hooks/useResetableState';
 import { createUseRequestService } from '@/request/utils';
 
 export function useDomainList() {
-  const searchParams = ref<object>({});
+  const [searchParamsViewModel, resetSearchParams] = useResetableRef<object>({});
 
   const pagination = ref({ page: 1, pageSize: 20, total: 0 });
 
@@ -15,9 +15,9 @@ export function useDomainList() {
   const queryParams = computed<DomainListQueryDto>(() => {
     const params: Record<string, any> = {
       pagination: { page: pagination.value.page, pageSize: pagination.value.pageSize },
-      params: Object.keys(searchParams.value).reduce((acc, key) => {
-        const k = key as keyof typeof searchParams.value;
-        const val = searchParams.value[k];
+      params: Object.keys(searchParamsViewModel.value).reduce((acc, key) => {
+        const k = key as keyof typeof searchParamsViewModel.value;
+        const val = searchParamsViewModel.value[k];
 
         if (!['', 'null', 'undefined'].includes(`${val}`.trim())) {
           acc[k] = val;
@@ -60,7 +60,8 @@ export function useDomainList() {
   }
 
   return {
-    searchParams,
+    searchParamsViewModel,
+    resetSearchParams,
     pagination,
     domainList,
     loading,

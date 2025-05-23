@@ -9,6 +9,7 @@ import { useDomainList } from './compositions/useDomainList.ts';
 
 const {
   searchParams,
+  resetSearchParams,
   pagination,
   domainList,
   loading,
@@ -99,9 +100,10 @@ onMounted(() => {
                   >
                     查询
                   </ElButton>
-                  <ElButton>重置</ElButton>
+                  <ElButton @click="resetSearchParams">
+                    重置
+                  </ElButton>
                   <ElButton
-                    type="primary"
                     :disabled="!abortable"
                     @click="abort"
                   >
