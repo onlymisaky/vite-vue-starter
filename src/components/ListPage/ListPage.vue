@@ -28,6 +28,7 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
     <div
       v-if="$slots.filter"
       data-role="list-page-filter-container"
+      class="bg-white dark:bg-gray-800 rounded-lg p-[10px] shadow-md mb-[10px]"
     >
       <slot name="filter" />
     </div>
