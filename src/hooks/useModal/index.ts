@@ -1,7 +1,7 @@
 import type { DialogInstance, DialogProps } from 'element-plus';
 import type { ComInstance, Comp, ContentSlotType, DialogSlots, InnerArgs, ModalConfig, OpenArgs } from './utils';
-import { useResetableRef } from '@/hooks/useResetableState';
 import { computed, h, ref } from 'vue';
+import { useResetableRef } from '@/hooks/useResetableState';
 import Dialog from './Dialog.vue';
 import { createSlot, defaultConfig, isObject, omit } from './utils';
 

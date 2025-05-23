@@ -1,8 +1,8 @@
-import store from '@/store';
-import { useMenuStore } from '@/store/modules/menu';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import store from '@/store';
+import { useMenuStore } from '@/store/modules/menu';
 
 export interface IViewTab {
   name: string

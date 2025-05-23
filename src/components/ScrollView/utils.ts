@@ -8,7 +8,6 @@ export function calculateThumbSize(visibleContainerSize: number, totalContentSiz
  * @param totalContentSize
  * @param currentScrollDistance
  * @param thumbSize
- * @returns
  */
 export function calculateThumbPositionByScrollDistance(
   visibleContainerSize: number,

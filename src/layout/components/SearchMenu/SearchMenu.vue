@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useMenuStore } from '@/store/modules/menu';
 import Fuse from 'fuse.js';
 import { ref, watch } from 'vue';
+import { useMenuStore } from '@/store/modules/menu';
 import SearchMenuList from './SearchMenuList.vue';
 
 const emits = defineEmits(['select']);

@@ -1,6 +1,6 @@
-import store from '@/store';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import store from '@/store';
 
 export const useUserStore = defineStore('user', () => {
   const info = ref<Partial<IUser>>({

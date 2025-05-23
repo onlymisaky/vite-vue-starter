@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import IconWithBg from '@/components/IconWithBg.vue';
 import { ref } from 'vue';
+import IconWithBg from '@/components/IconWithBg.vue';
 import SearchResult from './SearchMenu.vue';
 
 const searchDialogVisible = ref(false);

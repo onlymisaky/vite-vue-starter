@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import AppLink from '@/components/AppLink.vue';
 import ScrollView from '@/components/ScrollView/ScrollView.vue';
-import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 
 const props = defineProps({
   list: {

@@ -1,9 +1,9 @@
 import type { RouteRecordRaw } from 'vue-router';
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
 import { layoutRoute } from '@/routes/route-config';
 import store from '@/store';
 import { hasPermission } from '@/utils/permission';
-import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
 import { useUserStore } from './user';
 
 function generateMenus(routes: RouteRecordRaw[], userPermission: string[], parents: IMenuItem[] = []): IMenuItem[] {

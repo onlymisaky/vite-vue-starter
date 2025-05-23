@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SwitchInstance } from 'element-plus';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
 import { isDark, toggleDark } from '@/hooks/useDark';
 import { themeAnimation } from '@/utils/theme-animation';
-import { nextTick, ref, useTemplateRef, watch } from 'vue';
 import Dark from './Icons/Dark.vue';
 import Light from './Icons/Light.vue';
 

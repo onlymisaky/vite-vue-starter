@@ -1,6 +1,6 @@
-import type { CacheStore } from '@/utils/cache/types';
 import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { CacheConfig, CacheConfigInternal } from './types';
+import type { CacheStore } from '@/utils/cache/types';
 import { createAdapter } from './adapter';
 
 export const defaultCacheConfig: Required<CacheConfig> = {

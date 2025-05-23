@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import FullscreenToggle from '@/components/FullscreenToggle.vue';
 import IconWithBg from '@/components/IconWithBg.vue';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import { useLayoutStore } from '@/store/modules/layout';
 import { useMenuStore } from '@/store/modules/menu';
 import { usePageCacheStore } from '@/store/modules/page-cache';
-import { computed } from 'vue';
 import Breadcrumb from './components/Breadcrumb.vue';
 import Logo from './components/Logo.vue';
 import Menus from './components/Menu/Menus.vue';

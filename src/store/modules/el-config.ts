@@ -1,8 +1,8 @@
 import type { ConfigProviderProps } from 'element-plus';
-import store from '@/store';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import store from '@/store';
 
 const defaultConfig: Partial<ConfigProviderProps> = {
   // 如果想重置 el-plus 的默认配置，可以在这里覆盖

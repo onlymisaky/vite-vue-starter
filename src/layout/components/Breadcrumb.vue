@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useMenuStore } from '@/store/modules/menu';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useMenuStore } from '@/store/modules/menu';
 
 const route = useRoute();
 const menuStore = useMenuStore();

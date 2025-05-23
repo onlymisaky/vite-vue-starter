@@ -1,6 +1,6 @@
-import store from '@/store';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import store from '@/store';
 
 export const useLayoutStore = defineStore('layout', () => {
   const showAside = ref(false);

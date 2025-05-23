@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import type { IViewTab } from '@/store/modules/view-tab';
+import { nextTick, ref, useTemplateRef, watch } from 'vue';
 import ScrollView from '@/components/ScrollView/ScrollView.vue';
 import { useDragSort } from '@/hooks/useDragSort';
 import { useViewTabStore } from '@/store/modules/view-tab';
-import { nextTick, ref, useTemplateRef, watch } from 'vue';
 
 const viewTab = useViewTabStore();
 

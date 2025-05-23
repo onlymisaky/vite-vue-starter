@@ -1,6 +1,6 @@
 import type { UseRequestOptions } from './types';
-import { createAbortablePromise, createSingleCallPromise } from '@/utils/promise';
 import { computed, ref } from 'vue';
+import { createAbortablePromise, createSingleCallPromise } from '@/utils/promise';
 import { normalizeRequestOptions } from './normalize';
 
 export function useRequest<

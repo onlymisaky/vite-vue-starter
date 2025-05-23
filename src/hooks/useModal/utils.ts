@@ -1,6 +1,6 @@
-import type { ComponentPublicInstanceConstructor } from '@/types/vue.d';
 import type { DialogInstance, DialogProps, ElDialog } from 'element-plus';
 import type { ComponentPublicInstance, Ref, VNode } from 'vue';
+import type { ComponentPublicInstanceConstructor } from '@/types/vue.d';
 import { h, isVNode, resolveComponent } from 'vue';
 
 export type DialogSlots = DialogInstance['$slots'];

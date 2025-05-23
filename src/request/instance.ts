@@ -1,7 +1,7 @@
 import type { AxiosInstance } from 'axios';
 import type { AbortableAxiosInstance, Methods } from './types';
-import { isPromise } from '@/utils/promise';
 import axios from 'axios';
+import { isPromise } from '@/utils/promise';
 import {
   axiosErrorInterceptor,
   businessInterceptor,
