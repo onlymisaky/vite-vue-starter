@@ -9,8 +9,8 @@ $theme: (
     menu-bg-color: #fff,
     menu-active-color: #409eff,
     border-color: #dcdfe6,
-    scrollbar-thumb-color: rgba(218, 219, 221),
-    scrollbar-thumb-hover-color: rgba(194, 196, 199),
+    scrollbar-thumb-color: rgb(218, 219, 221),
+    scrollbar-thumb-hover-color: rgb(194, 196, 199),
   ),
   dark: (color-primary: #409eff,
     text-color-primary: #E5EAF3,
@@ -19,8 +19,8 @@ $theme: (
     menu-bg-color: #141414,
     menu-active-color: #409eff,
     border-color: #4c4d4f,
-    scrollbar-thumb-color: rgba(60, 61, 63),
-    scrollbar-thumb-hover-color: rgba(86, 88, 92),
+    scrollbar-thumb-color: rgb(60, 61, 63),
+    scrollbar-thumb-hover-color: rgb(86, 88, 92),
   )
 );
 

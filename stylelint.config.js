@@ -14,9 +14,13 @@ export default {
   rules: {
     'order/order': [],
     'order/properties-order': [],
+    'at-rule-no-deprecated': [true, {
+      ignoreAtRules: ['apply'],
+    }],
     'at-rule-no-unknown': [true, {
       ignoreAtRules: ['use', 'tailwind', 'mixin', 'include', 'each'],
     }],
+    'color-function-alias-notation': null,
     'color-function-notation': null,
     'alpha-value-notation': null,
     'selector-class-pattern': null,
