@@ -44,11 +44,11 @@ async function handleDelete(row) {
   domainList.value.splice(index, 1);
 }
 
-async function changeStatus(_value, row, index) {
-  const nextStatus = row.status === 1 ? 2 : 1;
+async function changeBoolean(_value, row, index) {
+  const nextStatus = !row.boolean;
   row._loading = true;
 
-  const axiosPromise = editDomain(row.id, { status: nextStatus });
+  const axiosPromise = editDomain(row.id, { boolean: nextStatus });
 
   const [error] = await handleAxiosResult(axiosPromise);
 
@@ -58,7 +58,7 @@ async function changeStatus(_value, row, index) {
     return;
   }
 
-  domainList.value[index].status = nextStatus;
+  domainList.value[index].boolean = nextStatus;
   ElMessage.success('修改成功');
   row._loading = false;
 }
@@ -130,36 +130,42 @@ onMounted(() => {
           width="70"
           fixed
         />
-        <ElTableColumn label="名称" />
         <ElTableColumn
-          label="价格"
-          width="120"
+          label="char" prop="char" :width="{
+            default: '110',
+            small: '100',
+            large: '130',
+          }[tableConfig.size]"
         />
+        <ElTableColumn label="varchar" prop="varchar" width="150" show-overflow-tooltip />
+        <ElTableColumn label="int" prop="int" width="80" />
+        <ElTableColumn label="decimal" prop="decimal" width="100" />
         <ElTableColumn
-          label="库存"
-          width="120"
-        />
-        <ElTableColumn
-          label="状态"
-          width="200"
+          label="boolean"
+          width="90"
         >
           <template #default="{ row, $index }">
             <ElSwitch
-              v-model="row.status"
+              v-model="row.boolean"
               inline-prompt
               :loading="row._loading"
-              :active-value="1"
-              active-text="启用"
-              :inactive-value="2"
-              inactive-text="禁用"
-              :before-change="() => changeStatus(row.status, row, $index)"
+              :active-value="true"
+              active-text="打开"
+              :inactive-value="false"
+              inactive-text="关闭"
+              :before-change="() => changeBoolean(row.boolean, row, $index)"
             />
           </template>
         </ElTableColumn>
+        <ElTableColumn label="enum" prop="enum" width="90" />
+        <ElTableColumn label="array" prop="array" width="150" />
+        <ElTableColumn label="datetime" prop="datetime" width="220" />
+        <ElTableColumn label="timestamp" prop="timestamp" width="140" />
+        <ElTableColumn label="json" prop="json" width="130" show-overflow-tooltip />
         <ElTableColumn
           prop="createTime"
           label="创建时间"
-          width="250"
+          width="200"
           sortable
         >
           <template #default="{ row }">
@@ -169,7 +175,7 @@ onMounted(() => {
         <ElTableColumn
           prop="updateTime"
           label="更新时间"
-          width="250"
+          width="200"
           sortable
         >
           <template #default="{ row }">
