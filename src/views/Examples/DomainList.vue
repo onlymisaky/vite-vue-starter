@@ -2,13 +2,14 @@
 import { h, onMounted } from 'vue';
 import { deleteDomain, editDomain } from '@/api/domain';
 import ListPage from '@/components/ListPage/ListPage.vue';
+import NumberRange from '@/components/NumberRange.vue';
 import { useModal } from '@/hooks/useModal';
 import { handleAxiosResult } from '@/request';
 import DomainForm from './components/DomainForm.vue';
 import { useDomainList } from './compositions/useDomainList.ts';
 
 const {
-  searchParams,
+  searchParamsViewModel,
   resetSearchParams,
   pagination,
   domainList,
@@ -79,41 +80,95 @@ onMounted(() => {
     </template>
     <template #filter>
       <div class="flex flex-col gap-[10px]">
-        <ElForm
-          inline
-          :model="searchParams"
+        <div
+          data-role=""
+          class="flex flex-wrap gap-[20px] items-center"
         >
-          <ElSkeleton animated>
-            <template #template>
-              <div class="flex flex-wrap gap-[10px] items-center">
-                <div
-                  v-for="i in 7"
-                  :key="i"
-                  class="w-[320px]"
-                >
-                  <ElSkeletonItem variant="h1" />
-                </div>
-                <div class="flex ml-auto gap-[10px]">
-                  <ElButton
-                    type="primary"
-                    @click="getDomainList"
-                  >
-                    查询
-                  </ElButton>
-                  <ElButton @click="resetSearchParams">
-                    重置
-                  </ElButton>
-                  <ElButton
-                    :disabled="!abortable"
-                    @click="abort"
-                  >
-                    取消
-                  </ElButton>
-                </div>
-              </div>
-            </template>
-          </ElSkeleton>
-        </ElForm>
+          <div class="flex items-center gap-[5px]">
+            <label class="text-[14px]">char：</label>
+            <ElInput
+              v-model="searchParamsViewModel.char"
+              clearable
+              placeholder="精确查询"
+            />
+          </div>
+          <div class="flex items-center gap-[5px]">
+            <label class="text-[14px]">varchar：</label>
+            <ElInput
+              v-model="searchParamsViewModel.varchar"
+              class="w-[280px]"
+              clearable
+              placeholder="模糊查询"
+            />
+          </div>
+          <div class="flex items-center gap-[5px]">
+            <label class="text-[14px]">decimalRange：</label>
+            <NumberRange
+              v-model="searchParamsViewModel.decimalRange"
+              start-placeholder="最小值"
+              end-placeholder="最大值"
+              :precision="2"
+              :step="0.01"
+              :min="0"
+              :max="1000"
+            >
+              <template #start-Prefix>
+                ￥
+              </template>
+              <template #end-Suffix>
+                元
+              </template>
+            </NumberRange>
+          </div>
+          <div class="flex items-center gap-[5px]">
+            <label class="text-[14px]">enums：</label>
+            <ElSelect
+              v-model="searchParamsViewModel.enum"
+              class="!w-[270px]"
+              clearable
+              multiple
+              collapse-tags
+              collapse-tags-tooltip
+              :max-collapse-tags="2"
+              placeholder="多选查询"
+            >
+              <ElOption
+                v-for="item in ['active', 'inactive', 'pending']"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </ElSelect>
+          </div>
+          <div class="flex items-center gap-[5px]">
+            <label class="text-[14px]">datetimeRange：</label>
+            <ElDatePicker
+              v-model="searchParamsViewModel.datetimeRange"
+              type="datetimerange"
+              value-format="YYYY-MM-DD HH:mm:ss"
+              format="YYYY-MM-DD HH:mm:ss"
+              date-format="YYYY/MM/DD"
+              time-format="hh:mm:ss"
+            />
+          </div>
+          <div class="flex ml-auto gap-[10px]">
+            <ElButton
+              type="primary"
+              @click="getDomainList"
+            >
+              查询
+            </ElButton>
+            <ElButton @click="resetSearchParams">
+              重置
+            </ElButton>
+            <ElButton
+              :disabled="!abortable"
+              @click="abort"
+            >
+              取消
+            </ElButton>
+          </div>
+        </div>
       </div>
     </template>
     <template #default="{ tableConfig }">
@@ -131,15 +186,30 @@ onMounted(() => {
           fixed
         />
         <ElTableColumn
-          label="char" prop="char" :width="{
+          label="char"
+          prop="char"
+          :width="{
             default: '110',
             small: '100',
             large: '130',
           }[tableConfig.size]"
         />
-        <ElTableColumn label="varchar" prop="varchar" width="150" show-overflow-tooltip />
-        <ElTableColumn label="int" prop="int" width="80" />
-        <ElTableColumn label="decimal" prop="decimal" width="100" />
+        <ElTableColumn
+          label="varchar"
+          prop="varchar"
+          width="150"
+          show-overflow-tooltip
+        />
+        <ElTableColumn
+          label="int"
+          prop="int"
+          width="80"
+        />
+        <ElTableColumn
+          label="decimal"
+          prop="decimal"
+          width="100"
+        />
         <ElTableColumn
           label="boolean"
           width="90"
@@ -157,11 +227,39 @@ onMounted(() => {
             />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="enum" prop="enum" width="90" />
-        <ElTableColumn label="array" prop="array" width="150" />
-        <ElTableColumn label="datetime" prop="datetime" width="220" />
-        <ElTableColumn label="timestamp" prop="timestamp" width="140" />
-        <ElTableColumn label="json" prop="json" width="130" show-overflow-tooltip />
+        <ElTableColumn
+          label="enum"
+          prop="enum"
+          width="90"
+        />
+        <ElTableColumn
+          label="array"
+          prop="array"
+          width="150"
+        />
+        <ElTableColumn
+          label="datetime"
+          prop="datetime"
+          width="220"
+        />
+        <ElTableColumn
+          label="timestamp"
+          prop="timestamp"
+          width="140"
+        />
+        <ElTableColumn
+          label="json"
+          prop="json"
+          width="130"
+          show-overflow-tooltip
+        >
+          <template #default="{ row }">
+            <template v-if="row.json">
+              <span v-if="typeof row.json === 'object'">{{ JSON.stringify(row.json) }}</span>
+              <span v-else>{{ row.json }}</span>
+            </template>
+          </template>
+        </ElTableColumn>
         <ElTableColumn
           prop="createTime"
           label="创建时间"

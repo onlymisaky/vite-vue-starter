@@ -61,6 +61,10 @@ function assignPropsToFormModel(domain: Record<string, any>) {
     if (key in domain) {
       (formModel.value as any)[key] = value;
     }
+
+    if (key === 'json' && value && typeof value === 'object') {
+      formModel.value.json = JSON.stringify(value);
+    }
   });
 }
 
@@ -289,7 +293,7 @@ defineExpose({
         v-model="formModel.decimal"
         :step="0.01"
         :min="0"
-        :max="1000000"
+        :max="1000"
       />
     </ElFormItem>
     <ElFormItem

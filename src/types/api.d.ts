@@ -8,6 +8,26 @@ declare global {
     timestamp: number
   }
 
+  interface SortOptions {
+    sortBy: string
+    sortOrder: 'DESC' | 'ASC' | ''
+  }
+
+  interface QueryListDto<P extends object = object> {
+    params?: P
+    sort?: SortOptions
+    pagination?: {
+      page: number
+      pageSize: number
+    }
+  }
+
+  interface BaiscListItemVo {
+    id: number
+    createdAt: string
+    updatedAt: string
+  }
+
   interface PaginatedData<T = unknown> {
     list: T[]
     pagination: {

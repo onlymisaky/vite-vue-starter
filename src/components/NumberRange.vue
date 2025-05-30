@@ -118,17 +118,17 @@ const startInputNumberAttrs = computed(() => {
 const endInputNumberAttrs = computed(() => {
   const {
     rangeSeparator: _rangeSeparator,
-    startPlaceholder,
-    endPlaceholder: _endPlaceholder,
-    start,
-    end: _end,
+    startPlaceholder: _startPlaceholder,
+    endPlaceholder,
+    start: _start,
+    end,
     ...rest
   } = props;
 
   return {
     ...rest,
-    ...start,
-    placeholder: startPlaceholder,
+    ...end,
+    placeholder: endPlaceholder,
   } as Omit<InputNumberProps, 'modelValue'>;
 });
 
@@ -233,7 +233,7 @@ defineExpose({
     name="rangeSeparator"
   />
   <template v-else>
-    &nbsp;~&nbsp;
+    &nbsp;{{ rangeSeparator }}&nbsp;
   </template>
   <ElInputNumber
     v-bind="endInputNumberAttrs"
