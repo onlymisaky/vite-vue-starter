@@ -5,7 +5,7 @@ import { codeInspectorPlugin } from 'code-inspector-plugin';
 import AutoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
-import { defineConfig, loadEnv } from 'vite';
+import { createLogger, defineConfig, loadEnv } from 'vite';
 // import Inspect from 'vite-plugin-inspect';
 import vueDevTools from 'vite-plugin-vue-devtools';
 // import vueInspector from 'vite-plugin-vue-inspector';
@@ -31,6 +31,16 @@ const vendor = path.join(__dirname, 'node_modules');
 export default defineConfig((config) => {
   const envDir = path.resolve(process.cwd(), './environments');
   const env = loadEnv(config.mode, envDir, '') as unknown as ViteEnv;
+
+  const logger = createLogger();
+  const loggerError = logger.error;
+  logger.error = (msg, options) => {
+    if (msg.includes('http proxy error:')) {
+      return;
+    }
+    loggerError(msg, options);
+  };
+
   return {
     base: env.BASE_URL,
     envDir,
@@ -110,5 +120,6 @@ export default defineConfig((config) => {
         },
       },
     },
+    customLogger: logger,
   };
 });
