@@ -66,10 +66,7 @@ const animationDuration = computed(() => `${menuStore.animationDuration + 0}ms`)
               :include="pageCacheStore.cachedPages"
               :max="pageCacheStore.cachePageSize"
             >
-              <component
-                :is="Component"
-                :key="$route.fullPath"
-              />
+              <component :is="Component" />
             </KeepAlive>
           </Transition>
         </RouterView>
