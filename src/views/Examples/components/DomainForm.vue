@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ElForm, FormRules } from 'element-plus';
-import { createReusableTemplate } from '@vueuse/core';
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue';
 import { addDomain, editDomain } from '@/api/domain';
 import { handleAxiosResult } from '@/request';
@@ -13,8 +12,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['confirm']);
-
-const [DefineFormItemTemplate, ReuseFormItemTemplate] = createReusableTemplate();
 
 const isEdit = computed(() => props.domain && props.domain.id);
 
@@ -213,17 +210,6 @@ defineExpose({
 </script>
 
 <template>
-  <DefineFormItemTemplate>
-    <div class="flex items-center gap-[20px]">
-      <div class="w-[25%]">
-        <ElSkeletonItem variant="h1" />
-      </div>
-      <div class="flex-1">
-        <ElSkeletonItem variant="h1" />
-      </div>
-    </div>
-  </DefineFormItemTemplate>
-
   <ElForm
     ref="formRef"
     :model="formModel"
@@ -231,19 +217,6 @@ defineExpose({
     label-width="170px"
     class="h-[600px] overflow-y-auto"
   >
-    <ElSkeleton
-      v-if="false"
-      animated
-    >
-      <template #template>
-        <div class="flex flex-col gap-[20px] mb-[20px]">
-          <ReuseFormItemTemplate
-            v-for="i in 7"
-            :key="i"
-          />
-        </div>
-      </template>
-    </ElSkeleton>
     <ElFormItem
       label="char"
       prop="char"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { DialogProps, ElDialog } from 'element-plus';
 import type { Slots } from 'vue';
-import { useVModel } from '@vueuse/core';
 import { computed, useAttrs, useSlots, useTemplateRef } from 'vue';
+import { useVModel } from '@/hooks/useVModel';
 
 const props = defineProps({
   modelValue: {
@@ -10,8 +10,6 @@ const props = defineProps({
     required: true,
   },
 });
-
-defineEmits(['update:modelValue']);
 
 const visible = useVModel(props, 'modelValue');
 
