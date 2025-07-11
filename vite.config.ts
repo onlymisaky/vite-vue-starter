@@ -82,7 +82,8 @@ export default defineConfig((config) => {
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler',
+          // vite 7 仅支持现代 API
+          // api: 'modern-compiler',
         },
       },
       // 如果想将所有的配置文件都放在 configs 目录下，postcss 可以这样配置

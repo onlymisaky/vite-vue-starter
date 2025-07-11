@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import type { ElTooltipProps, IconProps } from 'element-plus';
-import { computed, useAttrs } from 'vue';
+/**
+ * 为 ElIcon 添加一个鼠标悬浮的背景 和 悬浮时提示文案
+ */
 
-interface Props extends /* @vue-ignore */ IconProps {
+import type { ElTooltipProps, IconProps } from 'element-plus';
+import { computed } from 'vue';
+
+interface Props extends IconProps {
+  /**
+   * 背景的内边距
+   */
   bgPadding?: number
+
+  /**
+   * 提示信息，可以是字符串，也可以是 ElTooltipProps
+   */
   tip?: string | Partial<ElTooltipProps>
 }
 
@@ -11,32 +22,22 @@ const props = withDefaults(defineProps<Props>(), {
   bgPadding: 8,
 });
 
-const slots = defineSlots();
-const attrs = useAttrs();
-
-/**
- * 不确定上面这声明 props 的方式，是否会把 bgPadding、tip、size 等等属性挂在 $porps 上
- * 还是放在 $attrs 上，所以这里为了避免bug，直接合并到一个对象上
- * 后记：
- *  在上面声明 props 的时候，如果使用 @vue-ignore 注释，
- *  除了内部声明的 props 会挂在到 $props 上，(bgPadding、tip)
- *  其他属性都会挂在到 $attrs 上
- */
-const propsAndAttrs = computed(() => {
-  return { ...attrs, ...props };
-});
+const slots = defineSlots<{
+  default: () => any
+  tip: () => any
+}>();
 
 // 将剩余属性全部绑定到 icon 上，例如事件、样式等
 const iconProps = computed(() => {
-  const { tip, bgPadding, ...rest } = propsAndAttrs.value;
+  const { tip, bgPadding, ...rest } = props;
   return rest;
 });
 
 const tipProps = computed<ElTooltipProps>(() => {
-  const { tip } = propsAndAttrs.value;
+  const { tip } = props;
   const defaultProps = { showAfter: 200, hideAfter: 0 } as ElTooltipProps;
   if (!tip || typeof tip === 'string') {
-    return defaultProps;
+    return { ...defaultProps, content: tip as string };
   }
   if (typeof tip === 'object') {
     return { ...defaultProps, ...tip };
@@ -45,14 +46,7 @@ const tipProps = computed<ElTooltipProps>(() => {
 });
 
 const tipStr = computed(() => {
-  const { tip } = propsAndAttrs.value;
-  if (tip) {
-    if (typeof tip === 'string') {
-      return tip;
-    }
-    return tip.content;
-  }
-  return null;
+  return tipProps.value.content;
 });
 
 const hasTip = computed(() => tipStr.value || slots.tip);
@@ -62,7 +56,7 @@ const padding = computed(() => `-${props.bgPadding}px`);
 
 <template>
   <ElIcon
-    v-bind="iconProps"
+    v-bind="{ ...$attrs, ...iconProps }"
     class="icon-wrapper"
   >
     <ElTooltip
