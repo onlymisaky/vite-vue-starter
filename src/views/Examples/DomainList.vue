@@ -15,8 +15,6 @@ const {
   domainList,
   loading,
   getDomainList,
-  abort,
-  abortable,
   handleSortChange,
 } = useDomainList();
 
@@ -72,6 +70,7 @@ onMounted(() => {
 <template>
   <ListPage
     class="flex-1"
+    filter-collapsible
     @add="open"
     @refresh="getDomainList"
   >
@@ -79,95 +78,84 @@ onMounted(() => {
       <component :is="DomainModal" />
     </template>
     <template #filter>
-      <div class="flex flex-col gap-[10px]">
-        <div
-          data-role=""
-          class="flex flex-wrap gap-[20px] items-center"
-        >
-          <div class="flex items-center gap-[5px]">
-            <label class="text-[14px]">char：</label>
-            <ElInput
-              v-model="searchParamsViewModel.char"
-              clearable
-              placeholder="精确查询"
+      <div class="flex flex-wrap gap-x-[20px] gap-y-[10px] items-center">
+        <div class="flex items-center gap-[5px]">
+          <label class="text-[14px]">char：</label>
+          <ElInput
+            v-model="searchParamsViewModel.char"
+            clearable
+            placeholder="精确查询"
+          />
+        </div>
+        <div class="flex items-center gap-[5px]">
+          <label class="text-[14px]">varchar：</label>
+          <ElInput
+            v-model="searchParamsViewModel.varchar"
+            class="w-[280px]"
+            clearable
+            placeholder="模糊查询"
+          />
+        </div>
+        <div class="flex items-center gap-[5px]">
+          <label class="text-[14px]">decimalRange：</label>
+          <NumberRange
+            v-model="searchParamsViewModel.decimalRange"
+            start-placeholder="最小值"
+            end-placeholder="最大值"
+            :precision="2"
+            :step="0.01"
+            :min="0"
+            :max="1000"
+          >
+            <template #start-Prefix>
+              ￥
+            </template>
+            <template #end-Suffix>
+              元
+            </template>
+          </NumberRange>
+        </div>
+        <div class="flex items-center gap-[5px]">
+          <label class="text-[14px]">enums：</label>
+          <ElSelect
+            v-model="searchParamsViewModel.enum"
+            class="!w-[270px]"
+            clearable
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            :max-collapse-tags="2"
+            placeholder="多选查询"
+          >
+            <ElOption
+              v-for="item in ['active', 'inactive', 'pending']"
+              :key="item"
+              :label="item"
+              :value="item"
             />
-          </div>
-          <div class="flex items-center gap-[5px]">
-            <label class="text-[14px]">varchar：</label>
-            <ElInput
-              v-model="searchParamsViewModel.varchar"
-              class="w-[280px]"
-              clearable
-              placeholder="模糊查询"
-            />
-          </div>
-          <div class="flex items-center gap-[5px]">
-            <label class="text-[14px]">decimalRange：</label>
-            <NumberRange
-              v-model="searchParamsViewModel.decimalRange"
-              start-placeholder="最小值"
-              end-placeholder="最大值"
-              :precision="2"
-              :step="0.01"
-              :min="0"
-              :max="1000"
-            >
-              <template #start-Prefix>
-                ￥
-              </template>
-              <template #end-Suffix>
-                元
-              </template>
-            </NumberRange>
-          </div>
-          <div class="flex items-center gap-[5px]">
-            <label class="text-[14px]">enums：</label>
-            <ElSelect
-              v-model="searchParamsViewModel.enum"
-              class="!w-[270px]"
-              clearable
-              multiple
-              collapse-tags
-              collapse-tags-tooltip
-              :max-collapse-tags="2"
-              placeholder="多选查询"
-            >
-              <ElOption
-                v-for="item in ['active', 'inactive', 'pending']"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
-            </ElSelect>
-          </div>
-          <div class="flex items-center gap-[5px]">
-            <label class="text-[14px]">datetimeRange：</label>
-            <ElDatePicker
-              v-model="searchParamsViewModel.datetimeRange"
-              type="datetimerange"
-              value-format="YYYY-MM-DD HH:mm:ss"
-              format="YYYY-MM-DD HH:mm:ss"
-              date-format="YYYY/MM/DD"
-              time-format="hh:mm:ss"
-            />
-          </div>
-          <div class="flex ml-auto gap-[10px]">
-            <ElButton
-              type="primary"
-              @click="getDomainList"
-            >
-              查询
-            </ElButton>
-            <ElButton @click="resetSearchParams">
-              重置
-            </ElButton>
-            <ElButton
-              :disabled="!abortable"
-              @click="abort"
-            >
+          </ElSelect>
+        </div>
+        <div class="flex items-center gap-[5px]">
+          <label class="text-[14px]">datetimeRange：</label>
+          <ElDatePicker
+            v-model="searchParamsViewModel.datetimeRange"
+            type="datetimerange"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            format="YYYY-MM-DD HH:mm:ss"
+            date-format="YYYY/MM/DD"
+            time-format="hh:mm:ss"
+          />
+        </div>
+        <div class="flex ml-auto">
+          <ElButton icon="Refresh" class="ml-[8px]" :loading="loading" @click="resetSearchParams">
+            重置
+          </ElButton>
+          <ElButton type="primary" icon="Search" :loading="loading" @click="getDomainList">
+            查询
+          </ElButton>
+          <!-- <ElButton v-if="abortable" icon="Close" @click="abort">
               取消
-            </ElButton>
-          </div>
+            </ElButton> -->
         </div>
       </div>
     </template>

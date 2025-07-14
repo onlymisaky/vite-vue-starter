@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import type { TableConfig } from './types';
+import { ref } from 'vue';
 import { useResetableRef } from '@/hooks/useResetableState';
-import Add from './toolbar/Add.vue';
 import Refresh from './toolbar/Refresh.vue';
 import Settings from './toolbar/Settings.vue';
+
+defineProps({
+  filterCollapsible: {
+    type: Boolean,
+    default: false,
+  },
+  filterTitle: {
+    type: String,
+    default: '搜索',
+  },
+});
 
 defineEmits(['refresh', 'add']);
 
@@ -17,6 +28,8 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
   tooltipEffect: 'dark',
   tableLayout: 'fixed',
 });
+
+const filterExpanded = ref(true);
 </script>
 
 <template>
@@ -30,7 +43,21 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
       data-role="list-page-filter-container"
       class="bg-white dark:bg-gray-800 rounded-lg p-[10px] shadow-md mb-[10px]"
     >
-      <slot name="filter" />
+      <div v-if="filterCollapsible" class="select-none cursor-pointer" @click="filterExpanded = !filterExpanded">
+        <slot name="filter-title" :expanded="filterExpanded">
+          <div class="flex items-center gap-[5px] mb-[14px]">
+            <ElIcon :size="14">
+              <ArrowRight class="transition-transform duration-200" :class="{ 'rotate-90': filterExpanded }" />
+            </ElIcon>
+            <span class="text-[14px]">{{ filterTitle }}</span>
+          </div>
+        </slot>
+      </div>
+      <ElCollapseTransition>
+        <div v-show="filterExpanded">
+          <slot name="filter" :expanded="filterExpanded" />
+        </div>
+      </ElCollapseTransition>
     </div>
     <div
       data-role="list-page-table"
@@ -41,7 +68,9 @@ const [tableConfig, resetTableConfig] = useResetableRef<TableConfig>({
         class="flex mb-[10px]"
       >
         <div class="flex flex-1">
-          <Add @click="$emit('add')" />
+          <ElButton type="primary" icon="Plus" @click="$emit('add')">
+            新增
+          </ElButton>
         </div>
         <div class="flex ml-auto items-center gap-[10px]">
           <Refresh @click="$emit('refresh')" />

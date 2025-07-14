@@ -1,9 +1,5 @@
 <template>
-  <ElButton type="primary">
+  <ElButton type="primary" icon="Plus">
     新增
-    &nbsp;
-    <ElIcon size="14">
-      <Plus />
-    </ElIcon>
   </ElButton>
 </template>
