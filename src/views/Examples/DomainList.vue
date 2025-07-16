@@ -1,6 +1,7 @@
 <script setup>
 import { h, onMounted } from 'vue';
 import { deleteDomain, editDomain } from '@/api/domain';
+import ConfigTable from '@/components/ConfigTable/ConfigTable.vue';
 import ListPage from '@/components/ListPage/ListPage.vue';
 import NumberRange from '@/components/NumberRange.vue';
 import { useModal } from '@/hooks/useModal';
@@ -61,6 +62,48 @@ async function changeBoolean(_value, row, index) {
   ElMessage.success('修改成功');
   row._loading = false;
 }
+
+/** @type {import('@/components/ConfigTable/types.d').TableColumnPropsWithRender[]} */
+const columns = [
+  { type: 'index', prop: 'index', label: '编号', width: '70', fixed: true },
+  { label: 'char', prop: 'char', width: '110' },
+  { label: 'varchar', prop: 'varchar', width: '150', showOverflowTooltip: true },
+  { label: 'int', prop: 'int', width: '80' },
+  { label: 'decimal', prop: 'decimal', width: '100' },
+  { label: 'boolean', prop: 'boolean', width: '90' },
+  { label: 'enum', prop: 'enum', width: '90' },
+  { label: 'array', prop: 'array', width: '150' },
+  { label: 'datetime', prop: 'datetime', width: '220' },
+  { label: 'timestamp', prop: 'timestamp', width: '140' },
+  {
+    label: 'json',
+    prop: 'json',
+    width: '130',
+    showOverflowTooltip: true,
+    render({ row }) {
+      return h('span', typeof row.json === 'object' ? JSON.stringify(row.json) : row.json);
+    },
+  },
+  {
+    label: 'createTime',
+    prop: 'createTime',
+    width: '200',
+    sortable: true,
+    render({ row }) {
+      return h('span', (row.createTime || '').replace('T', ' ').replace('.000Z', ''));
+    },
+  },
+  {
+    label: 'updateTime',
+    prop: 'updateTime',
+    width: '200',
+    sortable: true,
+    render({ row }) {
+      return h('span', (row.updateTime || '').replace('T', ' ').replace('.000Z', ''));
+    },
+  },
+  { label: '操作', prop: 'actions', width: '200', fixed: 'right' },
+];
 
 onMounted(() => {
   getDomainList();
@@ -160,148 +203,66 @@ onMounted(() => {
       </div>
     </template>
     <template #default="{ tableConfig }">
-      <ElTable
+      <ConfigTable
         v-loading="loading"
         v-bind="tableConfig"
         :data="domainList"
         height="100%"
+        :columns="columns"
         @sort-change="handleSortChange"
       >
-        <ElTableColumn
-          type="index"
-          label="编号"
-          width="70"
-          fixed
-        />
-        <ElTableColumn
-          label="char"
-          prop="char"
-          :width="{
-            default: '110',
-            small: '100',
-            large: '130',
-          }[tableConfig.size]"
-        />
-        <ElTableColumn
-          label="varchar"
-          prop="varchar"
-          width="150"
-          show-overflow-tooltip
-        />
-        <ElTableColumn
-          label="int"
-          prop="int"
-          width="80"
-        />
-        <ElTableColumn
-          label="decimal"
-          prop="decimal"
-          width="100"
-        />
-        <ElTableColumn
-          label="boolean"
-          width="90"
-        >
-          <template #default="{ row, $index }">
-            <ElSwitch
-              v-model="row.boolean"
-              inline-prompt
-              :loading="row._loading"
-              :active-value="true"
-              active-text="打开"
-              :inactive-value="false"
-              inactive-text="关闭"
-              :before-change="() => changeBoolean(row.boolean, row, $index)"
-            />
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          label="enum"
-          prop="enum"
-          width="90"
-        />
-        <ElTableColumn
-          label="array"
-          prop="array"
-          width="150"
-        />
-        <ElTableColumn
-          label="datetime"
-          prop="datetime"
-          width="220"
-        />
-        <ElTableColumn
-          label="timestamp"
-          prop="timestamp"
-          width="140"
-        />
-        <ElTableColumn
-          label="json"
-          prop="json"
-          width="130"
-          show-overflow-tooltip
-        >
-          <template #default="{ row }">
-            <template v-if="row.json">
-              <span v-if="typeof row.json === 'object'">{{ JSON.stringify(row.json) }}</span>
-              <span v-else>{{ row.json }}</span>
+        <template #column-boolean="{ column }">
+          <ElTableColumn v-bind="column">
+            <template #default="{ row, $index }">
+              <ElSwitch
+                v-model="row.boolean"
+                inline-prompt
+                :loading="row._loading"
+                :active-value="true"
+                active-text="打开"
+                :inactive-value="false"
+                inactive-text="关闭"
+                :before-change="() => changeBoolean(row.boolean, row, $index)"
+              />
             </template>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          prop="createTime"
-          label="创建时间"
-          width="200"
-          sortable
-        >
-          <template #default="{ row }">
-            <span>{{ (row.createTime || '').replace('T', ' ').replace('.000Z', '') }}</span>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          prop="updateTime"
-          label="更新时间"
-          width="200"
-          sortable
-        >
-          <template #default="{ row }">
-            <span>{{ (row.updateTime || '').replace('T', ' ').replace('.000Z', '') }}</span>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn
-          label="操作"
-          width="200"
-          fixed="right"
-        >
-          <template #default="{ row }">
-            <ElButton
-              type="primary"
-              size="small"
-              :loading="row._loading"
-              @click="open({
-                dialog: { title: '编辑' },
-                content: { domain: row },
-              })"
-            >
-              编辑
-            </ElButton>
-            <ElPopconfirm
-              title="确定要删除吗？"
-              @confirm="handleDelete(row)"
-            >
-              <template #reference>
-                <ElButton
-                  type="danger"
-                  size="small"
-                  :loading="row._loading"
-                >
-                  删除
-                </ElButton>
-              </template>
-            </ElPopconfirm>
-          </template>
-        </ElTableColumn>
-      </ElTable>
+          </ElTableColumn>
+        </template>
+
+        <template #column-actions="{ column }">
+          <ElTableColumn v-bind="column">
+            <template #header>
+              aaasss
+            </template>
+            <template #default="{ row }">
+              <ElButton
+                type="primary"
+                size="small"
+                :loading="row._loading"
+                @click="open({
+                  dialog: { title: '编辑' },
+                  content: { domain: row },
+                })"
+              >
+                编辑
+              </ElButton>
+              <ElPopconfirm
+                title="确定要删除吗？"
+                @confirm="handleDelete(row)"
+              >
+                <template #reference>
+                  <ElButton
+                    type="danger"
+                    size="small"
+                    :loading="row._loading"
+                  >
+                    删除
+                  </ElButton>
+                </template>
+              </ElPopconfirm>
+            </template>
+          </ElTableColumn>
+        </template>
+      </ConfigTable>
     </template>
     <template #pagination>
       <ElPagination
