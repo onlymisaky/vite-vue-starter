@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Emits, Props, Slots, TableColumnPropsWithRender } from './types.d';
 import { computed, useAttrs, useTemplateRef } from 'vue';
-import { useProxyExpose } from '@/hooks/useProxyExpose';
+import { useProxyExpose } from '@/hooks/useProxyExposejs';
 
 const fakeProps = defineProps<Props>();
 
@@ -43,8 +43,9 @@ const columns = computed(() => {
 
 const tableRef = useTemplateRef('tableRef');
 
-const proxyExposed = useProxyExpose(tableRef);
+const proxyExposed = useProxyExpose(tableRef, { getName() {} });
 
+// 我踏马真想知道这个傻逼宏是怎么实现的，连踏马jsdoc都能编译报错
 defineExpose(proxyExposed);
 </script>
 
@@ -61,38 +62,13 @@ defineExpose(proxyExposed);
       />
     </template>
 
-    <template
-      v-for="(column, index) in columns"
-      :key="column.prop"
-    >
-      <!-- TODO -->
-      <!--
-      <ConfigTable :data="data" :columns="column">
-        现在
-        <template #column-xxx="{ column }">
-          <ElTableColumn v-bind="column">
-            <template #header>{{ column.label }}</template>
-            <template #default="{row}">
-              {{ row.xxx }}
-            </template>
-          </ElTableColumn>
-        </template>
-
-        期望
-        <template #column-xxx="{ column }">
-          <template #header>{{ column.label }}</template>
-          <template #default="{row}">
-            {{ row.xxx }}
-          </template>
-        </template>
-      </ConfigTable>
-      -->
-
+    <template #default>
       <slot
+        v-for="(column, index) in columns"
         :name="`column-${column.prop}`"
         v-bind="{ row: columns[index], column, $index: index }"
       >
-        <ElTableColumn v-bind="column">
+        <ElTableColumn v-bind="column" :key="column.prop">
           <template
             v-for="(slotFn, slotName) in column.slots"
             :key="slotName"

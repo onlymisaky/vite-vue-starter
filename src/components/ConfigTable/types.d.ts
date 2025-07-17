@@ -1,4 +1,4 @@
-import type { TableColumnInstance, TableProps } from 'element-plus';
+import type { TableColumnInstance, TableInstance, TableProps } from 'element-plus';
 import type { VNode } from 'vue';
 
 export type Emits = /** @vue-ignore */ TransformToVueEmitTypes<TableInstance>;
