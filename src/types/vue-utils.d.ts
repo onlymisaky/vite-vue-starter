@@ -37,5 +37,5 @@ declare global {
 
   type OmitVNodeProps<T> = Omit<T, keyof VNodeProps>;
 
-  type ExtractPublicPropTypesFromComponentInstance<T extends ComponentPublicInstance> = OmitVNodeProps<ExtractPublicPropTypes<T['$props']>>;
+  type ExtractPublicPropTypesFromComponentInstance<T extends { $props: any }> = OmitVNodeProps<ExtractPublicPropTypes<T['$props']>>;
 }
