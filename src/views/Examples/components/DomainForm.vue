@@ -15,7 +15,7 @@ const emit = defineEmits(['confirm']);
 
 const isEdit = computed(() => props.domain && props.domain.id);
 
-const formRef = useTemplateRef<InstanceType<typeof ElForm>>('formRef');
+const formRef = useTemplateRef('formRef');
 
 interface FormModel {
   char: string

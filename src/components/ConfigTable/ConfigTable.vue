@@ -43,7 +43,7 @@ const columns = computed(() => {
 
 const tableRef = useTemplateRef('tableRef');
 
-const proxyExposed = useProxyExpose(tableRef, { getName() {} });
+const proxyExposed = useProxyExpose(tableRef);
 
 // 我踏马真想知道这个傻逼宏是怎么实现的，连踏马jsdoc都能编译报错
 defineExpose(proxyExposed);

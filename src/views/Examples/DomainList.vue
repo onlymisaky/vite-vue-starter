@@ -230,9 +230,6 @@ onMounted(() => {
 
         <template #column-actions="{ column }">
           <ElTableColumn v-bind="column">
-            <template #header>
-              aaasss
-            </template>
             <template #default="{ row }">
               <ElButton
                 type="primary"

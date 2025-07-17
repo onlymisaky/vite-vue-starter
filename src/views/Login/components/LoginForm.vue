@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { FormInstance } from 'element-plus';
-
-import { reactive, ref } from 'vue';
+import { reactive, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const loading = ref(false);
-const loginFormRef = ref<FormInstance>();
+const loginFormRef = useTemplateRef('loginFormRef');
 
 const loginForm = reactive({
   username: '',
