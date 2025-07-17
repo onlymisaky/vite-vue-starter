@@ -43,7 +43,7 @@ const propsAndAttrs = computed(() => {
 
 const visible = useVModel(props, 'modelValue');
 
-const dialogRef = useTemplateRef<ElDialogType>('dialogRef');
+const dialogRef = useTemplateRef('dialogRef');
 
 const proxyExposed = useProxyExpose(dialogRef, {});
 

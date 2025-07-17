@@ -17,8 +17,8 @@ const props = defineProps({
   },
 });
 
-const visibleContainerRef = useTemplateRef<HTMLDivElement>('visibleContainerRef');
-const totalContentRef = useTemplateRef<HTMLDivElement>('totalContentRef');
+const visibleContainerRef = useTemplateRef('visibleContainerRef');
+const totalContentRef = useTemplateRef('totalContentRef');
 const visibleContainerSize = ref(0);
 const totalContentSize = ref(0);
 const currentScrollDistance = ref(0);

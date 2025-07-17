@@ -7,8 +7,8 @@ import { useViewTabStore } from '@/store/modules/view-tab';
 
 const viewTab = useViewTabStore();
 
-const scrollViewRef = useTemplateRef<InstanceType<typeof ScrollView>>('scrollViewRef');
-const tabsRef = useTemplateRef<HTMLDivElement[]>('tabs');
+const scrollViewRef = useTemplateRef('scrollViewRef');
+const tabsRef = useTemplateRef('tabs');
 
 function scrollToActiveTab() {
   // 确保 active 在可视区域内

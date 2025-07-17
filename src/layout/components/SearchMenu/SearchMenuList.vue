@@ -13,8 +13,8 @@ const props = defineProps({
 const emits = defineEmits(['select']);
 
 const activeIndex = ref(-1);
-const scrollViewRef = useTemplateRef<InstanceType<typeof ScrollView>>('scrollViewRef');
-const appLinkRefs = useTemplateRef<HTMLLIElement[]>('appLinkRefs');
+const scrollViewRef = useTemplateRef('scrollViewRef');
+const appLinkRefs = useTemplateRef('appLinkRefs');
 
 function toggleResult(e: KeyboardEvent) {
   if (!['ArrowUp', 'ArrowDown'].includes(e.key)) {

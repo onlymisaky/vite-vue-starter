@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InputNumberInstance, InputNumberProps } from 'element-plus';
+import type { InputNumberProps } from 'element-plus';
 import type { PropType, Slots } from 'vue';
 import { computed, useSlots, useTemplateRef } from 'vue';
 
@@ -185,8 +185,8 @@ function onChangeRange(_value: number | undefined, index: number) {
   emits('change', modelValue.value);
 }
 
-const startInputNumberRef = useTemplateRef<InputNumberInstance>('endInputNumberRef');
-const endInputNumberRef = useTemplateRef<InputNumberInstance>('startInputNumberRef');
+const startInputNumberRef = useTemplateRef('endInputNumberRef');
+const endInputNumberRef = useTemplateRef('startInputNumberRef');
 
 defineExpose({
   focus(pos: 'start' | 'end') {

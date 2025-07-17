@@ -64,8 +64,7 @@ const watchHandler = watch(() => [props.visibleContainerSize, props.totalContent
   );
 });
 
-const barRef = useTemplateRef<HTMLDivElement>('barRef');
-const thumbRef = useTemplateRef<HTMLDivElement>('thumbRef');
+const thumbRef = useTemplateRef('thumbRef');
 const thumbStyle = computed(() => {
   if (!thumbSize.value) {
     return {};
@@ -132,7 +131,6 @@ function handleBarClick(event: MouseEvent) {
 <template>
   <div
     v-show="maxScrollableDistance > 0"
-    ref="barRef"
     class="absolute cursor-pointer transition-opacity duration-200 ease-out"
     :class="{
       'top-0 bottom-0 right-0 w-[6px]': direction === 'vertical',
