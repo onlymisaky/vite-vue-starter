@@ -1,8 +1,14 @@
 import type {
+  AllowedComponentProps,
+  ComponentCustomProps,
   ComponentPublicInstance,
   ComputedOptions,
+  ConcreteComponent,
+  DefineComponent,
   ExtractPublicPropTypes,
+  FunctionalComponent,
   MethodOptions,
+  Plugin,
   VNode,
   VNodeArrayChildren,
   VNodeProps,
@@ -36,6 +42,51 @@ declare global {
   }
 
   type OmitVNodeProps<T> = Omit<T, keyof VNodeProps>;
+  type OmitAllowedComponentProps<T> = Omit<T, keyof AllowedComponentProps>;
+  type OmitComponentCustomProps<T> = Omit<T, keyof ComponentCustomProps>;
+  type PureProps<T> = OmitVNodeProps<OmitAllowedComponentProps<OmitComponentCustomProps<T>>>;
 
-  type ExtractPublicPropTypesFromComponentInstance<T extends { $props: any }> = OmitVNodeProps<ExtractPublicPropTypes<T['$props']>>;
+  // 通过组件实例提取组件的 props 类型
+  type ExtractPublicPropTypesFromComponentInstance<T extends { $props: any }> = PureProps<ExtractPublicPropTypes<T['$props']>>;
+
+  type SFCWithInstall<T> = T & Plugin;
+
+  type UnwrapSFCWithInstall<T> = T extends SFCWithInstall<infer C> ? C : T;
+
+  // 提取组件的 props 类型
+  type PropsOf<T>
+    // ElementPlus 的组件会包裹一层 SFCWithInstall
+    = T extends SFCWithInstall<infer C> ? PropsOf<C>
+    // 函数式组件
+      : T extends FunctionalComponent<infer P, any> ? P
+      // 单文件组件
+        : T extends ComponentPublicInstanceConstructor<infer C> ? (C extends { $props: infer P } ? PureProps<P> : never)
+        // DefineComponent 定义的组件
+          : T extends DefineComponent<infer P, any, any, any, any, any, any, any, any, any, any> ? P
+          // 其它可以实体化的组件
+            : T extends ConcreteComponent<infer P, any, any, any, any, any, any> ? P
+            // 不知道通过什么方式实例化的组件
+              : T extends new (...args: any[]) => any ? PureProps<InstanceType<T>['$props']>
+              // 不知道是什么类型的组件
+                : Record<string, any>;
+
+  // 或许这种方式更简单
+  type PropsOf2<T>
+    = T extends SFCWithInstall<infer C> ? PropsOf2<C>
+      : T extends FunctionalComponent<infer P, any> ? P
+        : T extends new (...args: any[]) => any ? PureProps<InstanceType<T>['$props']>
+          : Record<string, any>;
+
+  type UnwrapSlots<S> = S extends SlotsType<infer M> ? M : S;
+
+  // 提取组件的 slots 类型
+  type SlotsOf<T>
+    // ElementPlus 的组件会包裹一层 SFCWithInstall
+    = T extends SFCWithInstall<infer C> ? SlotsOf<C>
+    // 函数式组件：第三个泛型位是 slots
+      : T extends FunctionalComponent<any, any, infer S> ? UnwrapSlots<S>
+      // 其他可实例化组件（DefineComponent/ConcreteComponent）：从实例上取 $slots
+        : T extends new (...args: any[]) => any ? InstanceType<T>['$slots']
+          : never;
+
 }
