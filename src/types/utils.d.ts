@@ -132,6 +132,32 @@ declare global {
           : EventName
         : never, ...args: Parameters<RT[K]>) => void;
   };
+
+  /**
+   * 获取对象中所有满足类型的 key
+   * type keys = KeysOfType<{ name: string, age: number, address: string }, string> // "name" | "address"
+   */
+  type KeysOfType<T extends object, KeyType> = {
+    [K in keyof T]-?: T[K] extends KeyType ? K : never
+  }[keyof T];
+
+  /**
+   * KeysOfType 的精确版
+   * type keys = KeysOfType<{ name: string, age: number, address: string, xx: string | number }, string | number>; // "name" | "age" | "address" | "xx"
+   * type keys = KeysOfExactType<{ name: string, age: number, address: string, xx: string | number }, string | number>; // "xx"
+   */
+  type KeysOfExactType<T extends object, KeyType> = {
+    [K in keyof T]-?: [T[K]] extends [KeyType]
+      ? ([KeyType] extends [T[K]] ? K : never)
+      : never
+  }[keyof T];
+
+  /**
+   * 获取对象中 key 的类型
+   * type types = ValueOf<{ name: string, age: number, address: string }> // string | number
+   */
+  type ValueOf<T> = T[keyof T];
+
 }
 
 export { };
