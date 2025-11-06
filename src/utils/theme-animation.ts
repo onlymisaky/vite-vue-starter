@@ -33,7 +33,7 @@ export function themeAnimation(
         `circle(${endRadius}px at ${x}px ${y}px)`,
       ];
 
-      const animationOption = {
+      const animationOption: KeyframeAnimationOptions = {
         duration: animationOptions?.duration || 400,
         easing: animationOptions?.easing || 'ease-in',
         pseudoElement: isDark
@@ -43,7 +43,7 @@ export function themeAnimation(
 
       document.documentElement.animate(
         {
-          clipPath: isDark ? [...clipPath].reverse() : clipPath,
+          clipPath: isDark ? [...clipPath].reverse() : [...clipPath],
         },
         animationOption,
       );
