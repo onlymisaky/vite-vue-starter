@@ -81,10 +81,6 @@ const min = computed(() => {
   return VALUE_RANGE_MAP[props.cronField || 'seconds'].min;
 });
 
-const listCount = computed(() => {
-  return VALUE_LIST_COUNT_MAP[props.cronField || 'seconds'];
-});
-
 const lineBreak = computed(() => {
   if (['seconds', 'minutes'].includes(props.cronField || 'seconds')) {
     return (index: number) => {
@@ -167,12 +163,30 @@ const listValue = usePickModelValue<ListModel, number[]>(props, 'values', emits,
   return Array.isArray(val) ? val : [];
 });
 
+const listOptions = computed(() => {
+  if (props.cronField === 'dayOfWeek') {
+    return WEEK_LIST;
+  }
+  if (props.cronField === 'year') {
+    return YEAR_LIST;
+  }
+  return Array.from({
+    length: VALUE_LIST_COUNT_MAP[props.cronField || 'seconds'],
+  }, (_, i) => {
+    const value = i + min.value;
+    return {
+      label: value < 10 ? `0${value}` : `${value}`,
+      value,
+    };
+  });
+});
+
 const listRef = useTemplateRef('listRef');
 </script>
 
 <template>
   <FieldModeRadioGroup
-    v-model:mode="fieldMode"
+    v-model="fieldMode"
     :mode-options="modeOptions"
   >
     <template #range>
@@ -258,7 +272,7 @@ const listRef = useTemplateRef('listRef');
         <ElInputNumber
           v-model="weekNthValue"
           controls-position="right"
-          :max="4"
+          :max="5"
           :min="1"
           :disabled="fieldMode !== 'nthWeekOfMonth'"
         />
@@ -305,13 +319,10 @@ const listRef = useTemplateRef('listRef');
         </span>
         <List
           ref="listRef"
-          v-model:list="listValue"
+          v-model="listValue"
           :width="['dayOfWeek', 'year'].includes(cronField as string) ? 30 : 24"
-          :options="{ dayOfWeek: WEEK_LIST, year: YEAR_LIST }[cronField as string] || []"
-          :count="listCount"
-          :start-index="min"
+          :options="listOptions"
           :line-break="lineBreak"
-          :get-label="['dayOfWeek', 'year'].includes(cronField as string) ? undefined : (_index, item) => (item as number) <= 9 ? `0${item}` : `${item}`"
           :disabled="fieldMode !== 'list'"
         />
       </div>

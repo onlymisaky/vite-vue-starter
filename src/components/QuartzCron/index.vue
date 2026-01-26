@@ -2,57 +2,16 @@
 import type { MaybeRef } from 'vue';
 import type { CronField, CronFieldModel, CronModel } from './types';
 import type { ValidateErrorCode } from './utils/constants';
-import { computed, h, nextTick, ref, shallowRef, watch } from 'vue';
+import { nextTick, ref, shallowRef, watch } from 'vue';
 import Time from './components/Time.vue';
 import { useExecutionTimes } from './hooks/useExecutionTimes';
-import { CRON_FIELD_LIST, DEFAULT_MODEL, VALIDATE_ERROR_MESSAGE_MAP } from './utils/constants';
+import { useModelUI } from './hooks/useModelUI';
+import { CRON_FIELD_LIST, VALIDATE_ERROR_MESSAGE_MAP } from './utils/constants';
 import { expression2Model } from './utils/expression-model';
-import { model2Expression, model2Expressions } from './utils/model-expression';
+import { model2Expression } from './utils/model-expression';
 import { formatDate } from './utils/time';
 
-const model = ref(DEFAULT_MODEL());
-
-const tabs = computed<{
-  label: string
-  name: CronField
-  component?: Record<string, any>
-}[]>(() => {
-  return CRON_FIELD_LIST.map((item) => {
-    return {
-      label: item.label,
-      name: item.value,
-      component: h(Time, {
-        cronField: item.value,
-        modelValue: model.value[item.value],
-        'onUpdate:modelValue': (value) => model.value[item.value] = value,
-      }),
-    };
-  });
-});
-
-const activeTab = ref(tabs.value[0].name);
-
-const expressions = computed(() => model2Expressions(model.value));
-
-watch(
-  () => model.value.dayOfMonth.mode,
-  (mode) => {
-    if (mode !== 'unspecified') {
-      model.value.dayOfWeek.mode = 'unspecified';
-    }
-  },
-  { immediate: true, deep: true },
-);
-
-watch(
-  () => model.value.dayOfWeek.mode,
-  (mode) => {
-    if (mode !== 'unspecified') {
-      model.value.dayOfMonth.mode = 'unspecified';
-    }
-  },
-  { immediate: true, deep: true },
-);
+const { cronModel, activeField, tabs, expressions } = useModelUI(Time);
 
 const expression = ref('');
 const expressionErrorList = shallowRef([] as {
@@ -101,12 +60,12 @@ async function handleExpression2Model() {
     return;
   }
   if (data) {
-    model.value = data as Record<CronField, CronFieldModel>;
+    cronModel.value = data as Record<CronField, CronFieldModel>;
   }
 }
 
 watch(
-  () => model.value,
+  () => cronModel.value,
   (value) => {
     expression.value = model2Expression(value);
   },
@@ -122,12 +81,12 @@ const {
   executionTimes,
   isCalculating,
   calculateExecutionTimes,
-} = useExecutionTimes(model as MaybeRef<CronModel>);
+} = useExecutionTimes(cronModel as MaybeRef<CronModel>);
 </script>
 
 <template>
   <ElTabs
-    v-model="activeTab"
+    v-model="activeField"
     type="border-card"
   >
     <ElTabPane
@@ -171,12 +130,12 @@ const {
           </template>
           <span
             class="flex flex-col items-center w-[90px] text-[14px] cursor-pointer"
-            @click="activeTab = exprItem.cronField"
+            @click="activeField = exprItem.cronField"
           >
             <span
               class="w-full text-center text-white rounded-t-[4px]"
               :class="[
-                exprItem.cronField === activeTab ? {
+                exprItem.cronField === activeField ? {
                   'bg-[var(--el-color-primary)]': exprItem.success,
                   'bg-[var(--el-color-error)]': !exprItem.success,
                 } : {
@@ -190,7 +149,7 @@ const {
             <span
               class="w-full h-[23px] text-center text-[var(--el-text-color-secondary)] border rounded-b-[4px] text-ellipsis overflow-hidden whitespace-nowrap"
               :class="[
-                exprItem.cronField === activeTab ? {
+                exprItem.cronField === activeField ? {
                   'border-[var(--el-color-primary)]': exprItem.success,
                   'border-[var(--el-color-error)]': !exprItem.success,
                 } : {

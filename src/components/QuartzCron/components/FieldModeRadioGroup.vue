@@ -3,20 +3,20 @@ import type { CronFieldMode } from '../types';
 import { computed } from 'vue';
 
 const props = defineProps<{
-  mode: CronFieldMode
+  modelValue: CronFieldMode
   modeOptions: Array<{ value: CronFieldMode, label?: string } | CronFieldMode>
 }>();
 
 const emits = defineEmits<{
-  (e: 'update:mode', value: CronFieldMode): void
+  (e: 'update:modelValue', value: CronFieldMode): void
 }>();
 
 const mode = computed({
   get() {
-    return props.mode;
+    return props.modelValue;
   },
   set(value) {
-    emits('update:mode', value);
+    emits('update:modelValue', value);
   },
 });
 
