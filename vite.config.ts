@@ -1,3 +1,4 @@
+import type { GetManualChunk } from 'rollup';
 import * as path from 'node:path';
 import legacy from '@vitejs/plugin-legacy';
 import vue from '@vitejs/plugin-vue';
@@ -11,21 +12,41 @@ import vueDevTools from 'vite-plugin-vue-devtools';
 // import vueInspector from 'vite-plugin-vue-inspector';
 import { dependencies } from './package.json';
 
-const skip = ['nprogress', 'vue'];
-const manualChunks = Object.keys(dependencies).reduce((acc, key) => {
-  if (skip.includes(key))
-    return acc;
+function splitVendor(isBuild: boolean): GetManualChunk {
+  if (!isBuild) {
+    return function manualChunks(_id: string) { };
+  }
 
-  return {
-    ...acc,
-    [path.join(__dirname, 'node_modules', `${key}/`)]: `vendor-${key.replace('@', '').replace('/', '-')}`,
+  const skipModules = ['nprogress', 'vue'];
+  const manualChunksMap = Object.keys(dependencies).reduce((acc, key) => {
+    if (skipModules.includes(key))
+      return acc;
+
+    const pkgDirPrefix = path.join(__dirname, 'node_modules', `${key}/`);
+    const value = `vendor-${key.replace('@', '').replace('/', '-')}`;
+
+    return {
+      ...acc,
+      [pkgDirPrefix]: value,
+    };
+  }, {} as Record<string, string>);
+
+  manualChunksMap[path.join(__dirname, 'node_modules', 'vue/')] = 'vendor-vue';
+  manualChunksMap[path.join(__dirname, 'node_modules', '@vue/')] = 'vendor-vue';
+
+  const vendorDir = path.join(__dirname, 'node_modules');
+
+  return function manualChunks(id: string) {
+    for (const pkgDirPrefix in manualChunksMap) {
+      if (id.startsWith(pkgDirPrefix)) {
+        return manualChunksMap[pkgDirPrefix];
+      }
+    }
+    if (id.startsWith(vendorDir)) {
+      return 'vendor';
+    }
   };
-}, {} as Record<string, string>);
-
-manualChunks[path.join(__dirname, 'node_modules', 'vue/')] = 'vendor-vue';
-manualChunks[path.join(__dirname, 'node_modules', '@vue/')] = 'vendor-vue';
-
-const vendor = path.join(__dirname, 'node_modules');
+}
 
 // https://vite.dev/config/
 export default defineConfig((config) => {
@@ -40,6 +61,8 @@ export default defineConfig((config) => {
     }
     loggerError(msg, options);
   };
+
+  const manualChunks = splitVendor(config.command === 'build');
 
   return {
     base: env.BASE_URL,
@@ -98,16 +121,7 @@ export default defineConfig((config) => {
       chunkSizeWarningLimit: 240,
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            for (const key in manualChunks) {
-              if (id.startsWith(key)) {
-                return manualChunks[key];
-              }
-            }
-            if (id.startsWith(vendor)) {
-              return 'vendor';
-            }
-          },
+          manualChunks,
         },
       },
     },
