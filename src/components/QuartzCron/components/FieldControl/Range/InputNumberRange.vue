@@ -24,18 +24,18 @@ const emits = defineEmits<{
 
 const startVal = computed({
   get() {
-    return props.start;
+    return props.start as number;
   },
-  set(num: number | string) {
+  set(num: number) {
     emits('update:start', num);
   },
 });
 
 const endVal = computed({
   get() {
-    return props.end;
+    return props.end as number;
   },
-  set(num: number | string) {
+  set(num: number) {
     emits('update:end', num);
   },
 });

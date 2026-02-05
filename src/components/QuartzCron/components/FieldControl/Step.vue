@@ -20,18 +20,18 @@ const emits = defineEmits<{
 
 const startVal = computed({
   get() {
-    return props.start;
+    return props.start as number;
   },
-  set(num: number | string) {
+  set(num: number) {
     emits('update:start', num);
   },
 });
 
 const stepVal = computed({
   get() {
-    return props.step;
+    return props.step as number;
   },
-  set(num: number | string) {
+  set(num: number) {
     emits('update:step', num);
   },
 });
