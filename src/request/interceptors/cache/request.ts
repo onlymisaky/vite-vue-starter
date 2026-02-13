@@ -2,24 +2,7 @@ import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } fr
 import type { CacheConfig, CacheConfigInternal } from './types';
 import type { CacheStore } from '@/utils/cache/types';
 import { createAdapter } from './adapter';
-
-export const defaultCacheConfig: Required<CacheConfig> = {
-  ttl: 5 * 60 * 1000, // 5分钟
-  forceRefresh: false,
-  shouldCache: (config) => {
-    return config.method?.toLowerCase() === 'get';
-  },
-  generateKey: (config) => {
-    const { baseURL, url, params, data, method } = config;
-    return JSON.stringify({
-      baseURL,
-      url,
-      params,
-      data,
-      method,
-    });
-  },
-};
+import { CACHE_TAG, DEFAULT_CACHE_CONFIG } from './constants';
 
 function normalizeShouldCache(fn: CacheConfig['shouldCache']): Required<CacheConfig>['shouldCache'] {
   if (typeof fn === 'function') {
@@ -28,7 +11,7 @@ function normalizeShouldCache(fn: CacheConfig['shouldCache']): Required<CacheCon
     };
   }
   return function shouldCache(_config: AxiosRequestConfig) {
-    return defaultCacheConfig.shouldCache(_config);
+    return DEFAULT_CACHE_CONFIG.shouldCache(_config);
   };
 }
 
@@ -38,11 +21,11 @@ function normalizeGenerateKey(fn: CacheConfig['generateKey']): Required<CacheCon
       const key = fn!(config);
       return (typeof key === 'string' || typeof key === 'number' || typeof key === 'symbol')
         ? key
-        : defaultCacheConfig.generateKey(config);
+        : DEFAULT_CACHE_CONFIG.generateKey(config);
     };
   }
   return function generateKey(config: AxiosRequestConfig) {
-    return defaultCacheConfig.generateKey(config);
+    return DEFAULT_CACHE_CONFIG.generateKey(config);
   };
 }
 
@@ -53,13 +36,13 @@ function normalizeCacheConfig(cacheConfig: CacheConfig | boolean | unknown): Req
   }
 
   if (typeof cacheConfig === 'boolean') {
-    return defaultCacheConfig;
+    return DEFAULT_CACHE_CONFIG;
   }
 
   const config = cacheConfig as CacheConfig;
 
   let ttl = Number(config.ttl);
-  ttl = Number.isNaN(ttl) ? defaultCacheConfig.ttl : Math.min(Math.max(ttl, 300), 5000);
+  ttl = Number.isNaN(ttl) ? DEFAULT_CACHE_CONFIG.ttl : Math.min(Math.max(ttl, 300), 5000);
 
   return {
     ttl,
@@ -71,12 +54,12 @@ function normalizeCacheConfig(cacheConfig: CacheConfig | boolean | unknown): Req
 
 export function createCacheRequestInterceptor(cacheStore: CacheStore) {
   return async function cacheRequestInterceptor(config: InternalAxiosRequestConfig) {
-    // 如果配置中没有 cacheConfig，则不进行缓存
-    if (!Reflect.has(config, 'cacheConfig')) {
+    // 如果配置中没有 CACHE_TAG 属性，则不进行缓存
+    if (!Reflect.has(config, CACHE_TAG)) {
       return config;
     }
 
-    const cacheConfig = normalizeCacheConfig(config.cacheConfig) as Required<CacheConfigInternal>;
+    const cacheConfig = normalizeCacheConfig(config[CACHE_TAG]) as Required<CacheConfigInternal>;
 
     if (!cacheConfig) {
       return config;
@@ -101,7 +84,7 @@ export function createCacheRequestInterceptor(cacheStore: CacheStore) {
 
     cacheConfig.enabled = true;
     cacheConfig.cacheKey = key;
-    config.cacheConfig = cacheConfig;
+    config[CACHE_TAG] = cacheConfig;
 
     try {
       const cacheValue = await cacheStore.get<AxiosResponse>(key);

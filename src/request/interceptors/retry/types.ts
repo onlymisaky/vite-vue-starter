@@ -1,12 +1,14 @@
+import type { RETRY_TAG } from './constants';
+
 declare module 'axios' {
   export interface AxiosRequestConfig {
-    retryConfig?: RetryConfig | number
+    [RETRY_TAG]?: RetryConfig | number
   }
 }
 
 // 暴露给外部使用的配置
 export interface RetryConfig {
-  // 最大重试次数，默认 3 次
+  // 重试次数，默认 3 次
   count?: number
   // 重试间隔时间，默认 500ms
   interval?: number

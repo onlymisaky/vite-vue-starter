@@ -1,28 +1,22 @@
 import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type { RetryConfig } from './types';
 import axios from 'axios';
-
-export const defaultRetryConfig: Required<RetryConfig> = {
-  count: 3,
-  interval: 500,
-  useExponentialBackoff: false,
-  shouldRetry: (_error) => true,
-};
+import { DEFAULT_RETRY_CONFIG, RETRY_TAG } from './constants';
 
 export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown): Required<RetryConfig> {
   // 所有不规范的配置值，都不进行重试
   if (!retryConfig) {
-    return { ...defaultRetryConfig, count: 0 };
+    return { ...DEFAULT_RETRY_CONFIG, count: 0 };
   }
   let count = Number(retryConfig);
   if (Number.isNaN(count) && typeof retryConfig !== 'object') {
-    return { ...defaultRetryConfig, count: 0 };
+    return { ...DEFAULT_RETRY_CONFIG, count: 0 };
   }
 
   // 配置为数字，使用数字配置
   if (!Number.isNaN(count)) {
     return {
-      ...defaultRetryConfig,
+      ...DEFAULT_RETRY_CONFIG,
       // 限制重试次数在 0 到 10 之间
       count: Math.min(Math.max(count, 0), 10),
     };
@@ -31,11 +25,11 @@ export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown
   const config = retryConfig as RetryConfig;
 
   count = Number(config.count);
-  count = Number.isNaN(count) ? defaultRetryConfig.count : Math.min(Math.max(count, 0), 10);
+  count = Number.isNaN(count) ? DEFAULT_RETRY_CONFIG.count : Math.min(Math.max(count, 0), 10);
 
   let interval = Number(config.interval);
 
-  interval = Number.isNaN(interval) ? defaultRetryConfig.interval : Math.min(Math.max(interval, 300), 5000);
+  interval = Number.isNaN(interval) ? DEFAULT_RETRY_CONFIG.interval : Math.min(Math.max(interval, 300), 5000);
 
   return {
     count,
@@ -78,10 +72,10 @@ function wait(delay: number, error: AxiosError) {
   });
 }
 
-export async function retryRequest(error: AxiosError, hasRetryCount: number = 0): Promise<AxiosResponse<any>> {
+export async function retryRequest(error: AxiosError, retriesCount: number = 0): Promise<AxiosResponse<any>> {
   const config = error.config as InternalAxiosRequestConfig;
-  const retryConfig = config.retryConfig as Required<RetryConfig>;
-  if (hasRetryCount >= retryConfig.count) {
+  const retryConfig = config[RETRY_TAG] as Required<RetryConfig>;
+  if (retriesCount >= retryConfig.count) {
     return Promise.reject(error);
   }
   // 计算延迟时间
@@ -89,5 +83,5 @@ export async function retryRequest(error: AxiosError, hasRetryCount: number = 0)
     ? retryConfig.interval * 2 ** (retryConfig.count - 1)
     : retryConfig.interval;
   await wait(delay, error);
-  return axios(config).catch((_error) => retryRequest(error, hasRetryCount + 1));
+  return axios(config).catch((_error) => retryRequest(error, retriesCount + 1));
 }

@@ -1,8 +1,9 @@
 import type { AxiosRequestConfig } from 'axios';
+import type { CACHE_TAG } from './constants';
 
 declare module 'axios' {
   export interface AxiosRequestConfig {
-    cacheConfig?: CacheConfig | boolean
+    [CACHE_TAG]?: CacheConfig | boolean
   }
 }
 

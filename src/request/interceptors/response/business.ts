@@ -11,13 +11,13 @@ export function businessInterceptor(response: AxiosResponse) {
   const axiosResponse = response as AxiosResponse<ApiResponse<any>>;
   const res = axiosResponse.data;
 
-  if (res.success) {
+  if (res && res.success) {
     return axiosResponse;
   }
 
   // TODO 业务错误处理，先把坑占着
   const axiosError = new axios.AxiosError(
-    res.message,
+    res.message || '未知错误',
     ERR_BUSINESS,
     axiosResponse.config,
     axiosResponse.request,
