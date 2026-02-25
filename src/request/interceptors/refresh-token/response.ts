@@ -23,10 +23,7 @@ export function createRefreshTokenResponseInterceptor<R = any, D = any, H = Reco
   axiosInstance?: AxiosInstance,
 ) {
   if (typeof config !== 'object' || config === null) {
-    return {
-      onFulfilled: null,
-      onRejected: null,
-    };
+    return [null, null] as const;
   }
 
   let onFulfilled = null;
@@ -129,7 +126,7 @@ export function createRefreshTokenResponseInterceptor<R = any, D = any, H = Reco
 
   function fulfilledInterceptor(response: AxiosResponse<R, D, H>): MaybePromise<AxiosResponse<R, D, H>> {
     // 对 response 做基础校验
-    if (!response || !response.request || !response.config) {
+    if (!response || !response.config || typeof response.config !== 'object') {
       return response;
     }
 
@@ -138,7 +135,7 @@ export function createRefreshTokenResponseInterceptor<R = any, D = any, H = Reco
 
   function rejectedInterceptor(error: AxiosError<R, D>): MaybePromise<AxiosError<R, D>> {
     // 对 error 做基础校验
-    if (!axios.isAxiosError(error) || !error.request || !error.config) {
+    if (!axios.isAxiosError(error) || !error.config || typeof error.config !== 'object') {
       return Promise.reject(error);
     }
 
@@ -153,5 +150,5 @@ export function createRefreshTokenResponseInterceptor<R = any, D = any, H = Reco
     onRejected = rejectedInterceptor;
   }
 
-  return { onFulfilled, onRejected };
+  return [onFulfilled, onRejected] as const;
 }

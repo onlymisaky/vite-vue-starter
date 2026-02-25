@@ -1,3 +1,4 @@
+import type { AxiosError } from 'axios';
 import type { RETRY_TAG } from './constants';
 
 declare module 'axios' {
@@ -7,7 +8,7 @@ declare module 'axios' {
 }
 
 // 暴露给外部使用的配置
-export interface RetryConfig {
+export interface RetryConfig<T = unknown, D = any> {
   // 重试次数，默认 3 次
   count?: number
   // 重试间隔时间，默认 500ms
@@ -15,5 +16,5 @@ export interface RetryConfig {
   // 是否使用指数退避算法，默认 true
   useExponentialBackoff?: boolean
   // 是否应该重试，默认 true
-  shouldRetry?: ((error: any) => boolean)
+  shouldRetry?: (error: AxiosError<T, D>) => boolean
 }

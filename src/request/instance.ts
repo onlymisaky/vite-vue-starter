@@ -5,7 +5,7 @@ import {
   cacheRequestInterceptor,
   cacheResponseInterceptor,
   createRefreshTokenResponseInterceptor,
-  retryInterceptor,
+  createRetryResponseInterceptor,
 } from './interceptors';
 import { withAbort } from './utils';
 
@@ -28,10 +28,10 @@ const axiosInstance = axios.create({
   validateStatus: (status) => status >= 200 && status < 300,
 });
 
-const {
-  onFulfilled: refreshTokenResponseFulfilledInterceptor,
-  onRejected: refreshTokenResponseRejectedInterceptor,
-} = createRefreshTokenResponseInterceptor<ApiResponse>({
+const [
+  refreshTokenResponseFulfilledInterceptor,
+  refreshTokenResponseRejectedInterceptor,
+] = createRefreshTokenResponseInterceptor<ApiResponse>({
   refreshApi: (refreshToken) => {
     // eslint-disable-next-line ts/no-use-before-define
     return requestWithAbort
@@ -61,6 +61,18 @@ const {
   },
 });
 
+const [
+  retryResponseFulfilledInterceptor,
+  retryResponseRejectedInterceptor,
+] = createRetryResponseInterceptor<ApiResponse>({
+  shouldRetry: (error) => {
+    if (error.response && error.response.status >= 500) {
+      return true;
+    }
+    return false;
+  },
+});
+
 /**
  * 注意拦截器的返回值
  * 只能返回 Promise.resolve(AxiosResponse) , AxiosResponse , Promise.reject(AxiosError) 或 throw AxiosError
@@ -81,7 +93,10 @@ axiosInstance.interceptors.response.use(
   refreshTokenResponseRejectedInterceptor,
 );
 // 错误重试
-axiosInstance.interceptors.response.use(null, retryInterceptor);
+axiosInstance.interceptors.response.use(
+  retryResponseFulfilledInterceptor,
+  retryResponseRejectedInterceptor,
+);
 // 业务逻辑判断
 axiosInstance.interceptors.response.use(businessInterceptor);
 // 缓存响应

@@ -3,7 +3,7 @@ import type { RetryConfig } from './types';
 import axios from 'axios';
 import { DEFAULT_RETRY_CONFIG, RETRY_TAG } from './constants';
 
-export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown): Required<RetryConfig> {
+export function normalizeRetryConfig<T = unknown, D = any>(retryConfig: RetryConfig<T, D> | number | unknown): Required<RetryConfig<T, D>> {
   // 所有不规范的配置值，都不进行重试
   if (!retryConfig) {
     return { ...DEFAULT_RETRY_CONFIG, count: 0 };
@@ -84,6 +84,5 @@ export async function retryRequest(error: AxiosError, retriesCount: number = 0):
     : retryConfig.interval;
   await wait(delay, error);
   // 直接使用未配置的 axios 发送重试请求，避免无限循环
-  // TODO: 这会影响其它拦截器不按预期执行吗？
   return axios(config).catch((_error) => retryRequest(error, retriesCount + 1));
 }
