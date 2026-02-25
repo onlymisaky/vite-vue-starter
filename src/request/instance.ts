@@ -4,6 +4,7 @@ import {
   businessInterceptor,
   cacheRequestInterceptor,
   cacheResponseInterceptor,
+  createRefreshTokenResponseInterceptor,
   retryInterceptor,
 } from './interceptors';
 import { withAbort } from './utils';
@@ -22,19 +23,69 @@ const axiosInstance = axios.create({
    *     业务层面报错也返回 200 或 200-299，但是在 data 中添加 success: false 字段
    *     网关、其它服务报错则返回符合 HTTP 规范的状态码
    *     遇到这种可就遭老罪喽
+   * 此处的取值范围也决定了不同状态码的请求，会通过哪些拦截器处理
    */
   validateStatus: (status) => status >= 200 && status < 300,
 });
 
-// 注意拦截器顺序
+const {
+  onFulfilled: refreshTokenResponseFulfilledInterceptor,
+  onRejected: refreshTokenResponseRejectedInterceptor,
+} = createRefreshTokenResponseInterceptor<ApiResponse>({
+  refreshApi: (refreshToken) => {
+    // eslint-disable-next-line ts/no-use-before-define
+    return requestWithAbort
+      .post<ApiResponse<string>>('/auth/refresh-token', { refreshToken })
+      .then((res) => res.data.data);
+  },
+  setAccessToken: (token) => localStorage.setItem('accessToken', token),
+  getRefreshToken: () => localStorage.getItem('refreshToken') || '',
+  fulfilled: {
+    shouldRefresh: (response) => {
+      if (response.config?.url === '/auth/refresh-token') {
+        return false;
+      }
+      return `${response.data.status}` === '401';
+    },
+  },
+  rejected: {
+    shouldRefresh: (error) => {
+      if (error.config?.url === '/auth/refresh-token') {
+        return false;
+      }
+      return `${error.response?.status}` === '401';
+    },
+  },
+  setRequestConfig(config, { accessToken }) {
+    config.headers!.Authorization = `Bearer ${accessToken}`;
+  },
+});
+
+/**
+ * 注意拦截器的返回值
+ * 只能返回 Promise.resolve(AxiosResponse) , AxiosResponse , Promise.reject(AxiosError) 或 throw AxiosError
+ * 拦截器的当前拦截器的返回值会决定下一个拦截器的调用
+ * 当前返回值: Promise.resolve(AxiosResponse) 或 AxiosResponse ，下一个拦截器调用: onFulfilled
+ * 当前返回值: Promise.reject(reason) 或 throw error ，下一个拦截器调用: onRejected
+ */
+
+/**
+ * 注意拦截器顺序
+ */
+
 // 判断是否缓存
 axiosInstance.interceptors.request.use(cacheRequestInterceptor);
+// 刷新 access token
+axiosInstance.interceptors.response.use(
+  refreshTokenResponseFulfilledInterceptor,
+  refreshTokenResponseRejectedInterceptor,
+);
 // 错误重试
-axiosInstance.interceptors.response.use((res) => res, retryInterceptor);
-// 缓存响应
-axiosInstance.interceptors.response.use(cacheResponseInterceptor);
+axiosInstance.interceptors.response.use(null, retryInterceptor);
 // 业务逻辑判断
 axiosInstance.interceptors.response.use(businessInterceptor);
+// 缓存响应
+axiosInstance.interceptors.response.use(cacheResponseInterceptor);
 // 最终错误处理
 axiosInstance.interceptors.response.use((res) => res, axiosErrorInterceptor);
 

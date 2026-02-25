@@ -138,9 +138,12 @@ export function createUseRequestService<
 >(api: Api) {
   return function useRequestService(...params: Parameters<Api>) {
     const promiseWithAbort = api(...params);
-    const abort = promiseWithAbort.abort.bind(promiseWithAbort);
-    const promise = promiseWithAbort.then((res) => res.data.data);
-    (promise as AbortablePromise<PaginatedData>).abort = abort;
-    return promise;
+    if (typeof promiseWithAbort.abort === 'function') {
+      const abort = promiseWithAbort.abort.bind(promiseWithAbort);
+      const promise = promiseWithAbort.then((res) => res.data.data);
+      (promise as AbortablePromise<PaginatedData>).abort = abort;
+      return promise;
+    }
+    return promiseWithAbort.then((res) => res.data.data);
   };
 }

@@ -6,6 +6,20 @@ export function isAbortablePromise(value: any): value is AbortablePromise<any> {
   return typeof value === 'object' && value !== null && typeof value.then === 'function' && typeof value.catch === 'function' && typeof value.abort === 'function';
 }
 
+export function promiseWithResolvers<T>() {
+  let resolveFn!: (v: T) => void;
+  let rejectFn!: (err: any) => void;
+  const deferred = new Promise<T>((resolve, reject) => {
+    resolveFn = resolve;
+    rejectFn = reject;
+  });
+  return {
+    promise: deferred,
+    resolve: resolveFn,
+    reject: rejectFn,
+  };
+}
+
 export function createAbortablePromise<
   T extends (...args: any[]) => Promise<any>,
   Res = UnwrapPromise<ReturnType<T>>,

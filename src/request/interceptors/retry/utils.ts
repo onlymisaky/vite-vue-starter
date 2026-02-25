@@ -83,5 +83,7 @@ export async function retryRequest(error: AxiosError, retriesCount: number = 0):
     ? retryConfig.interval * 2 ** (retryConfig.count - 1)
     : retryConfig.interval;
   await wait(delay, error);
+  // 直接使用未配置的 axios 发送重试请求，避免无限循环
+  // TODO: 这会影响其它拦截器不按预期执行吗？
   return axios(config).catch((_error) => retryRequest(error, retriesCount + 1));
 }
