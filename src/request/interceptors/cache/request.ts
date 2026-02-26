@@ -1,59 +1,12 @@
-import type { AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import type { CacheConfig, CacheConfigInternal } from './types';
-import type { CacheStore } from '@/utils/cache/types';
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type GeedStorage from 'geed-storage';
+import type { CacheConfigInternal } from './types';
 import { createAdapter } from './adapter';
-import { CACHE_TAG, DEFAULT_CACHE_CONFIG } from './constants';
+import { CACHE_TAG } from './constants';
+import { normalizeCacheConfig } from './utils';
 
-function normalizeShouldCache(fn: CacheConfig['shouldCache']): Required<CacheConfig>['shouldCache'] {
-  if (typeof fn === 'function') {
-    return function shouldCache(config: AxiosRequestConfig) {
-      return !!(fn!(config));
-    };
-  }
-  return function shouldCache(_config: AxiosRequestConfig) {
-    return DEFAULT_CACHE_CONFIG.shouldCache(_config);
-  };
-}
-
-function normalizeGenerateKey(fn: CacheConfig['generateKey']): Required<CacheConfig>['generateKey'] {
-  if (typeof fn === 'function') {
-    return function generateKey(config: AxiosRequestConfig) {
-      const key = fn!(config);
-      return (typeof key === 'string' || typeof key === 'number' || typeof key === 'symbol')
-        ? key
-        : DEFAULT_CACHE_CONFIG.generateKey(config);
-    };
-  }
-  return function generateKey(config: AxiosRequestConfig) {
-    return DEFAULT_CACHE_CONFIG.generateKey(config);
-  };
-}
-
-function normalizeCacheConfig(cacheConfig: CacheConfig | boolean | unknown): Required<CacheConfig> | false {
-  // 所有不规范的配置，都不进行缓存
-  if (!cacheConfig || (typeof cacheConfig !== 'boolean' && typeof cacheConfig !== 'object')) {
-    return false;
-  }
-
-  if (typeof cacheConfig === 'boolean') {
-    return DEFAULT_CACHE_CONFIG;
-  }
-
-  const config = cacheConfig as CacheConfig;
-
-  let ttl = Number(config.ttl);
-  ttl = Number.isNaN(ttl) ? DEFAULT_CACHE_CONFIG.ttl : Math.min(Math.max(ttl, 300), 5000);
-
-  return {
-    ttl,
-    forceRefresh: !!config.forceRefresh,
-    shouldCache: normalizeShouldCache(config.shouldCache),
-    generateKey: normalizeGenerateKey(config.generateKey),
-  };
-}
-
-export function createCacheRequestInterceptor(cacheStore: CacheStore) {
-  return async function cacheRequestInterceptor(config: InternalAxiosRequestConfig) {
+export function createCacheRequestInterceptor(storage: GeedStorage) {
+  async function onFulfilled(config: InternalAxiosRequestConfig) {
     // 如果配置中没有 CACHE_TAG 属性，则不进行缓存
     if (!Reflect.has(config, CACHE_TAG)) {
       return config;
@@ -74,7 +27,7 @@ export function createCacheRequestInterceptor(cacheStore: CacheStore) {
     if (cacheConfig.forceRefresh) {
       const key = cacheConfig.generateKey(config);
       try {
-        await cacheStore.delete(key);
+        await storage.remove(key);
       }
       catch {}
       return config;
@@ -87,7 +40,7 @@ export function createCacheRequestInterceptor(cacheStore: CacheStore) {
     config[CACHE_TAG] = cacheConfig;
 
     try {
-      const cacheValue = await cacheStore.get<AxiosResponse>(key);
+      const cacheValue = await storage.get<AxiosResponse>(key);
       if (cacheValue) {
         config.adapter = createAdapter(cacheValue);
       }
@@ -96,4 +49,6 @@ export function createCacheRequestInterceptor(cacheStore: CacheStore) {
 
     return config;
   };
+
+  return onFulfilled;
 }

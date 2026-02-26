@@ -1,12 +1,11 @@
-import { createCacheStore } from '../../../utils/cache';
-import { DEFAULT_CACHE_CONFIG } from './constants';
+import GeedStorage from 'geed-storage';
 import { createCacheRequestInterceptor } from './request';
 import { createCacheResponseInterceptor } from './response';
 
-export const requestCacheStore = createCacheStore({ type: 'memory', expires: DEFAULT_CACHE_CONFIG.ttl });
+const storage = new GeedStorage({ mode: 'localStorage' });
 
-export const cacheRequestInterceptor = createCacheRequestInterceptor(requestCacheStore);
-export const cacheResponseInterceptor = createCacheResponseInterceptor(requestCacheStore);
+export const cacheRequestInterceptor = createCacheRequestInterceptor(storage);
+export const cacheResponseInterceptor = createCacheResponseInterceptor(storage);
 
 /**
  * 对请求结果进行缓存更适合通过高阶函数实现，

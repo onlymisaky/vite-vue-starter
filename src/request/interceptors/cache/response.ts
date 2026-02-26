@@ -1,9 +1,9 @@
 import type { AxiosResponse } from 'axios';
+import type GeedStorage from 'geed-storage';
 import type { CacheConfigInternal } from './types';
-import type { CacheStore } from '@/utils/cache/types';
 import { CACHE_TAG } from '@/request/interceptors/cache/constants';
 
-export function createCacheResponseInterceptor(cacheStore: CacheStore) {
+export function createCacheResponseInterceptor(storage: GeedStorage) {
   return async function cacheResponseInterceptor(response: AxiosResponse) {
     // 失败的响应不缓存
     if (response.status < 200 || response.status >= 300) {
@@ -23,9 +23,9 @@ export function createCacheResponseInterceptor(cacheStore: CacheStore) {
     }
 
     try {
-      const existingCache = await cacheStore.has(cacheConfig.cacheKey);
+      const existingCache = await storage.has(cacheConfig.cacheKey);
       if (!existingCache) {
-        await cacheStore.set(cacheConfig.cacheKey, response, cacheConfig.ttl);
+        await storage.set(cacheConfig.cacheKey, response, { expires: cacheConfig.ttl });
       }
     }
     catch { }
