@@ -5,12 +5,12 @@ import { RETRY_TAG } from './constants';
 import { normalizeRetryConfig, retryRequest } from './utils';
 
 export function createRetryResponseInterceptor<T = unknown, D = any>(config: RetryConfig<T, D>) {
-  const globalConfig = normalizeRetryConfig<T, D>(config);
-  if (globalConfig.count <= 0) {
+  const globalRetryConfig = normalizeRetryConfig<T, D>(config);
+  if (globalRetryConfig.count <= 0) {
     return [null, null];
   }
 
-  function retryResponseRejectedInterceptor(error: AxiosError<T, D>) {
+  function onRejected(error: AxiosError<T, D>) {
     if (!axios.isAxiosError(error) || !error.config || typeof error.config !== 'object') {
       return Promise.reject(error);
     }
@@ -23,15 +23,15 @@ export function createRetryResponseInterceptor<T = unknown, D = any>(config: Ret
     }
 
     if (!Reflect.has(axiosRequestConfig, RETRY_TAG)) {
-      axiosRequestConfig[RETRY_TAG] = Object.assign({}, globalConfig) as Required<RetryConfig>;
+      axiosRequestConfig[RETRY_TAG] = Object.assign({}, globalRetryConfig) as Required<RetryConfig>;
     }
 
     const requestRetryConfig = normalizeRetryConfig<T, D>(axiosRequestConfig[RETRY_TAG]);
     const retryConfig: Required<RetryConfig<T, D>> = {
-      ...globalConfig,
+      ...globalRetryConfig,
       ...requestRetryConfig,
       shouldRetry(error) {
-        if (!globalConfig.shouldRetry(error)) {
+        if (!globalRetryConfig.shouldRetry(error)) {
           return false;
         }
         if (!requestRetryConfig.shouldRetry(error)) {
@@ -68,5 +68,5 @@ export function createRetryResponseInterceptor<T = unknown, D = any>(config: Ret
     return retryRequest(error);
   }
 
-  return [null, retryResponseRejectedInterceptor] as const;
+  return [null, onRejected] as const;
 }
