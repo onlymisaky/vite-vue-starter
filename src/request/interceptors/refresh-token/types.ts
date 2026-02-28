@@ -1,14 +1,11 @@
-import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-
-// 拦截器类型，不同的项目，token 过期时可能会走不用的拦截器
-// 详情参照 src/request/instance.ts 中 validateStatus 注释和实现
-export type InterceptorType = 'fulfilled' | 'rejected';
+import type { AxiosRequestConfig } from 'axios';
+import type { InterceptorType, ShouldDo } from './../types';
 
 export interface InterceptorConfig<T extends InterceptorType, R = any, D = any, H = Record<string, any>> {
   /**
    * 判断是否需要刷新 token
    */
-  shouldRefresh: (res: T extends 'fulfilled' ? AxiosResponse<R, D, H> : AxiosError<R, D>) => boolean
+  shouldRefresh?: ShouldDo<T, R, D, H>
   /**
    * 再三思量
    * 在发起重试之前，当遇到错误(无论是获取新的 access token 失败，还是取值、运算等代码层面错误)时，应该根据拦截器类型返回相应的 promise 状态
@@ -27,7 +24,7 @@ export interface InterceptorConfig<T extends InterceptorType, R = any, D = any, 
   // retryErrorReject?: boolean
 }
 
-export interface RefreshTokenConfigBase<R = any, D = any, H = Record<string, any>> {
+export interface RefreshTokenConfig<R = any, D = any, H = Record<string, any>> {
   refreshApi: (refreshToken: string) => Promise<string>
   setAccessToken: (token: string) => void
   clearAccessToken?: () => void
@@ -49,33 +46,37 @@ export interface RefreshTokenConfigBase<R = any, D = any, H = Record<string, any
   /**
    * 当 token 过期时，进入的是 rejected 拦截器
    */
-  rejected?: InterceptorConfig<'rejected', R, D>
+  rejected?: InterceptorConfig<'rejected', R, D, H>
+}
+
+export interface InternalRefreshTokenConfig<R = any, D = any, H = Record<string, any>>
+  extends DeepRequired<RefreshTokenConfig<R, D, H>> {
 }
 
 // 早期设计，通过 type 判断生成 fulfilled 或 rejected 拦截器
 // 后考虑到不同项目中，token过期时，可能会走不同的拦截器，所以将 type 改为 fulfilled 和 rejected
 // 使用 discriminated union，让 config.type === 'rejected' 能正确收窄类型
-export interface RefreshTokenConfigRejected<R = any, D = any, _H = Record<string, any>>
-  extends RefreshTokenConfigBase {
-  type: 'rejected'
-  shouldRefresh: (err: AxiosError<R, D>) => boolean
-}
+// export interface RefreshTokenConfigRejected<R = any, D = any, _H = Record<string, any>>
+//   extends RefreshTokenConfigBase {
+//   type: 'rejected'
+//   shouldRefresh: (err: AxiosError<R, D>) => boolean
+// }
 
-export interface RefreshTokenConfigFulfilled<R = any, D = any, H = Record<string, any>>
-  extends RefreshTokenConfigBase {
-  type: 'fulfilled'
-  shouldRefresh: (res: AxiosResponse<R, D, H>) => boolean
-}
+// export interface RefreshTokenConfigFulfilled<R = any, D = any, H = Record<string, any>>
+//   extends RefreshTokenConfigBase {
+//   type: 'fulfilled'
+//   shouldRefresh: (res: AxiosResponse<R, D, H>) => boolean
+// }
 
-export type RefreshTokenConfigUnion<R = any, D = any, H = Record<string, any>>
-  = | RefreshTokenConfigRejected<R, D, H>
-    | RefreshTokenConfigFulfilled<R, D, H>;
+// export type RefreshTokenConfigUnion<R = any, D = any, H = Record<string, any>>
+//   = | RefreshTokenConfigRejected<R, D, H>
+//     | RefreshTokenConfigFulfilled<R, D, H>;
 
-export type RefreshTokenResponseInterceptor<
-  T extends InterceptorType,
-  R = any,
-  D = any,
-  H = Record<string, any>,
-> = T extends 'rejected'
-  ? (error: AxiosError<R, D>) => any
-  : (response: AxiosResponse<R, D, H>) => MaybePromise<AxiosResponse<R, D, H>>;
+// export type RefreshTokenResponseInterceptor<
+//   T extends InterceptorType,
+//   R = any,
+//   D = any,
+//   H = Record<string, any>,
+// > = T extends 'rejected'
+//   ? (error: AxiosError<R, D>) => any
+//   : (response: AxiosResponse<R, D, H>) => MaybePromise<AxiosResponse<R, D, H>>;

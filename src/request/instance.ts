@@ -28,10 +28,7 @@ const axiosInstance = axios.create({
   validateStatus: (status) => status >= 200 && status < 300,
 });
 
-const [
-  refreshTokenResponseFulfilledInterceptor,
-  refreshTokenResponseRejectedInterceptor,
-] = createRefreshTokenResponseInterceptor<ApiResponse>({
+const [refreshTokenResponseFulfilledInterceptor, refreshTokenResponseRejectedInterceptor] = createRefreshTokenResponseInterceptor<ApiResponse>({
   refreshApi: (refreshToken) => {
     // eslint-disable-next-line ts/no-use-before-define
     return requestWithAbort
@@ -45,7 +42,7 @@ const [
       if (response.config?.url === '/auth/refresh-token') {
         return false;
       }
-      return `${response.data.status}` === '401';
+      return response.data.status === 401;
     },
   },
   rejected: {
@@ -53,7 +50,7 @@ const [
       if (error.config?.url === '/auth/refresh-token') {
         return false;
       }
-      return `${error.response?.status}` === '401';
+      return error.response?.status === 401;
     },
   },
   setRequestConfig(config, { accessToken }) {
@@ -61,15 +58,17 @@ const [
   },
 });
 
-const [
-  retryResponseFulfilledInterceptor,
-  retryResponseRejectedInterceptor,
-] = createRetryResponseInterceptor<ApiResponse>({
-  shouldRetry: (error) => {
-    if (error.response && error.response.status >= 500) {
-      return true;
-    }
-    return false;
+const [retryResponseFulfilledInterceptor, retryResponseRejectedInterceptor] = createRetryResponseInterceptor<ApiResponse>({
+  rejected: {
+    shouldRetry: (error) => {
+      if (error.config?.url === '/auth/refresh-token') {
+        return false;
+      }
+      if (error.response && error.response.status >= 400 && error.response.status !== 401) {
+        return true;
+      }
+      return false;
+    },
   },
 });
 
@@ -88,15 +87,9 @@ const [
 // 判断是否缓存
 axiosInstance.interceptors.request.use(cacheRequestInterceptor);
 // 刷新 access token
-axiosInstance.interceptors.response.use(
-  refreshTokenResponseFulfilledInterceptor,
-  refreshTokenResponseRejectedInterceptor,
-);
+axiosInstance.interceptors.response.use(refreshTokenResponseFulfilledInterceptor, refreshTokenResponseRejectedInterceptor);
 // 错误重试
-axiosInstance.interceptors.response.use(
-  retryResponseFulfilledInterceptor,
-  retryResponseRejectedInterceptor,
-);
+axiosInstance.interceptors.response.use(retryResponseFulfilledInterceptor, retryResponseRejectedInterceptor);
 // 业务逻辑判断
 axiosInstance.interceptors.response.use(businessInterceptor);
 // 缓存响应

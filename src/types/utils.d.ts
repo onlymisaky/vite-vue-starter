@@ -1,5 +1,27 @@
 declare global {
 
+  type MaybePromise<T> = T | Promise<T>;
+
+  type Nullable<T> = T | null;
+
+  type DeepRequired<T>
+    = T extends (...args: any[]) => any
+      ? T
+      : T extends object
+        ? { [P in keyof T]-?: DeepRequired<T[P]> } : T;
+
+  type DeepPartial<T>
+    = T extends (...args: any[]) => any
+      ? T
+      : T extends object
+        ? { [P in keyof T]?: DeepPartial<T[P]> } : T;
+
+  type DeepReadonly<T>
+    = T extends (...args: any[]) => any
+      ? T
+      : T extends object
+        ? { readonly [P in keyof T]: DeepReadonly<T[P]> } : T;
+
   type FirstLetterUppercase<T extends string> = T extends `${infer First}${infer Rest}` ? `${Uppercase<First>}${Rest}` : T;
 
   type FirstLetterLowercase<T extends string> = T extends `${infer First}${infer Rest}` ? `${Lowercase<First>}${Rest}` : T;

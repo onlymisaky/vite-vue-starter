@@ -1,10 +1,16 @@
-import type { RetryConfig } from './types';
+import type { InternalRetryConfig } from './types';
 
 export const RETRY_TAG = 'RETRY_TAG';
 
-export const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
+export const DEFAULT_RETRY_CONFIG: InternalRetryConfig = {
   count: 3,
-  interval: 500,
-  useExponentialBackoff: false,
-  shouldRetry: (_error) => true,
+  interval(_retriesCount) {
+    return 500;
+  },
+  fulfilled: {
+    shouldRetry: (_response) => false,
+  },
+  rejected: {
+    shouldRetry: (_error) => true,
+  },
 };
