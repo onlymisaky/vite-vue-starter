@@ -4,13 +4,17 @@ export const RETRY_TAG = 'RETRY_TAG';
 
 export const DEFAULT_RETRY_CONFIG: InternalRetryConfig = {
   count: 3,
-  interval(_retriesCount) {
+  interval() {
     return 500;
   },
   fulfilled: {
-    shouldRetry: (_response) => false,
+    shouldRetry() {
+      return false;
+    },
   },
   rejected: {
-    shouldRetry: (_error) => true,
+    shouldRetry() {
+      return true;
+    },
   },
 };

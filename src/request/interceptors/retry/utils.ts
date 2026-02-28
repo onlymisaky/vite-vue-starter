@@ -37,12 +37,13 @@ export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown
   });
 
   let interval: InternalRetryConfig['interval'];
+  const defaultInterval = DEFAULT_RETRY_CONFIG.interval(0);
 
   if (typeof config.interval === 'function') {
     interval = (retriesCount) => {
       const delay = (config.interval as (retriesCount: number) => number)(retriesCount);
       return normalizeNumber(delay, {
-        defaultValue: 500,
+        defaultValue: defaultInterval,
         min: 300,
         max: 5000,
       });
@@ -51,7 +52,7 @@ export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown
   else {
     interval = (_) => {
       return normalizeNumber(config.interval, {
-        defaultValue: 500,
+        defaultValue: defaultInterval,
         min: 300,
         max: 5000,
       });
@@ -62,10 +63,10 @@ export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown
     count,
     interval,
     fulfilled: {
-      shouldRetry: normalizeShouldDo(config.fulfilled?.shouldRetry, false),
+      shouldRetry: normalizeShouldDo(config.fulfilled?.shouldRetry, DEFAULT_RETRY_CONFIG.fulfilled.shouldRetry({} as AxiosResponse)),
     },
     rejected: {
-      shouldRetry: normalizeShouldDo(config.rejected?.shouldRetry, true),
+      shouldRetry: normalizeShouldDo(config.rejected?.shouldRetry, DEFAULT_RETRY_CONFIG.rejected.shouldRetry({} as AxiosError)),
     },
   };
 }

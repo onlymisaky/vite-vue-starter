@@ -13,11 +13,11 @@ class RetryInterceptor {
   constructor(config: RetryConfig) {
     this.globalRetryConfig = normalizeRetryConfig(config);
     if (this.globalRetryConfig !== false && this.globalRetryConfig.count > 0) {
-      if (config.fulfilled?.shouldRetry && typeof config.fulfilled?.shouldRetry === 'function') {
+      if (typeof config?.fulfilled?.shouldRetry === 'function') {
         this.onFulfilled = this.fulfilledInterceptor;
       }
 
-      if (config.rejected?.shouldRetry && typeof config.rejected?.shouldRetry === 'function') {
+      if (typeof config?.rejected?.shouldRetry === 'function') {
         this.onRejected = this.rejectedInterceptor;
       }
     }

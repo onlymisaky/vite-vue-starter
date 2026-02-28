@@ -61,14 +61,10 @@ export function normalizeRefreshTokenConfig(refreshTokenConfig: RefreshTokenConf
     clearRefreshToken: typeof config.clearRefreshToken === 'function' ? config.clearRefreshToken : noop,
     setRequestConfig: typeof config.setRequestConfig === 'function' ? config.setRequestConfig : noop,
     fulfilled: {
-      shouldRefresh: typeof config.fulfilled?.shouldRefresh === 'function'
-        ? normalizeShouldDo(config.fulfilled?.shouldRefresh, false)
-        : undefined,
+      shouldRefresh: normalizeShouldDo(config.fulfilled?.shouldRefresh, false),
     },
     rejected: {
-      shouldRefresh: typeof config.rejected?.shouldRefresh === 'function'
-        ? normalizeShouldDo(config.rejected?.shouldRefresh, false)
-        : undefined,
+      shouldRefresh: normalizeShouldDo(config.rejected?.shouldRefresh, false),
     },
-  } as InternalRefreshTokenConfig;
+  };
 }

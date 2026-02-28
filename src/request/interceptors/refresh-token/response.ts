@@ -23,10 +23,10 @@ class RefreshTokenInterceptor {
   constructor(config: RefreshTokenConfig) {
     this.refreshTokenConfig = normalizeRefreshTokenConfig(config);
     if (this.refreshTokenConfig !== false) {
-      if (typeof config.fulfilled?.shouldRefresh === 'function') {
+      if (typeof config?.fulfilled?.shouldRefresh === 'function') {
         this.onFulfilled = this.fulfilledInterceptor;
       }
-      if (typeof config.rejected?.shouldRefresh === 'function') {
+      if (typeof config?.rejected?.shouldRefresh === 'function') {
         this.onRejected = this.rejectedInterceptor;
       }
     }
