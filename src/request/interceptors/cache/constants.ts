@@ -25,7 +25,7 @@ export const DEFAULT_CACHE_CONFIG: InternalCacheConfig = {
       const urlFirstChar = url.slice(0, 1);
       if (cacheKeyLastChar !== '/') {
         if (urlFirstChar !== '/') {
-          cacheKey += `/${urlFirstChar}`;
+          cacheKey += `/${url}`;
         }
         else {
           cacheKey += url;
@@ -33,7 +33,7 @@ export const DEFAULT_CACHE_CONFIG: InternalCacheConfig = {
       }
       else {
         if (urlFirstChar !== '/') {
-          cacheKey += `/${urlFirstChar}`;
+          cacheKey += `/${url}`;
         }
         else {
           cacheKey += url;
