@@ -1,80 +1,26 @@
-import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import type { AxiosError, AxiosResponse } from 'axios';
 import type { ResponseInterceptor } from '../types';
 import type { InternalRetryConfig, RetryConfig } from './types';
 import { validateAxiosError, validateAxiosResponse } from '../utils';
-import { RETRY_TAG } from './constants';
-import { normalizeRetryConfig, retryRequest } from './utils';
+import { getRetryConfig, normalizeRetryConfig, retryRequest } from './utils';
 
 class RetryInterceptor {
-  onFulfilled: Nullable<ResponseInterceptor<'fulfilled'>> = null;
-  onRejected: Nullable<ResponseInterceptor<'rejected'>> = null;
-  private globalRetryConfig: false | InternalRetryConfig = false;
+  private globalRetryConfig!: InternalRetryConfig;
 
   constructor(config: RetryConfig) {
     this.globalRetryConfig = normalizeRetryConfig(config);
-    if (this.globalRetryConfig !== false && this.globalRetryConfig.count > 0) {
-      if (typeof config?.fulfilled?.shouldRetry === 'function') {
-        this.onFulfilled = this.fulfilledInterceptor;
-      }
-
-      if (typeof config?.rejected?.shouldRetry === 'function') {
-        this.onRejected = this.rejectedInterceptor;
-      }
-    }
   }
 
-  private getRequestRetryConfig(requestConfig: InternalAxiosRequestConfig) {
-    const requestRetryConfig = normalizeRetryConfig(requestConfig[RETRY_TAG]);
-    return requestRetryConfig;
-  }
-
-  private getRetryConfig(requestConfig: InternalAxiosRequestConfig) {
-    const globalRetryConfig = this.globalRetryConfig as InternalRetryConfig;
-    const requestRetryConfig = this.getRequestRetryConfig(requestConfig);
-
-    if (requestRetryConfig === false) {
-      return globalRetryConfig;
-    }
-
-    // 取当前请求的原始 shouldRetry 配置，用于判断是否需要覆盖全局配置
-    const originalFulfilledShouldRetry = (requestConfig[RETRY_TAG] as RetryConfig)?.fulfilled?.shouldRetry;
-    const originalRejectedShouldRetry = (requestConfig[RETRY_TAG] as RetryConfig)?.rejected?.shouldRetry;
-
-    const retryConfig: InternalRetryConfig = {
-      ...globalRetryConfig,
-      ...requestRetryConfig,
-      fulfilled: {
-        shouldRetry: (response: AxiosResponse) => {
-          if (typeof originalFulfilledShouldRetry === 'function') {
-            const shouldRetry = requestRetryConfig.fulfilled.shouldRetry(response);
-            return shouldRetry;
-          }
-          const shouldRetry = globalRetryConfig.fulfilled.shouldRetry(response);
-          return shouldRetry;
-        },
-      },
-      rejected: {
-        shouldRetry: (error: AxiosError) => {
-          if (typeof originalRejectedShouldRetry === 'function') {
-            const shouldRetry = requestRetryConfig.rejected.shouldRetry(error);
-            return shouldRetry;
-          }
-          const shouldRetry = globalRetryConfig.rejected.shouldRetry(error);
-          return shouldRetry;
-        },
-      },
-    };
-    return retryConfig;
-  }
-
-  private fulfilledInterceptor = (response: AxiosResponse) => {
+  responseFulfilledInterceptor(response: AxiosResponse) {
     if (!validateAxiosResponse(response)) {
       return response;
     }
 
-    const requestConfig = response.config!;
+    const retryConfig = getRetryConfig(response.config!, this.globalRetryConfig);
 
-    const retryConfig = this.getRetryConfig(requestConfig);
+    if (!retryConfig) {
+      return response;
+    }
 
     if (retryConfig.count <= 0) {
       return response;
@@ -87,7 +33,7 @@ class RetryInterceptor {
     return retryRequest(response, 0, retryConfig);
   };
 
-  private rejectedInterceptor = (error: AxiosError) => {
+  responseRejectedInterceptor(error: AxiosError) {
     if (!validateAxiosError(error)) {
       return Promise.reject(error);
     }
@@ -99,7 +45,11 @@ class RetryInterceptor {
       return Promise.reject(error);
     }
 
-    const retryConfig = this.getRetryConfig(requestConfig);
+    const retryConfig = getRetryConfig(requestConfig, this.globalRetryConfig);
+
+    if (!retryConfig) {
+      return Promise.reject(error);
+    }
 
     if (retryConfig.count <= 0) {
       return Promise.reject(error);
@@ -115,8 +65,11 @@ class RetryInterceptor {
 
 export function createRetryResponseInterceptor<R = any, D = any, H = Record<string, any>>(config: RetryConfig<R, D, H>) {
   const interceptor = new RetryInterceptor(config as RetryConfig);
-  return [interceptor.onFulfilled, interceptor.onRejected] as [
-    Nullable<ResponseInterceptor<'fulfilled', R, D, H>>,
-    Nullable<ResponseInterceptor<'rejected', R, D, H>>,
+  return [
+    interceptor.responseFulfilledInterceptor,
+    interceptor.responseRejectedInterceptor,
+  ] as [
+    ResponseInterceptor<'fulfilled', R, D, H>,
+    ResponseInterceptor<'rejected', R, D, H>,
   ];
 }

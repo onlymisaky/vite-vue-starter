@@ -1,20 +1,15 @@
+import type { AxiosError, AxiosResponse } from 'axios';
 import type { InternalRetryConfig } from './types';
 
 export const RETRY_TAG = 'RETRY_TAG';
 
 export const DEFAULT_RETRY_CONFIG: InternalRetryConfig = {
   count: 3,
-  interval() {
-    return 500;
-  },
+  interval: (_retriesCount: number) => 500,
   fulfilled: {
-    shouldRetry() {
-      return false;
-    },
+    shouldRetry: (_response: AxiosResponse) => false,
   },
   rejected: {
-    shouldRetry() {
-      return true;
-    },
+    shouldRetry: (_error: AxiosError) => true,
   },
 };

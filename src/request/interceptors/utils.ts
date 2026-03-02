@@ -30,7 +30,7 @@ export function validateAxiosResponse<R = any, D = any, H = Record<string, any>>
   return true;
 }
 
-export function isNumberLike(value: unknown): value is number | string {
+export function isNumberLike(value: unknown): value is number | `${number}` {
   return typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value));
 }
 
@@ -62,10 +62,21 @@ export function normalizeNumber(
   return 0;
 }
 
+export function fnOrValueToFn<T>(value: T | ((...args: any[]) => T)): ((...args: any[]) => T) {
+  if (typeof value === 'function') {
+    return function fn(...args: any[]) {
+      return (value as (...args: any[]) => T)(...args);
+    };
+  }
+  return function fn(..._args: any[]) {
+    return value;
+  };
+}
+
 /**
  * 归一化判断函数
  * @param shouldDo 待归一化的判断函数
- * @param defaultResult 默认结果
+ * @param defaultShouldDo
  * @returns 归一化后的判断函数
  */
 export function normalizeShouldDo<
@@ -73,9 +84,15 @@ export function normalizeShouldDo<
   R = any,
   D = any,
   H = Record<string, any>,
->(shouldDo: ShouldDo<T, R, D, H> | any, defaultResult: boolean) {
+>(shouldDo: ShouldDo<T, R, D, H> | any, defaultShouldDo: boolean | ShouldDo<T, R, D, H>) {
   if (typeof shouldDo === 'function') {
-    return (...args: Parameters<ShouldDo<T, R, D, H>>) => !!(shouldDo!(...args));
+    return (...args: Parameters<ShouldDo<T, R, D, H>>) => {
+      const result = shouldDo(...args);
+      if (typeof result === 'boolean') {
+        return result;
+      }
+      return fnOrValueToFn(defaultShouldDo)(...args);
+    };
   }
-  return (..._args: Parameters<ShouldDo<T, R, D, H>>) => defaultResult;
+  return fnOrValueToFn(defaultShouldDo);
 }

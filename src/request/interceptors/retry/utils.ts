@@ -2,73 +2,152 @@ import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axio
 import type { InternalRetryConfig, RetryConfig } from './types';
 import axios from 'axios';
 import { isNumberLike, normalizeNumber, normalizeShouldDo } from '../utils';
-import { DEFAULT_RETRY_CONFIG } from './constants';
+import { DEFAULT_RETRY_CONFIG, RETRY_TAG } from './constants';
 
-export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown): false | InternalRetryConfig {
-  // 所有不规范的配置值，都不进行重试
-  if (!retryConfig) {
-    return false;
-  }
+function normalizeRetryCount(retryCount: any, defaultValue: number) {
+  const count = normalizeNumber(retryCount, {
+    defaultValue,
+    min: 0,
+    max: 10,
+  });
+  return count;
+}
 
-  // 传入数字时，默认只对 responseRejected 进行重试
-  if (isNumberLike(retryConfig)) {
-    const count = normalizeNumber(retryConfig, {
-      defaultValue: DEFAULT_RETRY_CONFIG.count,
-      min: 0,
-      max: 10,
-    });
-    return {
-      ...DEFAULT_RETRY_CONFIG,
-      count,
+function normalizeRetryInterval(retryInterval: any, defaultFn: (_: number) => number): InternalRetryConfig['interval'] {
+  if (typeof retryInterval === 'function') {
+    return function interval(retriesCount: number) {
+      const delay = retryInterval(retriesCount);
+      if (isNumberLike(delay)) {
+        const num = Number(delay);
+        return Math.min(Math.max(num, 300), 5000);
+      }
+      return defaultFn(retriesCount);
     };
   }
 
-  if (typeof retryConfig !== 'object') {
-    return false;
+  if (isNumberLike(retryInterval)) {
+    const num = Number(retryInterval);
+    return function interval(_retriesCount: number) {
+      return Math.min(Math.max(num, 300), 5000);
+    };
+  }
+
+  return defaultFn;
+}
+
+export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown): InternalRetryConfig {
+  // 传入数字时，视为对重试次数的配置，其余字段使用默认值
+  if (isNumberLike(retryConfig)) {
+    const count = normalizeNumber(retryConfig, { min: 0, max: 10 });
+    return { ...DEFAULT_RETRY_CONFIG, count };
+  }
+
+  // 传入非对象时，视为不开启重试
+  if (!retryConfig || typeof retryConfig !== 'object') {
+    return {
+      ...DEFAULT_RETRY_CONFIG,
+      fulfilled: {
+        shouldRetry: (_) => false,
+      },
+      rejected: {
+        shouldRetry: (_) => false,
+      },
+    };
   }
 
   // TS 类型断言
   const config = retryConfig as RetryConfig;
 
-  const count = normalizeNumber(config.count, {
-    defaultValue: DEFAULT_RETRY_CONFIG.count,
-    min: 0,
-    max: 10,
-  });
+  const count = normalizeRetryCount(config.count, DEFAULT_RETRY_CONFIG.count);
 
-  let interval: InternalRetryConfig['interval'];
-  const defaultInterval = DEFAULT_RETRY_CONFIG.interval(0);
-
-  if (typeof config.interval === 'function') {
-    interval = (retriesCount) => {
-      const delay = (config.interval as (retriesCount: number) => number)(retriesCount);
-      return normalizeNumber(delay, {
-        defaultValue: defaultInterval,
-        min: 300,
-        max: 5000,
-      });
-    };
-  }
-  else {
-    interval = (_) => {
-      return normalizeNumber(config.interval, {
-        defaultValue: defaultInterval,
-        min: 300,
-        max: 5000,
-      });
-    };
-  }
+  const interval = normalizeRetryInterval(config.interval, DEFAULT_RETRY_CONFIG.interval);
 
   return {
     count,
     interval,
     fulfilled: {
-      shouldRetry: normalizeShouldDo(config.fulfilled?.shouldRetry, DEFAULT_RETRY_CONFIG.fulfilled.shouldRetry({} as AxiosResponse)),
+      shouldRetry: normalizeShouldDo(
+        config.fulfilled?.shouldRetry,
+        DEFAULT_RETRY_CONFIG.fulfilled.shouldRetry,
+      ),
     },
     rejected: {
-      shouldRetry: normalizeShouldDo(config.rejected?.shouldRetry, DEFAULT_RETRY_CONFIG.rejected.shouldRetry({} as AxiosError)),
+      shouldRetry: normalizeShouldDo(
+        config.rejected?.shouldRetry,
+        DEFAULT_RETRY_CONFIG.rejected.shouldRetry,
+      ),
     },
   };
+}
+
+export function getRetryConfig(requestConfig: InternalAxiosRequestConfig, globalRetryConfig: InternalRetryConfig): InternalRetryConfig | false {
+  // 请求中没有配置重试，使用全局配置
+  if (!Reflect.has(requestConfig, RETRY_TAG)) {
+    return {
+      ...globalRetryConfig,
+    };
+  }
+
+  const requestRetryConfig = requestConfig[RETRY_TAG];
+
+  // 请求中重试配置的值为数字时，视为对重试次数配置，其余字段使用全局配置
+  if (isNumberLike(requestRetryConfig)) {
+    return {
+      ...globalRetryConfig,
+      count: normalizeRetryCount(requestRetryConfig, globalRetryConfig.count),
+    };
+  }
+
+  // 请求中重试配置的值为非对象时，视为不开启重试
+  if (!requestRetryConfig || typeof requestRetryConfig !== 'object') {
+    return false;
+  }
+
+  const retryConfig = {
+    ...globalRetryConfig,
+  };
+
+  if (Reflect.has(requestRetryConfig, 'count')) {
+    retryConfig.count = normalizeRetryCount(
+      requestRetryConfig.count,
+      globalRetryConfig.count,
+    );
+  }
+
+  if (Reflect.has(requestRetryConfig, 'interval')) {
+    retryConfig.interval = normalizeRetryInterval(
+      requestRetryConfig.interval,
+      globalRetryConfig.interval,
+    );
+  }
+
+  if (
+    requestRetryConfig.fulfilled
+    && typeof requestRetryConfig.fulfilled === 'object'
+    && Reflect.has(requestRetryConfig.fulfilled, 'shouldRetry')
+  ) {
+    retryConfig.fulfilled = {
+      shouldRetry: normalizeShouldDo(
+        requestRetryConfig.fulfilled?.shouldRetry,
+        globalRetryConfig.fulfilled.shouldRetry,
+      ),
+    };
+  }
+
+  if (
+    requestRetryConfig.rejected
+    && typeof requestRetryConfig.rejected === 'object'
+    && Reflect.has(requestRetryConfig.rejected, 'shouldRetry')
+  ) {
+    retryConfig.rejected = {
+      shouldRetry: normalizeShouldDo(
+        requestRetryConfig.rejected?.shouldRetry,
+        globalRetryConfig.rejected.shouldRetry,
+      ),
+    };
+  }
+
+  return retryConfig;
 }
 
 function createAbortedError(res: AxiosError | AxiosResponse) {
