@@ -2,8 +2,7 @@ import axios from 'axios';
 import {
   axiosErrorInterceptor,
   businessInterceptor,
-  cacheRequestInterceptor,
-  cacheResponseInterceptor,
+  createCacheInterceptor,
   createRefreshTokenResponseInterceptor,
   createRetryResponseInterceptor,
 } from './interceptors';
@@ -72,6 +71,8 @@ const [retryResponseFulfilledInterceptor, retryResponseRejectedInterceptor] = cr
   },
 });
 
+const [cacheRequestFulfilledInterceptor, cacheResponseFulfilledInterceptor] = createCacheInterceptor<ApiResponse>({});
+
 /**
  * 注意拦截器的返回值
  * 只能返回 Promise.resolve(AxiosResponse) , AxiosResponse , Promise.reject(AxiosError) 或 throw AxiosError
@@ -85,7 +86,7 @@ const [retryResponseFulfilledInterceptor, retryResponseRejectedInterceptor] = cr
  */
 
 // 判断是否缓存
-axiosInstance.interceptors.request.use(cacheRequestInterceptor);
+axiosInstance.interceptors.request.use(cacheRequestFulfilledInterceptor);
 // 刷新 access token
 axiosInstance.interceptors.response.use(refreshTokenResponseFulfilledInterceptor, refreshTokenResponseRejectedInterceptor);
 // 错误重试
@@ -93,7 +94,7 @@ axiosInstance.interceptors.response.use(retryResponseFulfilledInterceptor, retry
 // 业务逻辑判断
 axiosInstance.interceptors.response.use(businessInterceptor);
 // 缓存响应
-axiosInstance.interceptors.response.use(cacheResponseInterceptor);
+axiosInstance.interceptors.response.use(cacheResponseFulfilledInterceptor);
 // 最终错误处理
 axiosInstance.interceptors.response.use((res) => res, axiosErrorInterceptor);
 

@@ -66,8 +66,8 @@ class RetryInterceptor {
 export function createRetryResponseInterceptor<R = any, D = any, H = Record<string, any>>(config: RetryConfig<R, D, H>) {
   const interceptor = new RetryInterceptor(config as RetryConfig);
   return [
-    interceptor.responseFulfilledInterceptor,
-    interceptor.responseRejectedInterceptor,
+    interceptor.responseFulfilledInterceptor.bind(interceptor),
+    interceptor.responseRejectedInterceptor.bind(interceptor),
   ] as [
     ResponseInterceptor<'fulfilled', R, D, H>,
     ResponseInterceptor<'rejected', R, D, H>,

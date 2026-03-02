@@ -2,7 +2,7 @@ import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axio
 import type { InternalRetryConfig, RetryConfig } from './types';
 import axios from 'axios';
 import { isNumberLike, normalizeNumber, normalizeShouldDo } from '../utils';
-import { DEFAULT_RETRY_CONFIG, RETRY_TAG } from './constants';
+import { DEFAULT_RETRY_CONFIG, KEY_RETRY_CONFIG } from './constants';
 
 function normalizeRetryCount(retryCount: any, defaultValue: number) {
   const count = normalizeNumber(retryCount, {
@@ -79,13 +79,13 @@ export function normalizeRetryConfig(
 
 export function getRetryConfig(requestConfig: InternalAxiosRequestConfig, globalRetryConfig: InternalRetryConfig): InternalRetryConfig | false {
   // 请求中没有配置重试，使用全局配置
-  if (!Reflect.has(requestConfig, RETRY_TAG)) {
+  if (!Reflect.has(requestConfig, KEY_RETRY_CONFIG)) {
     return {
       ...globalRetryConfig,
     };
   }
 
-  const requestRetryConfig = requestConfig[RETRY_TAG];
+  const requestRetryConfig = requestConfig[KEY_RETRY_CONFIG];
 
   // 请求中重试配置的值为数字时，视为对重试次数配置，其余字段使用全局配置
   if (isNumberLike(requestRetryConfig)) {

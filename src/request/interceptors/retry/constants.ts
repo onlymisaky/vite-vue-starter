@@ -1,7 +1,7 @@
 import type { AxiosError, AxiosResponse } from 'axios';
 import type { InternalRetryConfig } from './types';
 
-export const RETRY_TAG = 'RETRY_TAG';
+export const KEY_RETRY_CONFIG = '__RETRY_CONFIG__';
 
 export const DEFAULT_RETRY_CONFIG: InternalRetryConfig = {
   count: 3,
