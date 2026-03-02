@@ -1,10 +1,10 @@
 import type { ShouldDo } from './../types';
 
-// 暴露给外部使用的配置
 export interface RetryConfig<R = any, D = any, H = Record<string, any>> {
-  // 重试次数，默认3次，最大10次
+  /**
+   * 重试次数，默认3次，最大10次
+   */
   count?: number
-  // 重试间隔时间，默认 500ms，最小 300ms，最大 5000ms
   /**
    * 重试间隔时间，默认 500ms，最小 300ms，最大 5000ms
    * 也可以根据当前重试次数动态计算间隔时间

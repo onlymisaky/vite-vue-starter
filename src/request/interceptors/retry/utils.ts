@@ -36,16 +36,10 @@ function normalizeRetryInterval(retryInterval: any, defaultFn: (_: number) => nu
 }
 
 export function normalizeRetryConfig(
-  retryConfig: RetryConfig | number | unknown,
+  retryConfig: RetryConfig,
   defaultConfig: InternalRetryConfig = DEFAULT_RETRY_CONFIG,
 ): InternalRetryConfig {
-  // 传入数字时，视为对重试次数的配置，其余字段使用默认值
-  if (isNumberLike(retryConfig)) {
-    const count = normalizeNumber(retryConfig, { min: 0, max: 10 });
-    return { ...defaultConfig, count };
-  }
-
-  // 传入非对象时，视为不开启重试
+  // 传入非对象时，fulfilled 和 rejected 都不重试，其余字段使用默认值
   if (!retryConfig || typeof retryConfig !== 'object') {
     return {
       ...defaultConfig,
@@ -101,12 +95,12 @@ export function getRetryConfig(requestConfig: InternalAxiosRequestConfig, global
     };
   }
 
-  // 请求中重试配置的值为 false 时，视为不开启重试
+  // 请求中重试配置的值为 false 时，视为当前请求出错不重试
   if (typeof requestRetryConfig === 'boolean' && !requestRetryConfig) {
     return false;
   }
 
-  // 请求中重试配置的值为非对象时，视为不开启重试
+  // 请求中重试配置的值为非对象时，视为当前请求出错不重试
   if (!requestRetryConfig || typeof requestRetryConfig !== 'object') {
     return false;
   }
