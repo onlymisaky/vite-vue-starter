@@ -35,17 +35,20 @@ function normalizeRetryInterval(retryInterval: any, defaultFn: (_: number) => nu
   return defaultFn;
 }
 
-export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown): InternalRetryConfig {
+export function normalizeRetryConfig(
+  retryConfig: RetryConfig | number | unknown,
+  defaultConfig: InternalRetryConfig = DEFAULT_RETRY_CONFIG,
+): InternalRetryConfig {
   // 传入数字时，视为对重试次数的配置，其余字段使用默认值
   if (isNumberLike(retryConfig)) {
     const count = normalizeNumber(retryConfig, { min: 0, max: 10 });
-    return { ...DEFAULT_RETRY_CONFIG, count };
+    return { ...defaultConfig, count };
   }
 
   // 传入非对象时，视为不开启重试
   if (!retryConfig || typeof retryConfig !== 'object') {
     return {
-      ...DEFAULT_RETRY_CONFIG,
+      ...defaultConfig,
       fulfilled: {
         shouldRetry: (_) => false,
       },
@@ -58,9 +61,9 @@ export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown
   // TS 类型断言
   const config = retryConfig as RetryConfig;
 
-  const count = normalizeRetryCount(config.count, DEFAULT_RETRY_CONFIG.count);
+  const count = normalizeRetryCount(config.count, defaultConfig.count);
 
-  const interval = normalizeRetryInterval(config.interval, DEFAULT_RETRY_CONFIG.interval);
+  const interval = normalizeRetryInterval(config.interval, defaultConfig.interval);
 
   return {
     count,
@@ -68,13 +71,13 @@ export function normalizeRetryConfig(retryConfig: RetryConfig | number | unknown
     fulfilled: {
       shouldRetry: normalizeShouldDo(
         config.fulfilled?.shouldRetry,
-        DEFAULT_RETRY_CONFIG.fulfilled.shouldRetry,
+        defaultConfig.fulfilled.shouldRetry,
       ),
     },
     rejected: {
       shouldRetry: normalizeShouldDo(
         config.rejected?.shouldRetry,
-        DEFAULT_RETRY_CONFIG.rejected.shouldRetry,
+        defaultConfig.rejected.shouldRetry,
       ),
     },
   };
@@ -96,6 +99,11 @@ export function getRetryConfig(requestConfig: InternalAxiosRequestConfig, global
       ...globalRetryConfig,
       count: normalizeRetryCount(requestRetryConfig, globalRetryConfig.count),
     };
+  }
+
+  // 请求中重试配置的值为 false 时，视为不开启重试
+  if (typeof requestRetryConfig === 'boolean' && !requestRetryConfig) {
+    return false;
   }
 
   // 请求中重试配置的值为非对象时，视为不开启重试
