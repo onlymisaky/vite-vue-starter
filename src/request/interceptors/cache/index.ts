@@ -2,9 +2,9 @@ import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type GeedStorage from 'geed-storage';
 import type { RequestInterceptor, ResponseInterceptor } from '../types';
 import type { CacheConfig, InternalCacheConfig, ProcessedCacheConfig } from './types';
-import { validateAxiosResponse } from '../utils';
+import { isAxiosResponse } from '../utils';
 import { createAdapter } from './adapter';
-import { KEY_FROM_CACHE, KEY_PROCESSED_CACHE_CONFIG } from './constants';
+import { KEY_PROCESSED_CACHE_CONFIG } from './constants';
 import { getStorage } from './storage';
 import { getCacheConfig, normalizeCacheConfig } from './utils';
 
@@ -74,24 +74,27 @@ class CacheInterceptor {
     const cacheData = this.storage.get<AxiosResponse>(cacheKey);
 
     const responseShouldCache = cacheConfig.shouldCache[1];
-    // responseShouldCache 为 false 时，不使用缓存，不写缓存
+    // 缓存数据不符合要求，继续发送请求获取最新数据
     if (!responseShouldCache(cacheData!)) {
+      // 但需要在响应拦截器中判断新的响应是否符合缓存要求
+      // 所以仍要设置 PROCESSED_CACHE_CONFIG
+      config[KEY_PROCESSED_CACHE_CONFIG] = {
+        ttl: cacheConfig.ttl,
+        cacheKey,
+        shouldCache: cacheConfig.shouldCache[1],
+        storage: cacheConfig.storage,
+      };
       return config;
     }
 
-    config[KEY_PROCESSED_CACHE_CONFIG] = {
-      ttl: cacheConfig.ttl,
-      cacheKey,
-      shouldCache: cacheConfig.shouldCache[1],
-      storage: cacheConfig.storage,
-    };
+    // 命中缓存且缓存数据符合要求，直接使用缓存数据
     config.adapter = createAdapter(cacheData!);
 
     return config;
   };
 
   responseFulfilledInterceptor(response: AxiosResponse) {
-    if (!validateAxiosResponse(response)) {
+    if (!isAxiosResponse(response)) {
       return response;
     }
 
@@ -102,7 +105,7 @@ class CacheInterceptor {
 
     const requestConfig = response.config as InternalAxiosRequestConfig;
 
-    // 如果请求配置中没有 PROCESSED_CACHE_CONFIG，说明不需要缓存，直接返回
+    // 如果请求配置中没有 PROCESSED_CACHE_CONFIG，直接返回
     if (!Reflect.has(requestConfig, KEY_PROCESSED_CACHE_CONFIG)) {
       return response;
     }
@@ -114,16 +117,10 @@ class CacheInterceptor {
       return response;
     }
 
-    // 如果响应中已经有 FROM_CACHE 标志，说明是从缓存中读取的，直接返回·
-    if (response[KEY_FROM_CACHE]) {
-      return response;
-    }
-
     const cacheKey = processedCacheConfig.cacheKey;
 
-    const storage = getStorage(processedCacheConfig.storage);
     // 缓存响应数据
-    storage.set(cacheKey, response, { expires: processedCacheConfig.ttl });
+    this.storage.set(cacheKey, response, { expires: processedCacheConfig.ttl });
 
     return response;
   };

@@ -3,7 +3,7 @@ import type { InterceptorType, ResponseInterceptor } from './../types';
 import type { InternalRefreshTokenConfig, RefreshTokenConfig } from './types';
 import axios from 'axios';
 import { promiseWithResolvers } from '@/utils/promise';
-import { validateAxiosError, validateAxiosResponse } from '../utils';
+import { isAxiosResponse, isWithConfigAxiosError } from '../utils';
 import { normalizeRefreshTokenConfig } from './utils';
 
 class RefreshTokenInterceptor {
@@ -15,6 +15,7 @@ class RefreshTokenInterceptor {
   private refreshing: boolean = false;
 
   private queue: Array<{
+    interceptorType: InterceptorType
     res: AxiosError | AxiosResponse
     resolve: (value: AxiosResponse) => void
     reject: (reason?: any) => void
@@ -42,8 +43,8 @@ class RefreshTokenInterceptor {
 
   private handleRefreshFailure(res: AxiosResponse | AxiosError, interceptorType: InterceptorType) {
     this.clearToken();
-    this.queue.forEach(({ resolve, reject, res }) => {
-      this.isFulfilled(res, interceptorType) ? resolve(res) : reject(res);
+    this.queue.forEach(({ resolve, reject, res: itemRes, interceptorType: itemInterceptorType }) => {
+      this.isFulfilled(itemRes, itemInterceptorType) ? resolve(itemRes) : reject(itemRes);
     });
     this.queue.length = 0;
     if (this.isFulfilled(res, interceptorType)) {
@@ -75,7 +76,7 @@ class RefreshTokenInterceptor {
 
     if (refreshing) {
       const { promise, resolve, reject } = promiseWithResolvers<AxiosResponse>();
-      queue.push({ res, resolve, reject });
+      queue.push({ res, resolve, reject, interceptorType });
       return promise;
     }
 
@@ -86,6 +87,7 @@ class RefreshTokenInterceptor {
     }
 
     this.refreshing = true;
+    // 在 normalizer 中对 refreshApi 做了处理，该函数永远不会报错
     const accessToken = await refreshTokenConfig.refreshApi(refreshToken);
     this.refreshing = false;
 
@@ -97,7 +99,8 @@ class RefreshTokenInterceptor {
 
     refreshTokenConfig.setRequestConfig(res.config!, { accessToken, refreshToken });
 
-    const newRes = axios.create()(res.config!);
+    // 使用新的 axios 实例重新发送请求，避免拦截器循环调用
+    const newRequestPromise = axios.create()(res.config!);
 
     // 释放队列
     // 不需要等待 currentRes 完成
@@ -106,13 +109,17 @@ class RefreshTokenInterceptor {
       refreshTokenConfig.setRequestConfig(res.config!, { refreshToken, accessToken });
       axios.create()(res.config!).then(resolve).catch(reject);
     });
+    // 不需要等待队列中的请求完成，直接清空队列
+    // 因为请求完成后会自动通过 resolve 或 reject 更改 promise 状态
     queue.length = 0;
 
-    return newRes;
+    // 返回新的请求 promise，等待其完成
+    // 因为使用了新用的 config，所以新请求 promise 状态与原始请求 promise 状态相同
+    return newRequestPromise;
   };
 
   private fulfilledInterceptor = async (response: AxiosResponse) => {
-    if (!validateAxiosResponse(response)) {
+    if (!isAxiosResponse(response)) {
       return response;
     }
 
@@ -120,7 +127,7 @@ class RefreshTokenInterceptor {
   };
 
   private rejectedInterceptor = async (error: AxiosError) => {
-    if (!validateAxiosError(error)) {
+    if (!isWithConfigAxiosError(error)) {
       return Promise.reject(error);
     }
 

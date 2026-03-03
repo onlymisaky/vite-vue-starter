@@ -2,7 +2,7 @@ import type { AxiosError, AxiosResponse } from 'axios';
 import type { InterceptorType, ShouldDo } from './types';
 import axios from 'axios';
 
-export function validateAxiosError<R = any, D = any>(error: AxiosError<R, D> | any): error is AxiosError<R, D> {
+export function isWithConfigAxiosError<R = any, D = any>(error: AxiosError<R, D> | any): error is AxiosError<R, D> {
   if (
     !axios.isAxiosError(error)
     || !error.config
@@ -15,7 +15,7 @@ export function validateAxiosError<R = any, D = any>(error: AxiosError<R, D> | a
   return true;
 }
 
-export function validateAxiosResponse<R = any, D = any, H = Record<string, any>>(response: AxiosResponse<R, D, H> | any): response is AxiosResponse<R, D, H> {
+export function isAxiosResponse<R = any, D = any, H = Record<string, any>>(response: AxiosResponse<R, D, H> | any): response is AxiosResponse<R, D, H> {
   if (
     axios.isAxiosError(response)
     || !response

@@ -1,7 +1,7 @@
 import type { AxiosError, AxiosResponse } from 'axios';
 import type { ResponseInterceptor } from '../types';
 import type { InternalRetryConfig, RetryConfig } from './types';
-import { validateAxiosError, validateAxiosResponse } from '../utils';
+import { isAxiosResponse, isWithConfigAxiosError } from '../utils';
 import { getRetryConfig, normalizeRetryConfig, retryRequest } from './utils';
 
 class RetryInterceptor {
@@ -12,7 +12,7 @@ class RetryInterceptor {
   }
 
   responseFulfilledInterceptor(response: AxiosResponse) {
-    if (!validateAxiosResponse(response)) {
+    if (!isAxiosResponse(response)) {
       return response;
     }
 
@@ -34,7 +34,7 @@ class RetryInterceptor {
   };
 
   responseRejectedInterceptor(error: AxiosError) {
-    if (!validateAxiosError(error)) {
+    if (!isWithConfigAxiosError(error)) {
       return Promise.reject(error);
     }
 

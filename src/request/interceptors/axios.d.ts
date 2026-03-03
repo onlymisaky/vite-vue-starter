@@ -1,4 +1,4 @@
-import type { KEY_CACHE_CONFIG, KEY_FROM_CACHE, KEY_PROCESSED_CACHE_CONFIG } from './cache/constants';
+import type { KEY_CACHE_CONFIG, KEY_PROCESSED_CACHE_CONFIG } from './cache/constants';
 import type { CacheConfig, ProcessedCacheConfig } from './cache/types';
 import type { KEY_RETRY_CONFIG } from './retry/constants';
 import type { RetryConfig } from './retry/types';
@@ -23,9 +23,6 @@ declare module 'axios' {
     [KEY_PROCESSED_CACHE_CONFIG]?: ProcessedCacheConfig
   }
 
-  export interface AxiosResponse {
-    [KEY_FROM_CACHE]?: boolean
-  }
 }
 
 export {};

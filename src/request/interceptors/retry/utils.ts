@@ -156,8 +156,8 @@ function createAbortedError(res: AxiosError | AxiosResponse) {
   return new axios.AxiosError(
     'Request aborted',
     axios.AxiosError.ERR_CANCELED,
-    res.config,
-    res.request,
+    res.config!,
+    res.request!,
     axios.isAxiosError(res) ? res.response : res,
   );
 }
@@ -165,7 +165,7 @@ function createAbortedError(res: AxiosError | AxiosResponse) {
 function wait(delay: number, res: AxiosError | AxiosResponse) {
   return new Promise<void>((resolve, reject) => {
     // 如果在开始等待前已经被取消，直接reject
-    if (res.config?.signal?.aborted) {
+    if (res.config?.signal?.aborted || axios.isCancel(res)) {
       reject(createAbortedError(res));
       return;
     }
@@ -180,9 +180,11 @@ function wait(delay: number, res: AxiosError | AxiosResponse) {
       reject(createAbortedError(res));
     }
 
-    // 重试间隔期间，也可以取消请求
-    // 监听取消信号
-    res.config?.signal?.addEventListener?.('abort', onAbort, { once: true });
+    if (!res.config?.signal?.aborted) {
+      // 重试间隔期间，也可以取消请求
+      // 监听取消信号
+      res.config?.signal?.addEventListener?.('abort', onAbort, { once: true });
+    }
   });
 }
 
@@ -202,10 +204,14 @@ export async function retryRequest(
     return res;
   }
 
-  // TODO
-  await wait(delay, res);
-  // 直接使用未配置的 axios 发送重试请求，避免无限循环
-  return axios(requestConfig)
+  try {
+    await wait(delay, res);
+  }
+  catch (error) {
+    return Promise.reject(error);
+  }
+  // 使用新创建的 axios 实例发送请求，避免拦截器循环调用
+  return axios.create()(requestConfig)
     .then((response: AxiosResponse): MaybePromise<AxiosResponse> => {
       if (retryConfig.fulfilled.shouldRetry(response)) {
         return retryRequest(response, retriesCount + 1, retryConfig);
