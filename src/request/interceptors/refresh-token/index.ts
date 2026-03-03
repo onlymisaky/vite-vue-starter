@@ -54,6 +54,8 @@ class RefreshTokenInterceptor {
   };
 
   // 类型守卫，为了能在运行时正确推断 res 类型
+  // eslint-disable-next-line ts/ban-ts-comment
+  // @ts-ignore
   private isFulfilled(res: AxiosResponse | AxiosError, interceptorType: 'fulfilled' | 'rejected'): res is AxiosResponse {
     return interceptorType === 'fulfilled';
   }

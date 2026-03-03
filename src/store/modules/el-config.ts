@@ -1,4 +1,5 @@
-import type { ConfigProviderProps as ConfigProviderProps2 } from 'element-plus';
+import type { ConfigProviderProps } from 'element-plus';
+// import type { ConfigProviderProps as ConfigProviderProps2 } from 'element-plus';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
@@ -10,18 +11,18 @@ import store from '@/store';
  * 就很突然很莫名奇妙的出现了这个错误
  * 我不想找原因了，很烦，脖子疼
  */
-interface TranslatePair {
-  [key: string]: string | string[] | TranslatePair
-}
+// interface TranslatePair {
+//   [key: string]: string | string[] | TranslatePair
+// }
 
-interface Language {
-  name: string
-  el: TranslatePair
-}
+// interface Language {
+//   name: string
+//   el: TranslatePair
+// }
 
-type ConfigProviderProps = Omit<ConfigProviderProps2, 'locale'> & {
-  locale: Language
-};
+// type ConfigProviderProps = Omit<ConfigProviderProps2, 'locale'> & {
+//   locale: Language
+// };
 
 const defaultConfig: Partial<ConfigProviderProps> = {
   // 如果想重置 el-plus 的默认配置，可以在这里覆盖
@@ -36,6 +37,8 @@ export const useElConfigStore = defineStore('elConfig', () => {
   const elConfig = ref<Partial<ConfigProviderProps>>(createDefaultConfig());
 
   function setElConfig(config: Partial<ConfigProviderProps>) {
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-ignore
     elConfig.value = { ...elConfig.value, ...config };
   };
 

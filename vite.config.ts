@@ -2,7 +2,7 @@ import type { GetManualChunk } from 'rollup';
 import * as path from 'node:path';
 import legacy from '@vitejs/plugin-legacy';
 import vue from '@vitejs/plugin-vue';
-import { codeInspectorPlugin } from 'code-inspector-plugin';
+// import { codeInspectorPlugin } from 'code-inspector-plugin';
 import AutoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
@@ -72,7 +72,7 @@ export default defineConfig((config) => {
       vueDevTools(),
       // Inspect(),
       // vueInspector(),
-      codeInspectorPlugin({ bundler: 'vite' }),
+      // codeInspectorPlugin({ bundler: 'vite' }),
       legacy({
         targets: ['defaults', 'not IE 11'],
       }),
