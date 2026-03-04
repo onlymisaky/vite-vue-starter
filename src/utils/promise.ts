@@ -7,23 +7,20 @@ export function isAbortablePromise(value: any): value is AbortablePromise<any> {
 }
 
 export function promiseWithResolvers<T>() {
-  let resolveFn!: (v: T) => void;
-  let rejectFn!: (err: any) => void;
+  let done!: (v: T) => void;
+  let fail!: (err: any) => void;
   const deferred = new Promise<T>((resolve, reject) => {
-    resolveFn = resolve;
-    rejectFn = reject;
+    done = resolve;
+    fail = reject;
   });
   return {
     promise: deferred,
-    resolve: resolveFn,
-    reject: rejectFn,
+    resolve: done,
+    reject: fail,
   };
 }
 
-export function createAbortablePromise<
-  T extends (...args: any[]) => Promise<any>,
-  Res = UnwrapPromise<ReturnType<T>>,
->(promiseFn: T) {
+export function createAbortablePromise<T extends (...args: any[]) => Promise<any>, Res = UnwrapPromise<ReturnType<T>>>(promiseFn: T) {
   if (typeof promiseFn !== 'function') {
     throw new TypeError('promiseFn must be a function');
   }
@@ -59,6 +56,18 @@ export function createAbortablePromise<
   };
 }
 
+/**
+ * 传入一个返回值为 promise 的函数 a，返回一个新函数 b。
+ * b 该函数在任何时候最多只有一个未完成的 promise 实例。
+ * 既: 当调用 b 函数时，会返回一个 promise 如果在 promise 状态为 pending 期间再次调用 b 函数，则会取消上一次调用(如果支持取消)。
+ * 在 pending 期间，无论调用新函数多少次，都只有最后一次 then 或 catch 会被调用。
+ * 示例:
+ * const fn = createSingleCallPromise(foo);
+ * fn().then(() => console.log('1'));
+ * fn().then(() => console.log('2'));
+ * fn().then(() => console.log('3'));
+ * 只输出一次: 3
+ */
 export function createSingleCallPromise<T extends (...args: any[]) => Promise<any>>(promiseFn: T) {
   if (typeof promiseFn !== 'function') {
     throw new TypeError('promiseFn must be a function');

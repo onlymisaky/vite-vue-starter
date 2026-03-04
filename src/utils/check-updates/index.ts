@@ -6,3 +6,10 @@ checkUpdates({
   url: router.options.history.base || '/',
   notifierWithAction: notification,
 });
+
+/**
+ * TODO
+ * versionCheck.start()
+ * versionCheck.stop()
+ * versionCheck.check() // 手动检查更新
+ */
