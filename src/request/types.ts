@@ -1,6 +1,6 @@
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export type Methods = 'request' | 'get' | 'delete' | 'head' | 'options' | 'post' | 'put' | 'patch' | 'postForm' | 'putForm' | 'patchForm';
+export type Methods = keyof Pick<AxiosInstance, 'delete' | 'get' | 'patch' | 'patchForm' | 'post' | 'postForm' | 'put' | 'putForm' | 'request'>;
 
 // 增强 AxiosInstance 的类型
 export interface AbortableAxiosInstance extends Omit<AxiosInstance, Methods> {

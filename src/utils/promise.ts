@@ -20,6 +20,11 @@ export function promiseWithResolvers<T>() {
   };
 }
 
+/**
+ * 传入一个返回值为 promise 的函数 a，返回一个新函数 b
+ * b 函数的返回值为 AbortablePromise<T>
+ * 当调用 abort 方法时，会直接进入 reject 状态
+ */
 export function createAbortablePromise<T extends (...args: any[]) => Promise<any>, Res = UnwrapPromise<ReturnType<T>>>(promiseFn: T) {
   if (typeof promiseFn !== 'function') {
     throw new TypeError('promiseFn must be a function');
@@ -87,18 +92,18 @@ export function createSingleCallPromise<T extends (...args: any[]) => Promise<an
     const promise = new Promise((resolve, reject) => {
       runningId = callId;
 
-      const promise = promiseFn(...args);
+      const innerPormise = promiseFn(...args);
 
-      currentPromise = promise;
+      currentPromise = innerPormise;
 
-      if (!isPromise(promise)) {
-        resolve(promise);
+      if (!isPromise(innerPormise)) {
+        resolve(innerPormise);
         runningId = null;
         currentPromise = null;
         return;
       }
 
-      promise
+      innerPormise
         .then((result) => {
           if (callId === runningId) {
             resolve(result);

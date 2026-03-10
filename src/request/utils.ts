@@ -2,19 +2,11 @@ import type { AxiosInstance, AxiosResponse } from 'axios';
 import type { AbortableAxiosInstance, Methods } from './types';
 import { isPromise } from '@/utils/promise';
 
-const methods: Methods[] = [
-  'request',
-  'get',
-  'delete',
-  'head',
-  'options',
-  'post',
-  'put',
-  'patch',
-  'postForm',
-  'putForm',
-  'patchForm',
-];
+function isObject(value: any): value is object {
+  return Object.prototype.toString.call(value) === '[object Object]';
+}
+
+const methods: Methods[] = ['delete', 'get', 'patch', 'patchForm', 'post', 'postForm', 'put', 'putForm', 'request'];
 
 /**
  * 为 Axios 实例添加取消请求功能
@@ -28,22 +20,35 @@ export function withAbort(axiosInstance: AxiosInstance): AbortableAxiosInstance 
     apply(target, thisArg, argArray) {
       const controller = new AbortController();
       let newArgs = argArray;
+      // 没传任何参数
       if (argArray.length === 0) {
+        // axiosInstance() ==> axiosInstance({ signal: controller.signal })
         newArgs = [{ signal: controller.signal }];
       }
+      // 传了一个参数
       else if (argArray.length === 1) {
         if (typeof argArray[0] === 'string') {
+          // axiosInstance('/api/foo') ==> axiosInstance('/api/foo', { signal: controller.signal })
           newArgs = [argArray[0], { signal: controller.signal }];
         }
-        else {
+        else if (typeof argArray[0] === 'object' && isObject(argArray[0])) {
+          // axiosInstance({ url: '/api/foo' }) ==> axiosInstance({ url: '/api/foo', signal: controller.signal })
           newArgs = [{ signal: controller.signal, ...argArray[0] }];
         }
       }
-      const [url, config, ...rest] = argArray;
-      newArgs = [url, { signal: controller.signal, ...config }, ...rest];
+      // 传了两个参数
+      else if (argArray.length === 2) {
+        if (typeof argArray[0] === 'string' && isObject(argArray[1])) {
+          newArgs = [argArray[0], { signal: controller.signal, ...argArray[1] }];
+        }
+        if (isObject(argArray[0])) {
+          newArgs = [{ signal: controller.signal, ...argArray[0] }, argArray[1]];
+        }
+      }
+
       const res = Reflect.apply(target, thisArg, newArgs);
-      if (res && typeof res.then === 'function' && typeof res.catch === 'function') {
-        res.abort = controller.abort.bind(controller);
+      if (isPromise(res)) {
+        (res as AbortablePromise<any>).abort = controller.abort.bind(controller);
       }
       return res;
     },
