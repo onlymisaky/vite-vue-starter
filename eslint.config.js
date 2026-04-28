@@ -4,7 +4,7 @@ import antfu from '@antfu/eslint-config';
 /** @type {import('eslint').Linter.Config[]} */
 export default antfu({
   vue: true,
-  markdown: true,
+  markdown: false,
   rules: {
     'style/arrow-parens': 'off',
     'style/semi': ['error', 'always'],
