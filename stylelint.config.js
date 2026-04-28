@@ -18,7 +18,7 @@ export default {
       ignoreAtRules: ['apply'],
     }],
     'at-rule-no-unknown': [true, {
-      ignoreAtRules: ['use', 'tailwind', 'mixin', 'include', 'each'],
+      ignoreAtRules: ['use', 'tailwind', 'mixin', 'include', 'each', 'forward'],
     }],
     'color-function-alias-notation': null,
     'color-function-notation': null,

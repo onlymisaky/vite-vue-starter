@@ -1,0 +1,10 @@
+.context-menu-panel {
+  position: fixed;
+  min-width: 200px;
+  max-width: min(280px, calc(100vw - 16px));
+  padding: 6px;
+  border: 1px solid var(--el-border-color-light);
+  border-radius: 8px;
+  background-color: var(--el-bg-color-overlay);
+  box-shadow: var(--el-box-shadow-light);
+}
