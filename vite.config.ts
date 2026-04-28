@@ -1,52 +1,13 @@
-import type { GetManualChunk } from 'rollup';
 import * as path from 'node:path';
 import legacy from '@vitejs/plugin-legacy';
 import vue from '@vitejs/plugin-vue';
-// import { codeInspectorPlugin } from 'code-inspector-plugin';
 import AutoImport from 'unplugin-auto-import/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import Components from 'unplugin-vue-components/vite';
 import { createLogger, defineConfig, loadEnv } from 'vite';
-// import Inspect from 'vite-plugin-inspect';
 import vueDevTools from 'vite-plugin-vue-devtools';
-// import vueInspector from 'vite-plugin-vue-inspector';
-import { dependencies } from './package.json';
 
-function splitVendor(isBuild: boolean): GetManualChunk {
-  if (!isBuild) {
-    return function manualChunks(_id: string) { };
-  }
-
-  const skipModules = ['nprogress', 'vue'];
-  const manualChunksMap = Object.keys(dependencies).reduce((acc, key) => {
-    if (skipModules.includes(key))
-      return acc;
-
-    const pkgDirPrefix = path.join(__dirname, 'node_modules', `${key}/`);
-    const value = `vendor-${key.replace('@', '').replace('/', '-')}`;
-
-    return {
-      ...acc,
-      [pkgDirPrefix]: value,
-    };
-  }, {} as Record<string, string>);
-
-  manualChunksMap[path.join(__dirname, 'node_modules', 'vue/')] = 'vendor-vue';
-  manualChunksMap[path.join(__dirname, 'node_modules', '@vue/')] = 'vendor-vue';
-
-  const vendorDir = path.join(__dirname, 'node_modules');
-
-  return function manualChunks(id: string) {
-    for (const pkgDirPrefix in manualChunksMap) {
-      if (id.startsWith(pkgDirPrefix)) {
-        return manualChunksMap[pkgDirPrefix];
-      }
-    }
-    if (id.startsWith(vendorDir)) {
-      return 'vendor';
-    }
-  };
-}
+import { createVendorGroups } from './scripts/vite-output-vendor';
 
 // https://vite.dev/config/
 export default defineConfig((config) => {
@@ -62,7 +23,8 @@ export default defineConfig((config) => {
     loggerError(msg, options);
   };
 
-  const manualChunks = splitVendor(config.command === 'build');
+  const vendorGroups = createVendorGroups(config.command === 'build');
+  // const manualChunks = splitVendor(config.command === 'build');
 
   return {
     base: env.BASE_URL,
@@ -70,9 +32,6 @@ export default defineConfig((config) => {
     plugins: [
       vue(),
       vueDevTools(),
-      // Inspect(),
-      // vueInspector(),
-      // codeInspectorPlugin({ bundler: 'vite' }),
       legacy({
         targets: ['defaults', 'not IE 11'],
       }),
@@ -119,9 +78,12 @@ export default defineConfig((config) => {
     },
     build: {
       chunkSizeWarningLimit: 240,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
-          manualChunks,
+          // manualChunks,
+          codeSplitting: {
+            groups: vendorGroups,
+          },
         },
       },
     },

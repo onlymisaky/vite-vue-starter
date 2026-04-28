@@ -37,7 +37,7 @@ function transformEnToNumber(value: string, cronField: CronField) {
 
 function parseCommonExpression(
   expr: string,
-  { min, max, stepMin}: { min: number, max: number, stepMin?: number },
+  { min, max, stepMin }: { min: number, max: number, stepMin?: number },
   cronField: CronField,
 ): CronFieldExprParseResult<CronFieldModel, ValidateErrorCode> {
   if (expr === '?' && ['dayOfMonth', 'dayOfWeek', 'year'].includes(cronField)) {
