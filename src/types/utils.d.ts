@@ -180,6 +180,10 @@ declare global {
    */
   type ValueOf<T> = T[keyof T];
 
+  type Tree<ChildrenKey extends string, NodeProps extends object = object> = {
+    [K in ChildrenKey]?: Tree<ChildrenKey, NodeProps>;
+  } & NodeProps;
+
 }
 
 export { };
