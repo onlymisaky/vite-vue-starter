@@ -1,5 +1,5 @@
 import type { VNode } from 'vue';
-import { Fragment } from 'vue';
+import { Comment, Fragment, Text } from 'vue';
 
 export function isRenderableVNode(node: VNode): boolean {
   if (node.type === Comment) {
@@ -7,7 +7,7 @@ export function isRenderableVNode(node: VNode): boolean {
   }
 
   if (node.type === Text) {
-    return String(node.children || '').trim().length > 0;
+    return String(node.children || '').length > 0;
   }
 
   if (node.type === Fragment) {

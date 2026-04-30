@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { VNode } from 'vue';
-import { computed, getCurrentInstance } from 'vue';
+import { getCurrentInstance, useAttrs, useSlots } from 'vue';
 import { isRenderableVNode } from './utils';
 
 const props = withDefaults(defineProps<{
@@ -17,28 +17,28 @@ const props = withDefaults(defineProps<{
   },
 });
 
-const ctx = getCurrentInstance();
+const instance = getCurrentInstance();
 
-const slotNodes = computed(() => {
-  const slot = ctx?.parent?.slots[props.name || 'default'];
+const attrs = useAttrs();
+const slots = useSlots();
+
+function RenderResolvedSlot() {
+  const slot = instance?.parent?.slots[props.name];
 
   if (!slot) {
-    return undefined;
+    return slots.default?.();
   }
 
-  const attrs = ctx.attrs || {};
+  const nodes = slot(attrs);
 
-  return slot(attrs);
-});
+  if (props.isFallback(nodes)) {
+    return slots.default?.();
+  }
 
-const hasContent = computed(() => {
-  return !props.isFallback(slotNodes.value);
-});
-
-const RenderSlotNodes = () => slotNodes.value;
+  return nodes;
+}
 </script>
 
 <template>
-  <RenderSlotNodes v-if="hasContent" />
-  <slot v-else />
+  <RenderResolvedSlot />
 </template>
