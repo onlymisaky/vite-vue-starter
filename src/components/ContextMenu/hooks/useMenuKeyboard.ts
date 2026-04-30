@@ -93,7 +93,11 @@ export function useMenuKeyboard<T>(
 
   function openActiveChildren() {
     if (activePath.value.length === 0) {
-      activePath.value = [0];
+      const index = toValue(menuItems).findIndex(item => !item.disabled);
+      if (index === -1) {
+        return;
+      }
+      activePath.value = [index];
       return;
     }
 
