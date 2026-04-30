@@ -247,7 +247,7 @@ export function useContextMenu(
   const position = ref<Position>({ x: 0, y: 0 });
   const menuPosition = ref<Position>({ x: 0, y: 0 });
 
-  const menuStyle = computed<CSSProperties>(() => {
+  const menuPositionStyle = computed<CSSProperties>(() => {
     const resolvedOptions = toValue(options);
 
     return {
@@ -337,7 +337,7 @@ export function useContextMenu(
    * 处理触发区右键。
    * @param event 鼠标事件
    */
-  function handleTriggerContextmenu(event: MouseEvent) {
+  function handleTriggerContextMenu(event: MouseEvent) {
     openMenu(event);
   }
 
@@ -363,10 +363,10 @@ export function useContextMenu(
   });
 
   return {
-    handleTriggerContextmenu,
+    handleTriggerContextMenu,
     closeMenu,
     menuPosition,
-    menuStyle,
+    menuPositionStyle,
     openAtPosition,
     openMenu,
     position,

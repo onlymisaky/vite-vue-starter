@@ -14,7 +14,7 @@ const props = withDefaults(defineProps<{
   /** 当前激活路径 */
   activePath: number[]
   /** 子菜单偏移量 */
-  offset: number
+  offset?: number
   /** 菜单层级 */
   level?: number
   /** 菜单基础 z-index */
@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<{
   /** 子菜单优先展开方向 */
   preferredDirection?: 'left' | 'right'
 }>(), {
+  offset: 8,
   level: 0,
   preferredDirection: 'right',
 });

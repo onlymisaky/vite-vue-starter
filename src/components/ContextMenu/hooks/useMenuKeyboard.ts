@@ -174,6 +174,5 @@ export function useMenuKeyboard<T>(
   return {
     handleKeydown,
     activePath,
-
   };
 }
