@@ -12,6 +12,12 @@ const Configuration: UserConfig = {
       'always',
       ['chore', 'build', 'ci', 'docs', 'feat', 'fix', 'perf', 'refactor', 'revert', 'style', 'test'],
     ],
+    'scope-empty': [RuleConfigSeverity.Disabled, 'always' as const],
+    'scope-case': [
+      RuleConfigSeverity.Error,
+      'always',
+      ['pascal-case', 'camel-case', 'kebab-case'],
+    ],
   },
   // ignores: [(commit) => commit.includes('init')],
 };

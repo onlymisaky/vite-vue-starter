@@ -1,4 +1,4 @@
-import type { CSSProperties, MaybeRef, MaybeRefOrGetter, Ref } from 'vue';
+import type { CSSProperties, MaybeRefOrGetter, Ref, TemplateRef } from 'vue';
 import { computed, nextTick, onBeforeUnmount, ref, toValue, unref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -7,11 +7,14 @@ interface Position {
   y: number
 }
 
-interface ContextmenuOptions {
+/**
+ * 通用菜单定位与关闭配置。
+ */
+export interface ContextMenuOptions {
   /** 触发元素引用 */
-  triggerElRef?: MaybeRef<HTMLElement | undefined | null>
+  triggerElRef?: TemplateRef<HTMLElement | null>
   /** 菜单根节点引用 */
-  menuElRef?: MaybeRef<HTMLElement | undefined | null>
+  menuElRef?: TemplateRef<HTMLElement | null>
   /** 是否禁用菜单 */
   disabled?: boolean
   /** 菜单向右下偏移量 */
@@ -41,8 +44,8 @@ interface Size {
 
 /**
  * 限制位置在视口范围内。
- * @param x 位置x坐标
- * @param y 位置y坐标
+ * @param x 位置 x 坐标
+ * @param y 位置 y 坐标
  * @param width 菜单宽度
  * @param height 菜单高度
  * @param padding 边界预留间距
@@ -61,7 +64,7 @@ function clampPosition(x: number, y: number, width: number, height: number, padd
 }
 
 /**
- * 获取菜单布局尺寸。
+ * @description 获取菜单布局尺寸。
  * 过渡动画会对 getBoundingClientRect() 产生 transform 缩放影响，
  * 首次打开时需要优先使用未受 transform 影响的布局尺寸来计算定位。
  * @param menuEl 菜单根节点
@@ -83,17 +86,17 @@ function getMenuSize(menuEl: HTMLElement): Size {
  * @param options 运行配置
  */
 function useGlobalListeners(
-  triggerElRef: MaybeRef<HTMLElement | undefined | null>,
+  triggerElRef: TemplateRef<HTMLElement | null> | undefined,
   /** 菜单根节点引用 */
-  menuElRef: MaybeRef<HTMLElement | undefined | null>,
+  menuElRef: TemplateRef<HTMLElement | null> | undefined,
   visible: Ref<boolean>,
   closeMenu: () => boolean,
-  options: MaybeRefOrGetter<Pick<ContextmenuOptions, 'closeOnContextMenu' | 'closeOnOutsideClick'>>,
+  options: MaybeRefOrGetter<Pick<ContextMenuOptions, 'closeOnContextMenu' | 'closeOnOutsideClick'>>,
 ) {
   const hasListeners = ref(false);
 
   /**
-   * 处理外部点击关闭。
+   * 处理外部指针按下关闭。
    * @param event Pointer 事件
    */
   function handleDocumentPointerDown(event: PointerEvent) {
@@ -136,7 +139,7 @@ function useGlobalListeners(
   }
 
   /**
-   * 处理打开状态下的额外右键行为。
+   * 处理菜单打开状态下的额外右键。
    * @param event 鼠标事件
    */
   function handleDocumentContextMenu(event: MouseEvent) {
@@ -232,12 +235,12 @@ function useGlobalListeners(
 }
 
 /**
- * 管理组件版右键菜单的触发、定位与全局关闭。
+ * 管理菜单的触发、定位与全局关闭。
  * @param options 运行配置
  * @returns 菜单状态与控制方法
  */
-export function useContextmenu(
-  options: MaybeRefOrGetter<ContextmenuOptions> = {},
+export function useContextMenu(
+  options: MaybeRefOrGetter<ContextMenuOptions> = {},
 ) {
   const router = useRouter();
   const visible = ref(false);
@@ -278,30 +281,42 @@ export function useContextmenu(
   }
 
   /**
-   * 根据右键事件打开或更新菜单。
-   * @param event 鼠标事件
+   * 根据指定坐标打开或更新菜单。
+   * @param x 菜单起始 x 坐标
+   * @param y 菜单起始 y 坐标
+   * @param event 关联鼠标事件
    */
-  function openMenu(event: MouseEvent) {
+  function openAtPosition(x: number, y: number, event?: MouseEvent) {
     const resolvedOptions = toValue(options);
 
     if (resolvedOptions.disabled) {
       return;
     }
 
-    event.preventDefault();
-
     visible.value = true;
-    position.value = { x: event.clientX, y: event.clientY };
+    position.value = { x, y };
     menuPosition.value = {
-      x: event.clientX + (resolvedOptions.offset || 0),
-      y: event.clientY + (resolvedOptions.offset || 0),
+      x: x + (resolvedOptions.offset || 0),
+      y: y + (resolvedOptions.offset || 0),
     };
 
-    resolvedOptions.onOpen?.(event);
+    if (event) {
+      resolvedOptions.onOpen?.(event);
+    }
+
     nextTick(() => {
       updateMenuPosition();
       requestAnimationFrame(updateMenuPosition);
     });
+  }
+
+  /**
+   * 根据右键事件打开或更新菜单。
+   * @param event 鼠标事件
+   */
+  function openMenu(event: MouseEvent) {
+    event.preventDefault();
+    openAtPosition(event.clientX, event.clientY, event);
   }
 
   /**
@@ -327,8 +342,8 @@ export function useContextmenu(
   }
 
   useGlobalListeners(
-    toValue(options).triggerElRef,
-    toValue(options).menuElRef,
+    toValue(options).triggerElRef!,
+    toValue(options).menuElRef!,
     visible,
     closeMenu,
     options,
@@ -352,6 +367,7 @@ export function useContextmenu(
     closeMenu,
     menuPosition,
     menuStyle,
+    openAtPosition,
     openMenu,
     position,
     updateMenuPosition,

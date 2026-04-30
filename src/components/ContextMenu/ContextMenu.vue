@@ -1,8 +1,8 @@
 <script setup lang="ts" generic="T">
 import type { ContextMenuContext, MenuItem } from './types';
 import { computed, ref, useTemplateRef, watch } from 'vue';
-import { useContextmenu } from '@/components/ContextMenu/hooks/useContextmenu';
 import ContextMenuItem from './ContextMenuItem.vue';
+import { useContextMenu } from './hooks/useContextMenu';
 import { getVisibleChildren, useMenuKeyboard } from './hooks/useMenuKeyboard';
 
 const props = withDefaults(defineProps<{
@@ -58,7 +58,7 @@ const {
   menuStyle,
   visible,
   handleTriggerContextmenu,
-} = useContextmenu(() => ({
+} = useContextMenu(() => ({
   triggerElRef: triggerRef,
   menuElRef: menuRef,
   disabled: props.disabled,
