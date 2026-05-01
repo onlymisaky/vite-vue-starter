@@ -1,5 +1,5 @@
-import type { CSSProperties, MaybeRefOrGetter, Ref, TemplateRef } from 'vue';
-import { computed, nextTick, onBeforeUnmount, ref, toValue, unref, watch } from 'vue';
+import type { CSSProperties, MaybeRefOrGetter, Ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, toValue, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 interface Position {
@@ -12,17 +12,16 @@ interface Position {
  */
 export interface ContextMenuOptions {
   /** 触发元素引用 */
-  triggerElRef?: TemplateRef<HTMLElement | null>
+  triggerElRef?: MaybeRefOrGetter<HTMLElement | null | undefined>
   /** 菜单根节点引用 */
-  menuElRef?: TemplateRef<HTMLElement | null>
+  menuElRef?: MaybeRefOrGetter<HTMLElement | null | undefined>
   /** 是否禁用菜单 */
   disabled?: boolean
   /** 菜单向右下偏移量 */
   offset?: number
   /**
-   * 视口边界预留间距
-   * 当菜单宽度很大（几乎占满视口）时，右侧边界可能会小于 padding，导致菜单被截断
-   * 此时需要设置 padding 来避免截断
+   * 视口边界预留间距。
+   * 当菜单宽度很大时，边界预留距离用于避免菜单被裁切。
    */
   padding?: number
   /** 菜单 Z-index */
@@ -31,6 +30,8 @@ export interface ContextMenuOptions {
   closeOnOutsideClick?: boolean
   /** 菜单打开时再次右键外部是否关闭 */
   closeOnContextMenu?: boolean
+  /** 是否滚动关闭菜单 */
+  closeOnScroll?: boolean
   /** 菜单打开后的回调 */
   onOpen?: (event: MouseEvent) => void
   /** 菜单关闭后的回调 */
@@ -40,6 +41,15 @@ export interface ContextMenuOptions {
 interface Size {
   width: number
   height: number
+}
+
+/**
+ * 解析元素引用。
+ * @param elementRef 元素引用
+ * @returns 解析后的元素
+ */
+function resolveElement(elementRef?: MaybeRefOrGetter<HTMLElement | null | undefined>) {
+  return elementRef ? toValue(elementRef) || null : null;
 }
 
 /**
@@ -64,13 +74,15 @@ function clampPosition(x: number, y: number, width: number, height: number, padd
 }
 
 /**
- * @description 获取菜单布局尺寸。
- * 过渡动画会对 getBoundingClientRect() 产生 transform 缩放影响，
- * 首次打开时需要优先使用未受 transform 影响的布局尺寸来计算定位。
+ * 获取菜单布局尺寸。
  * @param menuEl 菜单根节点
  * @returns 菜单尺寸
  */
 function getMenuSize(menuEl: HTMLElement): Size {
+  /**
+   * 过渡动画会对 getBoundingClientRect() 产生 transform 缩放影响，
+   * 首次打开时需要优先使用未受 transform 影响的布局尺寸来计算定位。
+   */
   return {
     width: menuEl.offsetWidth || menuEl.getBoundingClientRect().width,
     height: menuEl.offsetHeight || menuEl.getBoundingClientRect().height,
@@ -86,12 +98,11 @@ function getMenuSize(menuEl: HTMLElement): Size {
  * @param options 运行配置
  */
 function useGlobalListeners(
-  triggerElRef: TemplateRef<HTMLElement | null> | undefined,
-  /** 菜单根节点引用 */
-  menuElRef: TemplateRef<HTMLElement | null> | undefined,
+  triggerElRef: MaybeRefOrGetter<HTMLElement | null | undefined> | undefined,
+  menuElRef: MaybeRefOrGetter<HTMLElement | null | undefined> | undefined,
   visible: Ref<boolean>,
   closeMenu: () => boolean,
-  options: MaybeRefOrGetter<Pick<ContextMenuOptions, 'closeOnContextMenu' | 'closeOnOutsideClick'>>,
+  options: MaybeRefOrGetter<Pick<ContextMenuOptions, 'closeOnContextMenu' | 'closeOnOutsideClick' | 'closeOnScroll'>>,
 ) {
   const hasListeners = ref(false);
 
@@ -105,34 +116,23 @@ function useGlobalListeners(
     }
 
     const path = event.composedPath();
-    const menuEl = unref(menuElRef);
-    const triggerEl = unref(triggerElRef);
 
+    const menuEl = resolveElement(menuElRef);
     if (menuEl && path.includes(menuEl)) {
       return;
     }
 
+    const triggerEl = resolveElement(triggerElRef);
     if (triggerEl && path.includes(triggerEl)) {
-      return;
-    }
-
-    closeMenu();
-  }
-
-  /**
-   * 处理外部点击关闭。
-   * @param event 鼠标事件
-   */
-  function handleDocumentClick(event: MouseEvent) {
-    if (!visible.value || !toValue(options).closeOnOutsideClick) {
-      return;
-    }
-
-    const path = event.composedPath();
-    const menuEl = unref(menuElRef);
-
-    if (menuEl && path.includes(menuEl)) {
-      return;
+      /**
+       * 菜单已打开时，再次右击触发区会先触发 pointerdown，随后才触发 contextmenu。
+       * 这里保留右键流程，让后续 contextmenu 直接复用当前菜单并更新位置；
+       * 左键点击触发区则视为外部点击，应当关闭菜单。
+       */
+      if (event.button === 2) {
+        // TODO
+        // return;
+      }
     }
 
     closeMenu();
@@ -148,16 +148,17 @@ function useGlobalListeners(
     }
 
     const path = event.composedPath();
-    const menuEl = unref(menuElRef);
-    const triggerEl = unref(triggerElRef);
 
+    const menuEl = resolveElement(menuElRef);
     if (menuEl && path.includes(menuEl)) {
       return;
     }
 
-    if (triggerEl && path.includes(triggerEl)) {
-      return;
-    }
+    // TODO
+    // const triggerEl = resolveElement(triggerElRef);
+    // if (triggerEl && path.includes(triggerEl)) {
+    //   return;
+    // }
 
     closeMenu();
   }
@@ -183,6 +184,9 @@ function useGlobalListeners(
    * 处理滚动关闭。
    */
   function handleWindowScroll() {
+    if (!visible.value || !toValue(options).closeOnScroll) {
+      return;
+    }
     closeMenu();
   }
 
@@ -194,8 +198,14 @@ function useGlobalListeners(
       return;
     }
 
-    document.addEventListener('pointerdown', handleDocumentPointerDown);
-    document.addEventListener('click', handleDocumentClick);
+    /**
+     * 使用 pointerdown 统一处理外部关闭有两个好处：
+     * 1. 点击触发打开的场景中，pointerdown 发生在 open() 之前，不会误关刚显示的菜单；
+     * 2. 对触摸、鼠标和触控笔输入保持一致。
+     *
+     * 这里使用捕获阶段，避免被业务层 stopPropagation 干扰。
+     */
+    document.addEventListener('pointerdown', handleDocumentPointerDown, true);
     document.addEventListener('contextmenu', handleDocumentContextMenu, true);
     document.addEventListener('keydown', handleDocumentKeyDown);
     window.addEventListener('scroll', handleWindowScroll, true);
@@ -211,8 +221,7 @@ function useGlobalListeners(
       return;
     }
 
-    document.removeEventListener('pointerdown', handleDocumentPointerDown);
-    document.removeEventListener('click', handleDocumentClick);
+    document.removeEventListener('pointerdown', handleDocumentPointerDown, true);
     document.removeEventListener('contextmenu', handleDocumentContextMenu, true);
     document.removeEventListener('keydown', handleDocumentKeyDown);
     window.removeEventListener('scroll', handleWindowScroll, true);
@@ -262,7 +271,7 @@ export function useContextMenu(
    */
   function updateMenuPosition() {
     const resolvedOptions = toValue(options);
-    const menuEl = unref(resolvedOptions.menuElRef);
+    const menuEl = resolveElement(resolvedOptions.menuElRef);
     if (!menuEl) {
       return;
     }
@@ -285,8 +294,9 @@ export function useContextMenu(
    * @param x 菜单起始 x 坐标
    * @param y 菜单起始 y 坐标
    * @param event 关联鼠标事件
+   * @param emitOpen 是否触发打开回调
    */
-  function openAtPosition(x: number, y: number, event?: MouseEvent) {
+  function openAtPosition(x: number, y: number, event?: MouseEvent, emitOpen = true) {
     const resolvedOptions = toValue(options);
 
     if (resolvedOptions.disabled) {
@@ -300,7 +310,7 @@ export function useContextMenu(
       y: y + (resolvedOptions.offset || 0),
     };
 
-    if (event) {
+    if (event && emitOpen) {
       resolvedOptions.onOpen?.(event);
     }
 
@@ -316,7 +326,7 @@ export function useContextMenu(
    */
   function openMenu(event: MouseEvent) {
     event.preventDefault();
-    openAtPosition(event.clientX, event.clientY, event);
+    openAtPosition(event.clientX, event.clientY, event, true);
   }
 
   /**
@@ -342,8 +352,8 @@ export function useContextMenu(
   }
 
   useGlobalListeners(
-    toValue(options).triggerElRef!,
-    toValue(options).menuElRef!,
+    toValue(options).triggerElRef,
+    toValue(options).menuElRef,
     visible,
     closeMenu,
     options,
@@ -359,7 +369,7 @@ export function useContextMenu(
     }
 
     await nextTick();
-    unref(toValue(options).menuElRef)?.focus();
+    resolveElement(toValue(options).menuElRef)?.focus();
   });
 
   return {

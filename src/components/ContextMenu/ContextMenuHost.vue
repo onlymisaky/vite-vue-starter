@@ -35,7 +35,10 @@ async function handleSelectItem(item: MenuItem<T>) {
     return;
   }
 
-  await item.onClick?.(props.context);
+  const clickResult = await item.onClick?.(props.context);
+  if (typeof clickResult === 'boolean' && clickResult === false) {
+    return;
+  }
   emit('select', item.key, item, props.context);
 
   if (props.closeOnClick) {

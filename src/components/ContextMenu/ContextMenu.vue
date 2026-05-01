@@ -1,15 +1,13 @@
 <script setup lang="ts" generic="T">
-import type { TemplateRef } from 'vue';
 import type { ContextMenuContext, ContextMenuProps, MenuItem } from './types';
 import { computed, ref, useTemplateRef } from 'vue';
+import { DEFAULT_MENU_OPTIONS } from './constant';
 import ContextMenuHost from './ContextMenuHost.vue';
+
 import { useContextMenu } from './hooks/useContextMenu';
 
 const props = withDefaults(defineProps<ContextMenuProps<T>>(), {
-  closeOnClick: true,
-  closeOnOutsideClick: true,
-  closeOnContextMenu: true,
-  offset: 4,
+  ...DEFAULT_MENU_OPTIONS,
   disabled: false,
 });
 
@@ -40,10 +38,11 @@ const {
   handleTriggerContextMenu,
 } = useContextMenu(() => ({
   triggerElRef: triggerRef,
-  menuElRef: menuRef as TemplateRef<HTMLElement>,
+  menuElRef: menuRef,
   disabled: props.disabled,
   closeOnContextMenu: props.closeOnContextMenu,
   closeOnOutsideClick: props.closeOnOutsideClick,
+  closeOnScroll: props.closeOnScroll,
   offset: props.offset,
   padding: 8,
   zIndex: props.zIndex,

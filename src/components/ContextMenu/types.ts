@@ -41,8 +41,12 @@ export interface MenuItem<T = unknown> {
     context: ContextMenuContext<T>
     active: boolean
   }) => VNodeChild
-  /** 点击事件处理函数 */
-  onClick?: (context: ContextMenuContext<T>) => void | Promise<void>
+  /**
+   * 菜单项点击事件回调，在 select 之前触发
+   * @param context 点击事件上下文
+   * @returns 若显式的返回 false | Promise<false> 则不会触发 select 事件，也不会关闭菜单
+   */
+  onClick?: (context: ContextMenuContext<T>) => void | boolean | Promise<void | boolean>
   /** 菜单项的元数据 */
   meta?: Record<string, unknown>
 }
@@ -74,6 +78,8 @@ export interface ContextMenuProps<T = unknown> extends ContextMenuBaseProps<T> {
   closeOnOutsideClick?: boolean
   /** 菜单打开时再次右键外部是否关闭 */
   closeOnContextMenu?: boolean
+  /** 滚动时是否关闭菜单 */
+  closeOnScroll?: boolean
   /** 是否禁用菜单 */
   disabled?: boolean
 }
