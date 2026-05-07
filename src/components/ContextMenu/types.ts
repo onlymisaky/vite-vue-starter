@@ -60,26 +60,60 @@ export interface ContextMenuSelectPayload<T = unknown> {
   context: ContextMenuContext<T>
 }
 
-export interface ContextMenuBaseProps<T = unknown> {
-  /** 菜单项列表 */
-  items: MenuItem<T>[]
-  /** 菜单面板偏移量 */
-  offset?: number
-  /** 菜单 Z-index */
-  zIndex?: number
+/**
+ * 菜单行为配置。
+ */
+export interface ContextMenuBehaviorOptions {
   /** 点击菜单项后是否自动关闭 */
   closeOnClick?: boolean
-}
-
-export interface ContextMenuProps<T = unknown> extends ContextMenuBaseProps<T> {
-  /** 菜单上下文数据 */
-  data?: T
   /** 点击菜单外部后是否自动关闭 */
   closeOnOutsideClick?: boolean
   /** 菜单打开时再次右键外部是否关闭 */
   closeOnContextMenu?: boolean
   /** 滚动时是否关闭菜单 */
   closeOnScroll?: boolean
+  /** 菜单面板偏移量 */
+  offset?: number
+  /** 菜单 Z-index */
+  zIndex?: number
+}
+
+/**
+ * 菜单内容配置。
+ */
+export interface ContextMenuContentOptions<T = unknown> {
+  /** 菜单项列表 */
+  items: MenuItem<T>[]
+  /** 菜单上下文数据 */
+  data?: T
+}
+
+/**
+ * 菜单生命周期回调。
+ */
+export interface ContextMenuLifecycleCallbacks<T = unknown> {
+  /** 菜单选择回调 */
+  onSelect?: (payload: ContextMenuSelectPayload<T>) => void
+  /** 菜单打开回调 */
+  onOpen?: (context: ContextMenuContext<T>) => void
+  /** 菜单关闭回调 */
+  onClose?: (context?: ContextMenuContext<T>) => void
+}
+
+/**
+ * 通用菜单配置协议。
+ */
+export type ContextMenuSharedOptions<T = unknown> = ContextMenuContentOptions<T>
+  & ContextMenuBehaviorOptions
+  & ContextMenuLifecycleCallbacks<T>;
+
+export interface ContextMenuBaseProps<T = unknown>
+  extends Pick<ContextMenuContentOptions<T>, 'items'>,
+  Pick<ContextMenuBehaviorOptions, 'offset' | 'zIndex' | 'closeOnClick'> {}
+
+export interface ContextMenuProps<T = unknown>
+  extends ContextMenuContentOptions<T>,
+  ContextMenuBehaviorOptions {
   /** 是否禁用菜单 */
   disabled?: boolean
 }

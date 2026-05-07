@@ -50,6 +50,21 @@ function createSyntheticEvent(x: number, y: number) {
 }
 
 /**
+ * 归一化会话级回调配置。
+ * @param callbacks 原始回调配置
+ * @returns 归一化后的回调
+ */
+function normalizeEventCallbacks<T>(
+  callbacks?: Pick<UseContextMenuOptions<T>, 'onSelect' | 'onOpen' | 'onClose'>,
+): ContextMenuEventCallbacks {
+  return {
+    onSelect: callbacks?.onSelect as ContextMenuEventCallbacks['onSelect'],
+    onOpen: callbacks?.onOpen as ContextMenuEventCallbacks['onOpen'],
+    onClose: callbacks?.onClose as ContextMenuEventCallbacks['onClose'],
+  };
+}
+
+/**
  * 解析会话坐标。
  * @param previousSession 上一个活动会话
  * @param defaults controller 默认配置
@@ -130,16 +145,8 @@ function buildRuntimeSession<T>(
     closeOnScroll: payload?.closeOnScroll ?? defaults.closeOnScroll ?? DEFAULT_MENU_OPTIONS.closeOnScroll,
     offset: payload?.offset ?? defaults.offset ?? DEFAULT_MENU_OPTIONS.offset,
     zIndex: payload?.zIndex ?? defaults.zIndex,
-    eventCallbacks: {
-      onSelect: (payload?.onSelect as ContextMenuEventCallbacks['onSelect']),
-      onOpen: (payload?.onOpen as ContextMenuEventCallbacks['onOpen']),
-      onClose: (payload?.onClose as ContextMenuEventCallbacks['onClose']),
-    },
-    defaultCallbacks: {
-      onSelect: defaults.onSelect as ContextMenuEventCallbacks['onSelect'],
-      onOpen: defaults.onOpen as ContextMenuEventCallbacks['onOpen'],
-      onClose: defaults.onClose as ContextMenuEventCallbacks['onClose'],
-    },
+    eventCallbacks: normalizeEventCallbacks(payload),
+    defaultCallbacks: normalizeEventCallbacks(defaults),
   } satisfies RuntimeSessionState;
 }
 
@@ -158,6 +165,7 @@ function buildUpdatedSession(
   }
 
   const coordinates = resolveCoordinates(currentSession, {}, payload);
+  const nextEventCallbacks = normalizeEventCallbacks(payload);
   const nextEvent = coordinates.event ?? currentSession.context.event;
   const nextTarget = payload.target
     ?? currentSession.target
@@ -183,9 +191,9 @@ function buildUpdatedSession(
     offset: payload.offset ?? currentSession.offset,
     zIndex: payload.zIndex ?? currentSession.zIndex,
     eventCallbacks: {
-      onSelect: (payload.onSelect as ContextMenuEventCallbacks['onSelect']) ?? currentSession.eventCallbacks.onSelect,
-      onOpen: (payload.onOpen as ContextMenuEventCallbacks['onOpen']) ?? currentSession.eventCallbacks.onOpen,
-      onClose: (payload.onClose as ContextMenuEventCallbacks['onClose']) ?? currentSession.eventCallbacks.onClose,
+      onSelect: nextEventCallbacks.onSelect ?? currentSession.eventCallbacks.onSelect,
+      onOpen: nextEventCallbacks.onOpen ?? currentSession.eventCallbacks.onOpen,
+      onClose: nextEventCallbacks.onClose ?? currentSession.eventCallbacks.onClose,
     },
   } satisfies RuntimeSessionState;
 }

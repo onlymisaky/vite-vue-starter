@@ -1,35 +1,20 @@
 import type { Ref } from 'vue';
-import type { ContextMenuContext, ContextMenuHostProps, ContextMenuSelectPayload, MenuItem } from '@/components/ContextMenu';
+import type {
+  ContextMenuBehaviorOptions,
+  ContextMenuContentOptions,
+  ContextMenuContext,
+  ContextMenuHostProps,
+  ContextMenuLifecycleCallbacks,
+  ContextMenuSharedOptions,
+} from '@/components/ContextMenu';
 
-export interface UseContextMenuOptions<T = unknown> {
+export interface UseContextMenuOptions<T = unknown> extends Partial<ContextMenuSharedOptions<T>> {
   /** 菜单显示位置 x 坐标 */
   x?: number
   /** 菜单显示位置 y 坐标 */
   y?: number
-  /** 菜单项列表 */
-  items?: MenuItem<T>[]
-  /** 菜单上下文数据 */
-  data?: T
   /** 菜单目标元素 */
   target?: HTMLElement | null
-  /** 点击菜单项后是否自动关闭 */
-  closeOnClick?: boolean
-  /** 点击菜单外部后是否自动关闭 */
-  closeOnOutsideClick?: boolean
-  /** 菜单打开时再次右键外部是否关闭 */
-  closeOnContextMenu?: boolean
-  /** 滚动时是否关闭菜单 */
-  closeOnScroll?: boolean
-  /** 菜单面板偏移量 */
-  offset?: number
-  /** 菜单 Z-index */
-  zIndex?: number
-  /** 菜单选择回调 */
-  onSelect?: (payload: ContextMenuSelectPayload<T>) => void
-  /** 菜单打开回调 */
-  onOpen?: (context: ContextMenuContext<T>) => void
-  /** 菜单关闭回调 */
-  onClose?: (context?: ContextMenuContext<T>) => void
 }
 
 /**
@@ -59,15 +44,18 @@ export interface UseContextMenuReturn<T = unknown> {
   visible: Readonly<Ref<boolean>>
 }
 
-export interface ContextMenuEventCallbacks {
-  onSelect?: (payload: ContextMenuSelectPayload<unknown>) => void
-  onOpen?: (context: ContextMenuContext<unknown>) => void
-  onClose?: (context?: ContextMenuContext<unknown>) => void
-}
+export type ContextMenuEventCallbacks = ContextMenuLifecycleCallbacks<unknown>;
 
-export interface RuntimeSessionState {
-  /** 当前会话菜单项 */
-  items: MenuItem<unknown>[]
+/**
+ * 已解析默认值后的菜单行为配置。
+ */
+export interface ResolvedContextMenuBehaviorOptions
+  extends Pick<Required<ContextMenuBehaviorOptions>, 'closeOnClick' | 'closeOnOutsideClick' | 'closeOnContextMenu' | 'closeOnScroll' | 'offset'>,
+  Pick<ContextMenuBehaviorOptions, 'zIndex'> {}
+
+export interface RuntimeSessionState
+  extends ContextMenuContentOptions<unknown>,
+  ResolvedContextMenuBehaviorOptions {
   /** 当前会话上下文 */
   context: ContextMenuContext<unknown>
   /** 当前会话显示位置 x 坐标 */
@@ -76,20 +64,6 @@ export interface RuntimeSessionState {
   y: number
   /** 当前会话目标元素 */
   target: HTMLElement | null
-  /** 当前会话业务数据 */
-  data?: unknown
-  /** 当前会话点击项后是否关闭 */
-  closeOnClick: boolean
-  /** 当前会话点击外部是否关闭 */
-  closeOnOutsideClick: boolean
-  /** 当前会话再次右键外部是否关闭 */
-  closeOnContextMenu: boolean
-  /** 当前会话滚动时是否关闭菜单 */
-  closeOnScroll: boolean
-  /** 当前会话偏移量 */
-  offset: number
-  /** 当前会话 z-index */
-  zIndex?: number
   /** 当前会话级回调 */
   eventCallbacks: ContextMenuEventCallbacks
   /** 当前 controller 默认回调 */
